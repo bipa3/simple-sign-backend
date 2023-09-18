@@ -1,8 +1,7 @@
 package bitedu.bipa.simplesignbackend.service;
 
 import bitedu.bipa.simplesignbackend.model.vo.Member;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Commit;
@@ -17,6 +16,31 @@ class MemberServiceTest {
     @Autowired
     MemberService memberService;
 
+    @BeforeEach
+     void before() {
+        Member member = new Member();
+        member.setName("Test");
+        member.setId(1);
+
+        memberService.createMember(member);
+    }
+
+    @AfterEach
+    void after() {
+        memberService.deleteMember(1);
+        memberService.deleteMember(2);
+    }
+
+    @Test
+    @DisplayName("생성")
+    void test3() {
+        Member member = new Member();
+        member.setName("Tom");
+        member.setId(2);
+
+        int insertCnt = memberService.createMember(member);
+        assertThat(insertCnt).isEqualTo(1);
+    }
     @Test
     @DisplayName("전체 조회")
     void test1() {
@@ -33,17 +57,7 @@ class MemberServiceTest {
         System.out.println("member = " + member.toString());
     }
 
-    @Test
-    @Commit
-    @DisplayName("생성")
-    void test3() {
-        Member member = new Member();
-        member.setName("Tom");
-        member.setId(1);
 
-        int insertCnt = memberService.createMember(member);
-        assertThat(insertCnt).isEqualTo(1);
-    }
 
     @Test
     @Commit
