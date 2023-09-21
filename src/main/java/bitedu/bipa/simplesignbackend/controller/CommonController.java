@@ -1,6 +1,8 @@
 package bitedu.bipa.simplesignbackend.controller;
 import bitedu.bipa.simplesignbackend.model.dto.CompanyDTO;
 import bitedu.bipa.simplesignbackend.service.CommonService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,8 +20,14 @@ public class CommonController {
     }
 
     @GetMapping("/comp")
-    public ArrayList<CompanyDTO> compListSelect() {
-        return commonService.selectCompList();
+    public ResponseEntity<ArrayList<CompanyDTO>> compListSelect() {
+        ArrayList<CompanyDTO> companyList = commonService.selectCompList();
+
+        if (companyList != null && !companyList.isEmpty()) {
+            return new ResponseEntity<>(companyList, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
 }
