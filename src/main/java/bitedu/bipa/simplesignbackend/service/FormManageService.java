@@ -2,12 +2,11 @@ package bitedu.bipa.simplesignbackend.service;
 
 import bitedu.bipa.simplesignbackend.dao.CommonDAO;
 import bitedu.bipa.simplesignbackend.dao.FormManageDAO;
-import bitedu.bipa.simplesignbackend.model.dto.CompanyDTO;
-import bitedu.bipa.simplesignbackend.model.dto.FormAndCompDTO;
-import bitedu.bipa.simplesignbackend.model.dto.FormDetailResDTO;
+import bitedu.bipa.simplesignbackend.model.dto.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class FormManageService {
@@ -24,4 +23,12 @@ public class FormManageService {
     public FormDetailResDTO searchFormDetail(int code) {
         return formManageDAO.selectFormDetail(code);
     }
+
+    public List<FormListDTO> showFormList() {
+        return formManageDAO.selectFormList();
+    }
+
+//    public List<SequenceListDTO> showSeqList() {
+//        return formManageDAO.selectSeqList();
+//    }
 }

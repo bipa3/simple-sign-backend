@@ -34,5 +34,15 @@
             user t5 ON t1.use_id = t5.user_id;
     </select>
 
+    <select id="selectFormListWithSearch" resultType="bitedu.bipa.simplesignbackend.model.dto.FormListDTO" >
+        SELECT form_code, form_name, form_explain
+            from form
+            where form_del_status=0 and form_used_status = 1;
+    </select>
+
+<!--    <select id="selectSequence" resultType="bitedu.bipa.simplesignbackend.model.dto.SequenceListDTO" >-->
+<!--       SELECT seq_code, seq_name as name-->
+<!--            from sequence;-->
+<!--    </select>-->
 
 </mapper>
