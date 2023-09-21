@@ -3,6 +3,8 @@ package bitedu.bipa.simplesignbackend.dao;
 import bitedu.bipa.simplesignbackend.mapper.FormManageMapper;
 import bitedu.bipa.simplesignbackend.model.dto.FormAndCompDTO;
 import bitedu.bipa.simplesignbackend.model.dto.FormDetailResDTO;
+import bitedu.bipa.simplesignbackend.model.dto.FormListDTO;
+import bitedu.bipa.simplesignbackend.model.dto.SequenceListDTO;
 import bitedu.bipa.simplesignbackend.model.vo.FormDetailScopeVO;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,4 +31,12 @@ public class FormManageDAO {
         formDetail.setScope(formDetailScopeList);
         return formDetail;
     }
+
+    public List<FormListDTO> selectFormList() {
+        return formManageMapper.selectFormListWithSearch();
+    }
+
+//    public List<SequenceListDTO> selectSeqList() {
+//        return formManageMapper.selectSequence();
+//    }
 }
