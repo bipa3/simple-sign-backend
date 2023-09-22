@@ -28,7 +28,7 @@ public class FormManageService {
         return formManageDAO.selectFormList(userId);
     }
 
-    public List<SequenceListDTO> showSeqList() {
-        return formManageDAO.selectSeqList();
+    public List<SequenceListDTO> showSeqList(int userId, int formCode) {
+        return formManageDAO.selectSeqList(userId, formCode);
     }
 }
