@@ -1,10 +1,8 @@
 package bitedu.bipa.simplesignbackend.dao;
 
+import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
 import bitedu.bipa.simplesignbackend.mapper.FormManageMapper;
-import bitedu.bipa.simplesignbackend.model.dto.FormAndCompDTO;
-import bitedu.bipa.simplesignbackend.model.dto.FormDetailResDTO;
-import bitedu.bipa.simplesignbackend.model.dto.FormListDTO;
-import bitedu.bipa.simplesignbackend.model.dto.SequenceListDTO;
+import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.model.vo.FormDetailScopeVO;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +13,11 @@ import java.util.List;
 @Repository
 public class FormManageDAO {
     FormManageMapper formManageMapper;
+    CommonMapper commonMapper;
 
-    public FormManageDAO(FormManageMapper formManageMapper) {
+    public FormManageDAO(FormManageMapper formManageMapper, CommonMapper commonMapper) {
         this.formManageMapper = formManageMapper;
+        this.commonMapper = commonMapper;
     }
     public ArrayList<FormAndCompDTO> selectFormAndComp(FormAndCompDTO formAndCompDTO) {
         ArrayList<FormAndCompDTO> formAndCompList = (ArrayList) formManageMapper.getFormAndCompList(formAndCompDTO);
@@ -32,11 +32,12 @@ public class FormManageDAO {
         return formDetail;
     }
 
-    public List<FormListDTO> selectFormList() {
-        return formManageMapper.selectFormListWithSearch();
+    public List<FormListDTO> selectFormList(int userId) {
+        BelongOrganizationDTO belong = commonMapper.getBelongs(userId);
+        return formManageMapper.selectFormListWithSearch(belong);
     }
 
-//    public List<SequenceListDTO> selectSeqList() {
-//        return formManageMapper.selectSequence();
-//    }
+    public List<SequenceListDTO> selectSeqList() {
+        return formManageMapper.selectSequence();
+    }
 }

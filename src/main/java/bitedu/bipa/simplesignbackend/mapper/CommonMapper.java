@@ -1,4 +1,5 @@
 package bitedu.bipa.simplesignbackend.mapper;
+import bitedu.bipa.simplesignbackend.model.dto.BelongOrganizationDTO;
 import bitedu.bipa.simplesignbackend.model.dto.CompanyDTO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -8,6 +9,8 @@ import java.util.List;
 public interface CommonMapper {
 
     List<CompanyDTO> getCompanyList();
+
+    BelongOrganizationDTO getBelongs(int userId);
 
 //    List<Member> getMemberList();
 //
