@@ -3,7 +3,8 @@ package bitedu.bipa.simplesignbackend.model.dto;
 import lombok.Data;
 
 @Data
-public class CompanyDTO {
-    private int id;
+public class SequenceListDTO {
+
+    private int seqCode;
     private String name;
 }

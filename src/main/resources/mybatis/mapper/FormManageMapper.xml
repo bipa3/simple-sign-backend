@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.FormManageMapper">
+
+    <select id="getFormAndCompList" resultType="bitedu.bipa.simplesignbackend.model.dto.FormAndCompDTO">
+        SELECT comp.form_code AS code, comp_name, form_name, form_used_status AS status
+        FROM (select form_code, comp_name FROM (SELECT * FROM form_use_department WHERE category="C") AS used INNER JOIN company ON used.use_id = company.comp_id WHERE comp_name=#{compName}) AS comp
+        INNER JOIN form ON comp.form_code = form.form_code WHERE form_name like CONCAT('%', #{formName}, '%') AND form_used_status=#{status};
+    </select>
+
+    <select id="getFormDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.FormDetailResDTO">
+        SELECT form_code AS code, form_name AS formName, default_form AS defaultForm, main_form AS mainForm, form_used_status AS status
+        FROM form WHERE form_del_status=0 AND form_code=#{code};
+    </select>
+
+    <select id="getFormDetailScope" resultType="bitedu.bipa.simplesignbackend.model.vo.FormDetailScopeVO">
+        SELECT t1.category, CASE
+            WHEN t1.category = 'C' THEN t2.comp_name
+            WHEN t1.category = 'E' THEN t3.est_name
+            WHEN t1.category = 'D' THEN t4.dept_name
+            WHEN t1.category = 'U' THEN t5.user_name
+        END AS name
+        FROM (Select * FROM form_use_department WHERE form_code=#{code}) t1
+            LEFT JOIN
+            company t2 ON t1.use_id = t2.comp_id
+            LEFT JOIN
+            establishment t3 ON t1.use_id = t3.est_id
+            LEFT JOIN
+            department t4 ON t1.use_id = t4.dept_id
+            LEFT JOIN
+            user t5 ON t1.use_id = t5.user_id;
+    </select>
+
+    <select id="selectFormListWithSearch" resultType="bitedu.bipa.simplesignbackend.model.dto.FormListDTO" >
+        SELECT form_code, form_name, form_explain
+            from form
+            where form_del_status=0 and form_used_status = 1;
+    </select>
+
+<!--    <select id="selectSequence" resultType="bitedu.bipa.simplesignbackend.model.dto.SequenceListDTO" >-->
+<!--       SELECT seq_code, seq_name as name-->
+<!--            from sequence;-->
+<!--    </select>-->
+
+</mapper>
