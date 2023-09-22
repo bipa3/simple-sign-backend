@@ -26,7 +26,6 @@ public class UserController {
 
             String sessionUserId = (String) session.getAttribute("userId");
             String sessionUserName = (String) session.getAttribute("userName");
-            System.out.println("Session UserId : " + sessionUserId + "Session UserName : " + sessionUserName);
 
             return new ResponseEntity(HttpStatus.OK);
         } else {
