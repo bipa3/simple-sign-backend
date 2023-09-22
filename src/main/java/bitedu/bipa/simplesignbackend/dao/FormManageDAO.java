@@ -24,7 +24,7 @@ public class FormManageDAO {
         return formAndCompList;
     }
 
-    @Transactional
+//    @Transactional
     public FormDetailResDTO selectFormDetail(int code) {
         FormDetailResDTO formDetail = formManageMapper.getFormDetail(code);
         ArrayList<FormDetailScopeVO> formDetailScopeList = (ArrayList) formManageMapper.getFormDetailScope(code);
