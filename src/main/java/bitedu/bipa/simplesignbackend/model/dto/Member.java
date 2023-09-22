@@ -1,4 +1,4 @@
-package bitedu.bipa.simplesignbackend.model.vo;
+package bitedu.bipa.simplesignbackend.model.dto;
 import lombok.Data;
 
 @Data

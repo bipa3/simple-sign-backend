@@ -1,6 +1,6 @@
 package bitedu.bipa.simplesignbackend.mapper;
 
-import bitedu.bipa.simplesignbackend.model.vo.Member;
+import bitedu.bipa.simplesignbackend.model.dto.Member;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
