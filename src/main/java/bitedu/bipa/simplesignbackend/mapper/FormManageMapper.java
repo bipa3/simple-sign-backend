@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface FormManageMapper {
@@ -15,6 +16,6 @@ public interface FormManageMapper {
 
     List<FormListDTO> selectFormListWithSearch(BelongOrganizationDTO belong);
 
-    List<SequenceListDTO> selectSequence();
+    List<SequenceListDTO> selectSequence(Map map);
 
 }
