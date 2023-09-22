@@ -46,4 +46,8 @@ public class FormManageDAO {
         map.put("formCode", formCode);
         return formManageMapper.selectSequence(map);
     }
+
+    public List<FormItemDTO> selectFormItemList() {
+        return formManageMapper.getFormItemList();
+    }
 }

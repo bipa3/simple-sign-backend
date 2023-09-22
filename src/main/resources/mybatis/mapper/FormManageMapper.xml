@@ -64,4 +64,8 @@
         or (t3.status = 'C' and use_id =#{belong.compId}));
     </select>
 
+    <select id="getFormItemList" resultType="bitedu.bipa.simplesignbackend.model.dto.FormItemDTO" >
+        select form_list_code, form_list_name, form_list_tag from form_list
+    </select>
+
 </mapper>

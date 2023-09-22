@@ -18,4 +18,8 @@ public interface FormManageMapper {
 
     List<SequenceListDTO> selectSequence(Map map);
 
+    List<SequenceListDTO> selectSequence();
+
+    List<FormItemDTO> getFormItemList();
+
 }
