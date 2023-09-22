@@ -43,13 +43,14 @@ public class FormManageController {
 
     @GetMapping("/formTitleList")
     public ResponseEntity<List<FormListDTO>> formTitleList(){
-        int userId = 2;
+        int userId = 1;
         List<FormListDTO> dto = formManageService.showFormList(userId);
         return ResponseEntity.ok(formManageService.showFormList(userId));
     }
 
     @GetMapping("/seqTitleList")
-    public ResponseEntity<List<SequenceListDTO>> seqTitleList(){
-        return ResponseEntity.ok(formManageService.showSeqList());
+    public ResponseEntity<List<SequenceListDTO>> seqTitleList(@RequestParam int formCode){
+        int userId = 1;
+        return ResponseEntity.ok(formManageService.showSeqList(userId, formCode));
     }
 }
