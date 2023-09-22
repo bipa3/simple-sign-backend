@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class FormManageDAO {
@@ -37,7 +39,11 @@ public class FormManageDAO {
         return formManageMapper.selectFormListWithSearch(belong);
     }
 
-    public List<SequenceListDTO> selectSeqList() {
-        return formManageMapper.selectSequence();
+    public List<SequenceListDTO> selectSeqList(int userId, int formCode) {
+        BelongOrganizationDTO belong = commonMapper.getBelongs(userId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("belong", belong);
+        map.put("formCode", formCode);
+        return formManageMapper.selectSequence(map);
     }
 }
