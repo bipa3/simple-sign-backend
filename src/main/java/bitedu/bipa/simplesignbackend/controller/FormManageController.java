@@ -32,7 +32,6 @@ public class FormManageController {
 
     @GetMapping("/detail/{code}")
     public ResponseEntity<FormDetailResDTO> formDetailSearch(@PathVariable int code) {
-        System.out.println("code:"+code);
         FormDetailResDTO formDetail = formManageService.searchFormDetail(code);
 
         if (formDetail != null) {
@@ -44,11 +43,13 @@ public class FormManageController {
 
     @GetMapping("/formTitleList")
     public ResponseEntity<List<FormListDTO>> formTitleList(){
-        return ResponseEntity.ok(formManageService.showFormList());
+        int userId = 2;
+        List<FormListDTO> dto = formManageService.showFormList(userId);
+        return ResponseEntity.ok(formManageService.showFormList(userId));
     }
 
-//    @GetMapping("/seqTitleList")
-//    public ResponseEntity<List<SequenceListDTO>> seqTitleList(){
-//        return ResponseEntity.ok(formManageService.showSeqList());
-//    }
+    @GetMapping("/seqTitleList")
+    public ResponseEntity<List<SequenceListDTO>> seqTitleList(){
+        return ResponseEntity.ok(formManageService.showSeqList());
+    }
 }

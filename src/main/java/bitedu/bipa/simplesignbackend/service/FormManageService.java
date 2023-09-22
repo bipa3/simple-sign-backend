@@ -24,11 +24,11 @@ public class FormManageService {
         return formManageDAO.selectFormDetail(code);
     }
 
-    public List<FormListDTO> showFormList() {
-        return formManageDAO.selectFormList();
+    public List<FormListDTO> showFormList(int userId) {
+        return formManageDAO.selectFormList(userId);
     }
 
-//    public List<SequenceListDTO> showSeqList() {
-//        return formManageDAO.selectSeqList();
-//    }
+    public List<SequenceListDTO> showSeqList() {
+        return formManageDAO.selectSeqList();
+    }
 }
