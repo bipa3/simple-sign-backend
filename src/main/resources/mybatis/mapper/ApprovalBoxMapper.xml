@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.ApprovalBoxMapper">
+    <select id="getSendDocList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
+        SELECT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+        FROM approval_doc ad
+        JOIN user u ON ad.user_id = u.user_id
+        JOIN organization_user ou ON u.user_id = ou.user_id
+        JOIN department d ON d.dept_id = ou.dept_id
+        LEFT JOIN form f ON ad.form_code = f.form_code
+        WHERE ad.user_id = #{userId}
+        AND ad.doc_status IN ('A', 'R', 'P', 'W')
+        AND ad.doc_del_status = 0;
+    </select>
+    <select id="getTemporDocList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
+        SELECT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
+        FROM approval_doc ad
+        JOIN user u ON ad.user_id = u.user_id
+        JOIN organization_user ou ON u.user_id = ou.user_id
+        JOIN department d ON d.dept_id = ou.dept_id
+        LEFT JOIN form f ON ad.form_code = f.form_code
+        WHERE ad.user_id = #{userId}
+        AND ad.doc_status = 'T'
+        AND ad.doc_del_status = 0;
+    </select>
+    <select id="getPendDocList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
+        SELECT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+        FROM approval_doc ad
+        JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+        JOIN user u ON ad.user_id = u.user_id
+        JOIN organization_user ou ON u.user_id = ou.user_id
+        JOIN department d ON d.dept_id = ou.dept_id
+        LEFT JOIN form f ON ad.form_code = f.form_code
+        WHERE a.user_id = #{userId}
+        AND ad.doc_status = 'P'
+        AND a.approval_status = 'P'
+        AND ad.doc_del_status = 0;
+    </select>
+    <select id="getConcludeDocList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
+        SELECT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+        FROM approval_doc ad
+        JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+        JOIN user u ON ad.user_id = u.user_id
+        JOIN organization_user ou ON u.user_id = ou.user_id
+        JOIN department d ON d.dept_id = ou.dept_id
+        LEFT JOIN form f ON ad.form_code = f.form_code
+        WHERE a.user_id = #{userId}
+        AND ad.doc_status IN ('A', 'R', 'P')
+        AND a.approval_status IN ('A', 'R')
+        AND ad.doc_del_status = 0;
+    </select>
+    <select id="getReferenceDocList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO" parameterType="map">
+        SELECT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+        FROM approval_doc ad
+        JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+        JOIN user u ON ad.user_id = u.user_id
+        JOIN organization_user ou ON u.user_id = ou.user_id
+        JOIN department d ON d.dept_id = ou.dept_id
+        JOIN received_ref r ON ad.approval_doc_id = r.approval_doc_id
+        LEFT JOIN form f ON ad.form_code = f.form_code
+        WHERE a.user_id = #{userId}
+        AND r.user_id = #{userId} OR a.dept_id = #{deptId}
+        AND ad.doc_del_status = 0;
+    </select>
+</mapper>
