@@ -41,6 +41,17 @@ public class FormManageController {
         }
     }
 
+    @GetMapping("/item/list")
+    public ResponseEntity<List<FormItemDTO>> formIteamSearch() {
+        List<FormItemDTO> formDetail = formManageService.searchFormItem();
+
+        if (formDetail != null) {
+            return new ResponseEntity<>(formDetail, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/formTitleList")
     public ResponseEntity<List<FormListDTO>> formTitleList(){
         int userId = 1;
@@ -53,4 +64,5 @@ public class FormManageController {
         int userId = 1;
         return ResponseEntity.ok(formManageService.showSeqList(userId, formCode));
     }
+
 }
