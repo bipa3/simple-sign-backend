@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.ApproveMapper">
+
+
+
+   <insert id="insertApprovalDoc" parameterType="ApprovalReqDTO">
+        insert into approval_doc (user_id, dept_id, grade_name, position_name, form_code, approval_doc_title, contents,
+            created_at, approval_count, doc_status, enforcement_date, doc_del_status)
+        values (#{userId}, #{deptId}, #{gradeName}, #{positionName}, #{formCode}, #{approvalDocTitle}, #{contents},
+            #{createdAt}, #{approvalCount}, #{docStatus}, #{enforcementDate}, 0);
+   </insert>
+
+</mapper>
