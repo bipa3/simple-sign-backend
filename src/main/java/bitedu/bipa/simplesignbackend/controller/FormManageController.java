@@ -8,7 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/manage/form")
@@ -63,6 +65,17 @@ public class FormManageController {
     public ResponseEntity<List<SequenceListDTO>> seqTitleList(@RequestParam int formCode){
         int userId = 1;
         return ResponseEntity.ok(formManageService.showSeqList(userId, formCode));
+    }
+
+    @PostMapping("/detail")
+    public ResponseEntity registFormDetail(@RequestBody FormDetailResDTO formDetail){
+        System.out.println(formDetail.toString());
+        Boolean createResult = formManageService.formDetailRegist(formDetail);
+        if (createResult) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
 }

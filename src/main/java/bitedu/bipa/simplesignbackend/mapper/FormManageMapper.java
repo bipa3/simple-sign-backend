@@ -21,5 +21,8 @@ public interface FormManageMapper {
     List<SequenceListDTO> selectSequence();
 
     List<FormItemDTO> getFormItemList();
+    void createFormDetail(FormDetailResDTO formDetail);
+
+    void createFormScope(Map map);
 
 }
