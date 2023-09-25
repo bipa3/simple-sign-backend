@@ -40,4 +40,8 @@ public class FormManageService {
     public Boolean formDetailRegist(FormDetailResDTO formDetail) {
         return formManageDAO.insertFormDetail(formDetail);
     }
+
+    public Boolean formDetailChange(FormDetailResDTO formDetail) {
+        return formManageDAO.updateFormDetail(formDetail);
+    }
 }
