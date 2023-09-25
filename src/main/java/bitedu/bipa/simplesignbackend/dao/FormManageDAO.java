@@ -50,4 +50,20 @@ public class FormManageDAO {
     public List<FormItemDTO> selectFormItemList() {
         return formManageMapper.getFormItemList();
     }
+
+    @Transactional
+    public Boolean insertFormDetail(FormDetailResDTO formDetail) {
+        formManageMapper.createFormDetail(formDetail);
+        int formCode = commonMapper.getLastInsertId();
+
+        ArrayList<FormDetailScopeVO> scopeList = formDetail.getScope();
+        for(FormDetailScopeVO scope : scopeList){
+            Map<String, Object> map = new HashMap<>();
+            map.put("category", scope.getCategory());
+            map.put("formCode", formCode);
+            map.put("useId", scope.getUseId());
+            formManageMapper.createFormScope(map);
+        }
+        return true;
+    }
 }

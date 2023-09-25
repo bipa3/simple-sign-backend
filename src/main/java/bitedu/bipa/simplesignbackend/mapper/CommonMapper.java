@@ -11,6 +11,7 @@ public interface CommonMapper {
     List<CompanyDTO> getCompanyList();
 
     BelongOrganizationDTO getBelongs(int userId);
+    int getLastInsertId();
 
 //    List<Member> getMemberList();
 //
