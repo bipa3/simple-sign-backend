@@ -3,9 +3,9 @@ package bitedu.bipa.simplesignbackend.model.dto;
 import lombok.Data;
 
 @Data
-public class FormAndCompDTO {
-    private int id;
-    private String compName;
+public class FormListDTO {
+
+    private int formCode;
     private String formName;
-    private int status;
+    private String formExplain;
 }

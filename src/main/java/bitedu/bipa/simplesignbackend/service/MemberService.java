@@ -1,7 +1,7 @@
 package bitedu.bipa.simplesignbackend.service;
 
 import bitedu.bipa.simplesignbackend.mapper.MemberMapper;
-import bitedu.bipa.simplesignbackend.model.vo.Member;
+import bitedu.bipa.simplesignbackend.model.dto.Member;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,4 +34,5 @@ public class MemberService {
     public int deleteMember(int id) {
         return memberMapper.deleteMember(id);
     }
+
 }

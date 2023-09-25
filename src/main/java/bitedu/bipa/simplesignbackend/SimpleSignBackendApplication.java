@@ -9,5 +9,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @SpringBootApplication
 public class SimpleSignBackendApplication {
 	public static void main(String[] args) {
+
 		SpringApplication.run(SimpleSignBackendApplication.class, args);}
 }

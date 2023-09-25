@@ -1,8 +1,6 @@
 package bitedu.bipa.simplesignbackend.controller;
 
-import bitedu.bipa.simplesignbackend.model.dto.CompanyDTO;
-import bitedu.bipa.simplesignbackend.model.dto.FormAndCompDTO;
-import bitedu.bipa.simplesignbackend.model.dto.FormDetailResDTO;
+import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.service.CommonService;
 import bitedu.bipa.simplesignbackend.service.FormManageService;
 import org.springframework.http.HttpStatus;
@@ -10,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/manage/form")
@@ -33,7 +32,6 @@ public class FormManageController {
 
     @GetMapping("/detail/{code}")
     public ResponseEntity<FormDetailResDTO> formDetailSearch(@PathVariable int code) {
-        System.out.println("code:"+code);
         FormDetailResDTO formDetail = formManageService.searchFormDetail(code);
 
         if (formDetail != null) {
@@ -42,4 +40,29 @@ public class FormManageController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @GetMapping("/item/list")
+    public ResponseEntity<List<FormItemDTO>> formIteamSearch() {
+        List<FormItemDTO> formDetail = formManageService.searchFormItem();
+
+        if (formDetail != null) {
+            return new ResponseEntity<>(formDetail, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/formTitleList")
+    public ResponseEntity<List<FormListDTO>> formTitleList(){
+        int userId = 1;
+        List<FormListDTO> dto = formManageService.showFormList(userId);
+        return ResponseEntity.ok(formManageService.showFormList(userId));
+    }
+
+    @GetMapping("/seqTitleList")
+    public ResponseEntity<List<SequenceListDTO>> seqTitleList(@RequestParam int formCode){
+        int userId = 1;
+        return ResponseEntity.ok(formManageService.showSeqList(userId, formCode));
+    }
+
 }
