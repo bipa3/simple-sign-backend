@@ -24,14 +24,15 @@ public class UserController {
             session.setAttribute("userId", userId);
             session.setAttribute("userName", userName);
 
-            String sessionUserId = (String) session.getAttribute("userId");
-            String sessionUserName = (String) session.getAttribute("userName");
-            System.out.println("Session UserId : " + sessionUserId + "Session UserName : " + sessionUserName);
-
             return new ResponseEntity(HttpStatus.OK);
         } else {
           return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity userLogout (HttpSession session){
+        session.invalidate();
+        return new ResponseEntity(HttpStatus.OK);
+    }
 }
