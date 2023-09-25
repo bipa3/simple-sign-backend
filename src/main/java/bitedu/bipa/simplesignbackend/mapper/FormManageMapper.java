@@ -25,4 +25,12 @@ public interface FormManageMapper {
 
     void createFormScope(Map map);
 
+    void updateFormDetail(FormDetailResDTO formDetail);
+
+    void updateFormScope(Map map);
+
+    void delFormScope(Map map);
+
+    void insertIgnoreFormScope(Map map);
+
 }

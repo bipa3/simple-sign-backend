@@ -77,4 +77,23 @@
         INSERT INTO form_use_department(category, form_code, use_id) VALUES(#{category}, #{formCode}, #{useId});
     </insert>
 
+    <update id="updateFormDetail" >
+        UPDATE form
+        SET form_name = #{formName},
+        default_form = #{defaultForm},
+        main_form = #{mainForm},
+        form_used_status = #{status}
+        WHERE form_code = #{code}
+    </update>
+
+    <delete id="delFormScope" parameterType="map">
+        delete from form_use_department
+        where category=#{category} and form_code = #{formCode} and use_id = #{useId}
+    </delete>
+
+    <insert id="insertIgnoreFormScope" parameterType="map">
+        INSERT IGNORE INTO form_use_department(category, form_code, use_id)
+        VALUES(#{category}, #{formCode}, #{useId});
+    </insert>
+
 </mapper>
