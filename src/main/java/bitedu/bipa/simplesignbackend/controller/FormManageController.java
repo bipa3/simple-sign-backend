@@ -32,8 +32,18 @@ public class FormManageController {
 
     @GetMapping("/detail/{code}")
     public ResponseEntity<FormDetailResDTO> formDetailSearch(@PathVariable int code) {
-        System.out.println("code:"+code);
         FormDetailResDTO formDetail = formManageService.searchFormDetail(code);
+
+        if (formDetail != null) {
+            return new ResponseEntity<>(formDetail, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/item/list")
+    public ResponseEntity<List<FormItemDTO>> formIteamSearch() {
+        List<FormItemDTO> formDetail = formManageService.searchFormItem();
 
         if (formDetail != null) {
             return new ResponseEntity<>(formDetail, HttpStatus.OK);
@@ -44,11 +54,15 @@ public class FormManageController {
 
     @GetMapping("/formTitleList")
     public ResponseEntity<List<FormListDTO>> formTitleList(){
-        return ResponseEntity.ok(formManageService.showFormList());
+        int userId = 1;
+        List<FormListDTO> dto = formManageService.showFormList(userId);
+        return ResponseEntity.ok(formManageService.showFormList(userId));
     }
 
-//    @GetMapping("/seqTitleList")
-//    public ResponseEntity<List<SequenceListDTO>> seqTitleList(){
-//        return ResponseEntity.ok(formManageService.showSeqList());
-//    }
+    @GetMapping("/seqTitleList")
+    public ResponseEntity<List<SequenceListDTO>> seqTitleList(@RequestParam int formCode){
+        int userId = 1;
+        return ResponseEntity.ok(formManageService.showSeqList(userId, formCode));
+    }
+
 }

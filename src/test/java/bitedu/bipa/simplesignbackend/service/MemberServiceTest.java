@@ -1,6 +1,6 @@
 package bitedu.bipa.simplesignbackend.service;
 
-import bitedu.bipa.simplesignbackend.model.vo.Member;
+import bitedu.bipa.simplesignbackend.model.dto.Member;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

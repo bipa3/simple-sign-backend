@@ -6,14 +6,14 @@
 <mapper namespace="bitedu.bipa.simplesignbackend.mapper.FormManageMapper">
 
     <select id="getFormAndCompList" resultType="bitedu.bipa.simplesignbackend.model.dto.FormAndCompDTO">
-        SELECT comp.form_code AS code, comp_name, form_name, form_used_status AS status
+        SELECT comp.form_code AS id, comp_name, form_name, form_used_status AS status
         FROM (select form_code, comp_name FROM (SELECT * FROM form_use_department WHERE category="C") AS used INNER JOIN company ON used.use_id = company.comp_id WHERE comp_name=#{compName}) AS comp
         INNER JOIN form ON comp.form_code = form.form_code WHERE form_name like CONCAT('%', #{formName}, '%') AND form_used_status=#{status};
     </select>
 
     <select id="getFormDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.FormDetailResDTO">
         SELECT form_code AS code, form_name AS formName, default_form AS defaultForm, main_form AS mainForm, form_used_status AS status
-        FROM form WHERE form_del_status=0 AND form_code=#{code};
+        FROM form WHERE form_code=#{code};
     </select>
 
     <select id="getFormDetailScope" resultType="bitedu.bipa.simplesignbackend.model.vo.FormDetailScopeVO">
@@ -34,15 +34,38 @@
             user t5 ON t1.use_id = t5.user_id;
     </select>
 
-    <select id="selectFormListWithSearch" resultType="bitedu.bipa.simplesignbackend.model.dto.FormListDTO" >
-        SELECT form_code, form_name, form_explain
-            from form
-            where form_del_status=0 and form_used_status = 1;
+
+
+    <select id="selectFormListWithSearch" resultType="FormListDTO"
+            parameterType="BelongOrganizationDTO">
+        select distinct  t1.form_code, form_name, form_explain
+        from form t1
+            left join
+            form_use_department t2 on t1.form_code = t2.form_code
+        where ((t2. category = 'U' and use_id = #{userId})
+            or (t2.category = 'D' and use_id = #{deptId})
+            or (t2.category = 'E' and use_id = #{estId})
+            or (t2.category = 'C' and use_id =#{compId}))
+            and t1.form_used_status = 1
+            and t1.form_del_status = 0;
     </select>
 
-<!--    <select id="selectSequence" resultType="bitedu.bipa.simplesignbackend.model.dto.SequenceListDTO" >-->
-<!--       SELECT seq_code, seq_name as name-->
-<!--            from sequence;-->
-<!--    </select>-->
+    <select id="selectSequence" resultType="SequenceListDTO" parameterType="Map">
+        select t1.seq_code, seq_name as name
+        from sequence t1
+            left join
+            sequence_use_form t2 on t1.seq_code = t2.seq_code
+            left join
+            sequence_use_department t3 on t3.seq_code = t2.seq_code
+        where form_code =#{formCode}
+        and ((t3. status = 'U' and use_id = #{belong.userId})
+        or (t3.status = 'D' and use_id = #{belong.deptId})
+        or (t3.status = 'E' and use_id = #{belong.estId})
+        or (t3.status = 'C' and use_id =#{belong.compId}));
+    </select>
+
+    <select id="getFormItemList" resultType="bitedu.bipa.simplesignbackend.model.dto.FormItemDTO" >
+        select form_list_code, form_list_name, form_list_tag from form_list
+    </select>
 
 </mapper>

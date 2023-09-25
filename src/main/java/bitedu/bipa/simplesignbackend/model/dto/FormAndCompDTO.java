@@ -4,9 +4,8 @@ import lombok.Data;
 
 @Data
 public class FormAndCompDTO {
-    private int code;
+    private int id;
     private String compName;
     private String formName;
     private int status;
-
 }
