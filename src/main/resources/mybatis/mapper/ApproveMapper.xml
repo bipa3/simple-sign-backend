@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.ApproveMapper">
+
+
+    <!--결재문서삽입-->
+   <insert id="insertApprovalDoc" parameterType="ApprovalReqDTO">
+        insert into approval_doc (user_id, dept_id, grade_name, position_name, form_code, approval_doc_title, contents,
+            created_at, approval_count, doc_status, enforcement_date, doc_del_status)
+        values (#{userId}, #{deptId}, #{gradeName}, #{positionName}, #{formCode}, #{approvalDocTitle}, #{contents},
+            #{createdAt}, #{approvalCount}, #{docStatus}, #{enforcementDate}, 0);
+   </insert>
+
+    <!--결재라인 삽입-->
+    <insert id="insertApprovalLine" parameterType="ApprovalLineDTO">
+        insert into approval
+            (approval_doc_id, approval_order, approval_status, user_id, dept_id, grade_name, position_name, receive_date, approval_date)
+        values(#{approvalDocId}, #{approvalOrder}, #{approvalStatus}, #{userId}, #{deptId}, #{gradeName}, #{positionName}, #{receiveDate}, #{approvalDate});
+    </insert>
+
+    <!--가장 최근 insert된 id 값 가져오기-->
+    <select id="selectLastInserted">
+        SELECT LAST_INSERT_ID();
+    </select>
+
+    <!--수신참조 삽입-->
+    <insert id="insertReceivedRef" parameterType="ReceivedRefDTO">
+        insert into received_ref (approval_doc_id, user_id, dept_id)
+            values(#{approvalDocId}, #{userId}, #{deptId});
+    </insert>
+
+    <!--채번코드에 맞는 가장 최근 품의번호 가져오기-->
+    <select id="selectMaxProductNumber" parameterType="Map" resultType="int">
+        select COALESCE(max(product_num),0) from sequence_use_form
+            where seq_code = #{seqCode} and form_code = #{formCode}
+    </select>
+
+    <!--채번코드에 맞는 채번양식 가져오기-->
+    <select id="selectSequenceForm" parameterType="int" resultType="ProductNumberDTO">
+        select seq_form_order, t2.code_value
+        from sequence_form t1
+            left join
+            common_code t2 on t2.code_id = t1.category
+        where section_id = '005'
+            and seq_code = #{seqCode};
+    </select>
+
+    <!--품의번호 +1 insert-->
+    <insert id="insertProductNumber" parameterType="SequenceUseFormDTO">
+        update sequence_use_form set product_full_name = #{productFullName}, product_num = #{productNum}
+            where form_code = #{formCode} and seq_code = #{seqCode};
+    </insert>
+
+</mapper>
