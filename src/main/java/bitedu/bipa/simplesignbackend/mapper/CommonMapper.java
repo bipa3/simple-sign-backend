@@ -15,6 +15,8 @@ public interface CommonMapper {
 
     PositionAndGradeDTO getPositionAndGrade(int userId);
 
+    int selectDeptId(int userId);
+
 //    List<Member> getMemberList();
 //
 //    int createMember(Member member);
