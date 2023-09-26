@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.AlarmMapper">
+
+    <!--알림삽입-->
+    <insert id="insertAlarm" parameterType="AlarmReqDTO">
+        insert into alarm_history
+        (alarm_date, confirmation_status, alarm_code, user_id, dept_id, approval_doc_id, position_name, grade_name, alarm_content)
+        values(#{alarmDate}, 0, #{alarmCode}, #{userId}, #{deptId}, #{approvalDocId}, #{positionName}, #{gradeName},#{alarmContent});
+    </insert>
+
+    <select id="selectDefaultMessage" parameterType="String">
+        select message from alarm where alarm_code = #{alarmCode}
+    </select>
+
+</mapper>

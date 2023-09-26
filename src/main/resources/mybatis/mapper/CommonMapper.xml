@@ -11,13 +11,35 @@
 
     <!--해당 사용자의 소속 조직(부서,사업장,회사) 검색-->
     <select id="getBelongs" resultType="BelongOrganizationDTO" parameterType="int">
-        select t1.user_id, t1.dept_id, t2.comp_id, t3.est_id
+        select t1.user_id, t1.dept_id, t2.comp_id, t3.est_id, t2.comp_name, t3.est_name
         from organization_user t1
-        left join
-        company t2 on t1.comp_name = t2.comp_name
-        left join
-        establishment t3 on t1.est_name = t3.est_name
+            left join
+            company t2 on t1.comp_name = t2.comp_name
+            left join
+            establishment t3 on t1.est_name = t3.est_name
         where user_id = #{userId};
+    </select>
+
+    <!--해당 사용자의 현재 직책, 직급 검색-->
+    <select id="getPositionAndGrade" resultType="PositionAndGradeDTO" parameterType="int">
+        select grade_name, position_name, dept_id
+        from grade t1
+            inner join
+            organization_user t2 on t1.grade_code = t2.grade_code
+            inner join
+            position t3 on t2.position_code = t3.position_code
+        where user_id = #{userId};
+    </select>
+
+    <!--해당 사용자의 부서아이디 가져오기-->
+    <select id="selectDeptId" resultType="int" parameterType="int">
+        select dept_id
+        from organization_user
+        where user_id = #{userId};
+    </select>
+
+    <select id="getLastInsertId" resultType="int">
+        SELECT LAST_INSERT_ID()
     </select>
 
 <!--    <select id="getMember" resultType="Member">-->
