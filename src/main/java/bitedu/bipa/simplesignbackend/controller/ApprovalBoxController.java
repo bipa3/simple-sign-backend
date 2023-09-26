@@ -1,61 +1,33 @@
 package bitedu.bipa.simplesignbackend.controller;
+import bitedu.bipa.simplesignbackend.dao.CommonDAO;
 import bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO;
 import bitedu.bipa.simplesignbackend.service.ApprovalBoxService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import javax.servlet.http.HttpSession;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/approvbox")
 public class ApprovalBoxController {
     @Autowired
     ApprovalBoxService approvalBoxService;
+    @Autowired
+    CommonDAO commonDAO;
 
-
-    @GetMapping("/send")
-    public ArrayList<DocumentListDTO> sendDocsSelect(HttpSession session) {
-        int userId = 1;
-
-        ArrayList<DocumentListDTO> sendDocList = approvalBoxService.selectSendDocs(userId);
-        return sendDocList;
+    @GetMapping("/view")
+    public Map<String, Object> viewDocList(
+            @SessionAttribute(name = "userId") String userIdStr,
+            @RequestParam(name = "viewItems") List<String> viewItems,
+            @RequestParam(name = "itemsPerPage") int itemsPerPage,
+            @RequestParam(name = "offset") int offset
+    ) {
+        int userId = Integer.parseInt(userIdStr);
+        int deptId = commonDAO.selectDeptId(userId);
+        System.out.println(deptId);
+        return approvalBoxService.selectDocuments(viewItems, userId, deptId, itemsPerPage, offset);
     }
-
-    @GetMapping("/tempor")
-    public ArrayList<DocumentListDTO> temporDocsSelect(HttpSession session) {
-        int userId = 1;
-
-        ArrayList<DocumentListDTO> temporDocList = approvalBoxService.selectTemporDocs(userId);
-        return temporDocList;
-
-    }
-
-    @GetMapping("/pend")
-    public ArrayList<DocumentListDTO> pendDocsSelect(HttpSession session) {
-        int userId = 1;
-
-        ArrayList<DocumentListDTO> pendDocList = approvalBoxService.selectPendDocs(userId);
-        return pendDocList;
-
-    }
-
-    @GetMapping("/concluded")
-    public ArrayList<DocumentListDTO> concludedDocsSelect(HttpSession session) {
-        int userId = 1;
-
-        ArrayList<DocumentListDTO> concludedDocList = approvalBoxService.selectConcludedDocs(userId);
-        return concludedDocList;
-    }
-
-    @GetMapping("/reference")
-    public ArrayList<DocumentListDTO> referenceDocsSelect(HttpSession session) {
-        int deptId = 1;
-        int userId = 1;
-
-        ArrayList<DocumentListDTO> referenceDocList = approvalBoxService.selectReferenceDocs(userId,deptId);
-        return referenceDocList;
-    }
-
 }
+

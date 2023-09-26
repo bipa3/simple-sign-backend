@@ -13,7 +13,8 @@
         LEFT JOIN form f ON ad.form_code = f.form_code
         WHERE ad.user_id = #{userId}
         AND ad.doc_status IN ('A', 'R', 'P', 'W')
-        AND ad.doc_del_status = 0;
+        AND ad.doc_del_status = 0
+        ORDER BY ad.created_at DESC
     </select>
     <select id="getTemporDocList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
         SELECT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
@@ -24,7 +25,9 @@
         LEFT JOIN form f ON ad.form_code = f.form_code
         WHERE ad.user_id = #{userId}
         AND ad.doc_status = 'T'
-        AND ad.doc_del_status = 0;
+        AND ad.doc_del_status = 0
+        ORDER BY ad.created_at DESC
+        LIMIT #{itemsPerPage} OFFSET #{offset};
     </select>
     <select id="getPendDocList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
         SELECT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
@@ -37,7 +40,9 @@
         WHERE a.user_id = #{userId}
         AND ad.doc_status = 'P'
         AND a.approval_status = 'P'
-        AND ad.doc_del_status = 0;
+        AND ad.doc_del_status = 0
+        ORDER BY ad.created_at DESC
+        LIMIT #{itemsPerPage} OFFSET #{offset};
     </select>
     <select id="getConcludeDocList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
         SELECT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
@@ -50,7 +55,9 @@
         WHERE a.user_id = #{userId}
         AND ad.doc_status IN ('A', 'R', 'P')
         AND a.approval_status IN ('A', 'R')
-        AND ad.doc_del_status = 0;
+        AND ad.doc_del_status = 0
+        ORDER BY ad.created_at DESC
+        LIMIT #{itemsPerPage} OFFSET #{offset};
     </select>
     <select id="getReferenceDocList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO" parameterType="map">
         SELECT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
@@ -63,6 +70,9 @@
         LEFT JOIN form f ON ad.form_code = f.form_code
         WHERE a.user_id = #{userId}
         AND r.user_id = #{userId} OR a.dept_id = #{deptId}
-        AND ad.doc_del_status = 0;
+        AND ad.doc_del_status = 0
+        ORDER BY ad.created_at DESC
+        LIMIT #{itemsPerPage} OFFSET #{offset};
     </select>
+
 </mapper>
