@@ -79,8 +79,18 @@ public class FormManageController {
 
     @PatchMapping("/detail")
     public ResponseEntity changeFormDetail(@RequestBody FormDetailResDTO formDetail){
-        Boolean createResult = formManageService.formDetailChange(formDetail);
-        if (createResult) {
+        Boolean updateResult = formManageService.formDetailChange(formDetail);
+        if (updateResult) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/{code}")
+    public ResponseEntity formRemove(@PathVariable int code) {
+        Boolean removeResult = formManageService.removeForm(code);
+        if (removeResult) {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
