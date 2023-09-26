@@ -69,8 +69,17 @@ public class FormManageController {
 
     @PostMapping("/detail")
     public ResponseEntity registFormDetail(@RequestBody FormDetailResDTO formDetail){
-        System.out.println(formDetail.toString());
         Boolean createResult = formManageService.formDetailRegist(formDetail);
+        if (createResult) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PatchMapping("/detail")
+    public ResponseEntity changeFormDetail(@RequestBody FormDetailResDTO formDetail){
+        Boolean createResult = formManageService.formDetailChange(formDetail);
         if (createResult) {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
