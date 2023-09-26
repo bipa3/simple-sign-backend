@@ -44,4 +44,8 @@ public class FormManageService {
     public Boolean formDetailChange(FormDetailResDTO formDetail) {
         return formManageDAO.updateFormDetail(formDetail);
     }
+
+    public Boolean removeForm(int code) {
+        return formManageDAO.deleteForm(code);
+    }
 }

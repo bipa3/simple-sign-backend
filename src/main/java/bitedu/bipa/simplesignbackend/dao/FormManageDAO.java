@@ -100,4 +100,9 @@ public class FormManageDAO {
 
         return true;
     }
+
+    public Boolean deleteForm(int code) {
+        formManageMapper.deleteForm(code);
+        return true;
+    }
 }
