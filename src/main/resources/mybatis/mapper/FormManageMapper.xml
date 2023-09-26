@@ -17,7 +17,7 @@
     </select>
 
     <select id="getFormDetailScope" resultType="bitedu.bipa.simplesignbackend.model.vo.FormDetailScopeVO">
-        SELECT t1.category, CASE
+        SELECT t1.category, t1.use_id as useId, CASE
             WHEN t1.category = 'C' THEN t2.comp_name
             WHEN t1.category = 'E' THEN t3.est_name
             WHEN t1.category = 'D' THEN t4.dept_name
@@ -63,5 +63,37 @@
         or (t3.status = 'E' and use_id = #{belong.estId})
         or (t3.status = 'C' and use_id =#{belong.compId}));
     </select>
+
+    <select id="getFormItemList" resultType="bitedu.bipa.simplesignbackend.model.dto.FormItemDTO" >
+        select form_list_code, form_list_name, form_list_tag from form_list
+    </select>
+
+    <insert id="createFormDetail" >
+        INSERT INTO form(form_name, default_form, main_form, form_used_status)
+        VALUES(#{formName}, #{defaultForm}, #{mainForm}, #{status});
+    </insert>
+
+    <insert id="createFormScope" parameterType="map">
+        INSERT INTO form_use_department(category, form_code, use_id) VALUES(#{category}, #{formCode}, #{useId});
+    </insert>
+
+    <update id="updateFormDetail" >
+        UPDATE form
+        SET form_name = #{formName},
+        default_form = #{defaultForm},
+        main_form = #{mainForm},
+        form_used_status = #{status}
+        WHERE form_code = #{code}
+    </update>
+
+    <delete id="delFormScope" parameterType="map">
+        delete from form_use_department
+        where category=#{category} and form_code = #{formCode} and use_id = #{useId}
+    </delete>
+
+    <insert id="insertIgnoreFormScope" parameterType="map">
+        INSERT IGNORE INTO form_use_department(category, form_code, use_id)
+        VALUES(#{category}, #{formCode}, #{useId});
+    </insert>
 
 </mapper>

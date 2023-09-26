@@ -46,4 +46,58 @@ public class FormManageDAO {
         map.put("formCode", formCode);
         return formManageMapper.selectSequence(map);
     }
+
+    public List<FormItemDTO> selectFormItemList() {
+        return formManageMapper.getFormItemList();
+    }
+
+    @Transactional
+    public Boolean insertFormDetail(FormDetailResDTO formDetail) {
+        formManageMapper.createFormDetail(formDetail);
+        int formCode = commonMapper.getLastInsertId();
+
+        ArrayList<FormDetailScopeVO> scopeList = formDetail.getScope();
+        for(FormDetailScopeVO scope : scopeList){
+            Map<String, Object> map = new HashMap<>();
+            map.put("category", scope.getCategory());
+            map.put("formCode", formCode);
+            map.put("useId", scope.getUseId());
+            formManageMapper.createFormScope(map);
+        }
+        return true;
+    }
+
+    @Transactional
+    public Boolean updateFormDetail(FormDetailResDTO formDetail) {
+        formManageMapper.updateFormDetail(formDetail);
+
+        int formCode = formDetail.getCode();
+        ArrayList<FormDetailScopeVO> updateScopeList = formDetail.getScope();
+        ArrayList<FormDetailScopeVO> defaultScopeList = (ArrayList) formManageMapper.getFormDetailScope(formCode);
+        ArrayList<FormDetailScopeVO> missingDataList = new ArrayList<>();
+
+        for (FormDetailScopeVO defaultScope : defaultScopeList) {
+            if (!updateScopeList.contains(defaultScope)) {
+                missingDataList.add(defaultScope);
+            }
+        }
+
+        for (FormDetailScopeVO delScope : missingDataList) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("category", delScope.getCategory());
+            map.put("formCode", formCode);
+            map.put("useId", delScope.getUseId());
+            formManageMapper.delFormScope(map);
+        }
+
+        for (FormDetailScopeVO insertScope : updateScopeList) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("category", insertScope.getCategory());
+            map.put("formCode", formCode);
+            map.put("useId", insertScope.getUseId());
+            formManageMapper.insertIgnoreFormScope(map);
+        }
+
+        return true;
+    }
 }

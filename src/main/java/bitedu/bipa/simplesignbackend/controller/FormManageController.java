@@ -8,7 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/manage/form")
@@ -41,6 +43,17 @@ public class FormManageController {
         }
     }
 
+    @GetMapping("/item/list")
+    public ResponseEntity<List<FormItemDTO>> formIteamSearch() {
+        List<FormItemDTO> formDetail = formManageService.searchFormItem();
+
+        if (formDetail != null) {
+            return new ResponseEntity<>(formDetail, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/formTitleList")
     public ResponseEntity<List<FormListDTO>> formTitleList(){
         int userId = 1;
@@ -53,4 +66,25 @@ public class FormManageController {
         int userId = 1;
         return ResponseEntity.ok(formManageService.showSeqList(userId, formCode));
     }
+
+    @PostMapping("/detail")
+    public ResponseEntity registFormDetail(@RequestBody FormDetailResDTO formDetail){
+        Boolean createResult = formManageService.formDetailRegist(formDetail);
+        if (createResult) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PatchMapping("/detail")
+    public ResponseEntity changeFormDetail(@RequestBody FormDetailResDTO formDetail){
+        Boolean createResult = formManageService.formDetailChange(formDetail);
+        if (createResult) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 }
