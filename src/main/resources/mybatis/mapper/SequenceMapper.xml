@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.SequenceMapper">
+
+
+    <select id="selectProductForm" resultType="String" parameterType="int">
+        select product_form from sequence
+        where seq_code = #{seqCode}
+    </select>
+
+
+    <update id="updateProductNumber" parameterType="ProductNumberReqDTO">
+        update sequence_use_department
+        set product_num = ifnull(product_num,0) + 1
+        where status = #{status}
+            and use_id= #{useId}
+            and seq_code = #{seqCode};
+    </update>
+
+    <select id="selectLastInsertedId">
+        SELECT LAST_INSERT_ID();
+    </select>
+
+    <insert id="insertProductNumberLog" parameterType="ProductNumberReqDTO">
+        insert into sequence_log (log_id, log_date, status, use_id, seq_code)
+        values(
+            (select product_num from sequence_use_department t1
+                left join
+                sequence_log t2 on (t1.status = t2.status and t1.use_id = t2.use_id and t1.seq_code = t2.seq_code))
+            , now(), #{status}, #{useId}, #{seqCode});
+    </insert>
+
+
+
+</mapper>
