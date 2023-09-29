@@ -43,19 +43,11 @@ public class ApproveDAO {
         return approveMapper.insertReceivedRef(receivedRefDTO);
     }
 
-    public int selectMaxProductNumber(int seqCode, int formCode) {
-        Map<String, Integer> map = new HashMap();
-        map.put("seqCode", seqCode);
-        map.put("formCode", formCode);
+    public int insertProductNumber(String productNum, int approvalDocId) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("productNum", productNum);
+        map.put("approvalDocId", approvalDocId);
 
-         return approveMapper.selectMaxProductNumber(map);
-    }
-
-    public List<ProductNumberDTO> selectSequenceForm(int seqCode) {
-        return approveMapper.selectSequenceForm(seqCode);
-    }
-
-    public int insertProductNumber(SequenceUseFormDTO sequenceUseFormDTO) {
-        return approveMapper.insertProductNumber(sequenceUseFormDTO);
+        return approveMapper.insertProductNumber(map);
     }
 }
