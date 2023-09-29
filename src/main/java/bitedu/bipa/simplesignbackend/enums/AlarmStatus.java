@@ -1,12 +1,12 @@
 package bitedu.bipa.simplesignbackend.enums;
 
 public enum AlarmStatus {
-    Submit("01"),
-    Approve("02"),
-    Return("03"),
-    Reply("04"),
-    ReceivedRef("05"),
-    Update("06");
+    SUBMIT("01"),
+    APPROVE("02"),
+    RETURN("03"),
+    REPLY("04"),
+    RECEIVEDREF("05"),
+    UPDATE("06");
 
     private final String code;
 
