@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.SeqManageMapper">
+
+    <select id="getSeqAndCompList" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqAndCompDTO">
+        SELECT comp.seq_code AS id, comp.seq_code AS code, comp_name, seq_name, seq_description as description
+        FROM (select used.seq_code, comp_name FROM (SELECT * FROM sequence_use_department WHERE status="C") AS used INNER JOIN company ON used.use_id = company.comp_id WHERE comp_name=#{compName}) AS comp
+        INNER JOIN sequence ON comp.seq_code = sequence.seq_code WHERE seq_name like CONCAT('%', #{seqName}, '%') AND sequence.seq_code like CONCAT('%', #{code}, '%')
+        ORDER BY seq_sort_order;
+    </select>
+
+    <select id="getSeqDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqDetailDTO">
+        select seq_code AS code, seq_name, Seq_description as description, seq_sort_order as sortOrder
+        from sequence where seq_code=#{code};
+    </select>
+
+    <select id="getSeqDeptScope" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqScopeDTO">
+        SELECT t1.status AS category, t1.use_id as useId, CASE
+        WHEN t1.status = 'C' THEN t2.comp_name
+        WHEN t1.status = 'E' THEN t3.est_name
+        WHEN t1.status = 'D' THEN t4.dept_name
+        WHEN t1.status = 'U' THEN t5.user_name
+        END AS name
+        FROM (Select * FROM sequence_use_department WHERE seq_code=#{code}) t1
+        LEFT JOIN
+        company t2 ON t1.use_id = t2.comp_id
+        LEFT JOIN
+        establishment t3 ON t1.use_id = t3.est_id
+        LEFT JOIN
+        department t4 ON t1.use_id = t4.dept_id
+        LEFT JOIN
+        user t5 ON t1.use_id = t5.user_id;
+    </select>
+
+    <select id="getSeqFormScope" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqScopeDTO">
+        SELECT "F" AS category, fl.form_code AS useId, form_name AS name FROM (SELECT form_code FROM sequence_use_form WHERE seq_code=#{code}) fl
+        LEFT JOIN form ON fl.form_code = form.form_code;
+    </select>
+
+</mapper>
