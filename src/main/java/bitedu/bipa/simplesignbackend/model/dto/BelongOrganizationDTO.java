@@ -11,4 +11,5 @@ public class BelongOrganizationDTO {
     private int compId;
     private String compName;
     private String estName;
+    private String deptName;
 }

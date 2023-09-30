@@ -18,11 +18,7 @@ public interface ApproveMapper {
 
     int insertReceivedRef(ReceivedRefDTO dto);
 
-    int selectMaxProductNumber(Map map);
-
-    List<ProductNumberDTO> selectSequenceForm(int seqCode);
-
-    int insertProductNumber(SequenceUseFormDTO dto);
+    int insertProductNumber(Map map);
 
 
 

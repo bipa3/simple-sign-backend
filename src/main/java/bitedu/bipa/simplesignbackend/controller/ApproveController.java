@@ -2,12 +2,10 @@ package bitedu.bipa.simplesignbackend.controller;
 
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalReqDTO;
 import bitedu.bipa.simplesignbackend.service.ApproveService;
+import bitedu.bipa.simplesignbackend.service.SequenceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/approve")
@@ -26,4 +24,5 @@ public class ApproveController {
 
         return ResponseEntity.ok("ok");
     }
+
 }
