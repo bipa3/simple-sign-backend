@@ -15,17 +15,49 @@ public class SequenceDAO {
 
     SequenceMapper sequenceMapper;
 
+    public SequenceDAO(SequenceMapper sequenceMapper) {
+        this.sequenceMapper = sequenceMapper;
+    }
+
     public String selectProductForm(int seqCode) {
         return sequenceMapper.selectProductForm(seqCode);
     }
 
-    public int updateProductNumber(ProductNumberReqDTO dto){
-        sequenceMapper.updateProductNumber(dto);
-        return sequenceMapper.selectLastInsertedId();
+    public List<ProductNumberResDTO> selectProductFullNameList(int seqCode) {
+        return sequenceMapper.selectProductFullNameList(seqCode);
     }
 
-    public int insertProductNumberLog(ProductNumberReqDTO dto) {
-        return sequenceMapper.insertProductNumberLog(dto);
+    public int insertProductNumber(ProductNumberReqDTO dto) {
+        int affectedCount = sequenceMapper.insertProductNumber(dto);
+        if(affectedCount==0) {
+            throw  new RuntimeException();
+        }
+        int productId = sequenceMapper.selectLastInsertedId();
+        Map<String, Object> map = new HashMap<>();
+        map.put("productId", productId);
+        map.put("seqCode",dto.getSeqCode());
+        map.put("productFullName", dto.getProductFullName());
+        affectedCount=  sequenceMapper.insertProductLog(map);
+        if(affectedCount ==0) {
+            throw  new RuntimeException();
+        }
+        return 1;
+    }
+
+    public int updateProductNumber(int productId, ProductNumberReqDTO dto) {
+        int affectedCount = sequenceMapper.updateProductNumber(productId);
+        if(affectedCount ==0) {
+            throw  new RuntimeException();
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("productId", productId);
+        map.put("seqCode", dto.getSeqCode());
+        map.put("productFullName", dto.getProductFullName());
+        affectedCount=  sequenceMapper.insertProductLog(map);
+        if(affectedCount ==0) {
+            throw  new RuntimeException();
+        }
+        return sequenceMapper.selectProductNumber(map);
     }
 
 }

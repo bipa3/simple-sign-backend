@@ -12,12 +12,15 @@ public interface SequenceMapper {
 
     String selectProductForm(int seqCode);
 
-    int updateProductNumber(ProductNumberReqDTO dto);
+    List<ProductNumberResDTO> selectProductFullNameList(int seqCode);
+
+    int insertProductNumber(ProductNumberReqDTO dto);
 
     int selectLastInsertedId();
 
-    int insertProductNumberLog(ProductNumberReqDTO dto);
+    int insertProductLog(Map map);
 
+    int selectProductNumber(Map map);
 
-
+    int updateProductNumber(int productId);
 }

@@ -8,29 +8,48 @@
 
     <select id="selectProductForm" resultType="String" parameterType="int">
         select product_form from sequence
-        where seq_code = #{seqCode}
+        where seq_code = #{seqCode};
     </select>
 
 
-    <update id="updateProductNumber" parameterType="ProductNumberReqDTO">
-        update sequence_use_department
-        set product_num = ifnull(product_num,0) + 1
-        where status = #{status}
-            and use_id= #{useId}
-            and seq_code = #{seqCode};
-    </update>
+    <select id="selectProductFullNameList" resultType="ProductNumberResDTO" parameterType="int">
+        select product_id, product_full_name
+        from product_number
+        where seq_code = #{seqCode};
+    </select>
+
+    <!--첫 품의번호 넣기-->
+    <insert id="insertProductNumber" parameterType="ProductNumberReqDTO">
+        insert into product_number (product_num, product_full_name, seq_code)
+            values(1, #{productFullName}, #{seqCode});
+    </insert>
+
+    <!--품의번호 업데이트-->
+    <insert id="updateProductNumber" parameterType="int">
+        update product_number set product_num = product_num + 1
+            where product_id = #{productId};
+    </insert>
 
     <select id="selectLastInsertedId">
-        SELECT LAST_INSERT_ID();
+        select max(product_id) from product_number;
     </select>
 
-    <insert id="insertProductNumberLog" parameterType="ProductNumberReqDTO">
-        insert into sequence_log (log_id, log_date, status, use_id, seq_code)
-        values(
-            (select product_num from sequence_use_department t1
+    <select id = "selectProductNumber" parameterType="Map">
+        select distinct product_num from product_number t1
+        left join
+            product_log t2 on t1.product_id = t2.product_id
+        where seq_code = #{seqCode} and product_full_name = #{productFullName};
+    </select>
+
+    <insert id="insertProductLog" parameterType="Map">
+        insert into product_log (log_id, log_date, product_id)
+        values((select distinct product_num from product_number t1
                 left join
-                sequence_log t2 on (t1.status = t2.status and t1.use_id = t2.use_id and t1.seq_code = t2.seq_code))
-            , now(), #{status}, #{useId}, #{seqCode});
+                    product_log t2 on t1.product_id = t2.product_id
+                where seq_code = #{seqCode} and product_full_name = #{productFullName}),
+        now(),
+        #{productId}
+        );
     </insert>
 
 

@@ -49,7 +49,7 @@ public class ApproveService {
                 if(count ==1) {
                     approvalLineDTO.setApprovalStatus(ApprovalStatus.PROGRESS.getCode());
                     approvalLineDTO.setReceiveDate(LocalDateTime.now());
-                    alarmService.createNewAlarm(approvalDocId,approver, AlarmStatus.Submit.getCode());
+                    alarmService.createNewAlarm(approvalDocId,approver, AlarmStatus.SUBMIT.getCode());
                 }else {
                     approvalLineDTO.setApprovalStatus(ApprovalStatus.WAIT.getCode());
                 }
@@ -65,6 +65,10 @@ public class ApproveService {
                 count++;
             }
         }
+    }
+
+    public void approvalOrReturn() {
+
     }
 
 
