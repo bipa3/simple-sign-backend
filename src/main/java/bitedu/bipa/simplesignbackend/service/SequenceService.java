@@ -7,6 +7,7 @@ import bitedu.bipa.simplesignbackend.enums.OrganizationStatus;
 import bitedu.bipa.simplesignbackend.enums.SequenceItem;
 import bitedu.bipa.simplesignbackend.model.dto.BelongOrganizationDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ProductNumberReqDTO;
+import bitedu.bipa.simplesignbackend.model.dto.ProductNumberResDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,68 +16,56 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class SequenceService {
 
     private final SequenceDAO sequenceDAO;
     private final CommonDAO commonDAO;
-    private final ApproveDAO approveDAO;
 
     public SequenceService(SequenceDAO sequenceDAO, CommonDAO commonDAO, ApproveDAO approveDAO) {
         this.sequenceDAO = sequenceDAO;
         this.commonDAO = commonDAO;
-        this.approveDAO = approveDAO;
     }
 
     @Transactional
-    public void createProductNum(int seqCode, int userId, int approvalDocId) {
+    public String createProductNum(int seqCode, int userId) {
         //1. 채번코드에 맞는 양식문자열 가져오기(ex)'01,02,03')
         String productForm = sequenceDAO.selectProductForm(seqCode);
         List<String> productList = new ArrayList<>(Arrays.asList(productForm.split(",")));
 
         //userId에 맞는 부서아이디, 회사아이디, 사업장 아이디 가져오기
         BelongOrganizationDTO belongs = commonDAO.getBelongs(userId);
-        System.out.println(belongs);
-        //만약 양식문자열에 회사명이나 사업장명 부서명이 포함되어 있다면 그에 맞는 채번의 품의번호 업데이트와 로그 인서트후 번호 가져오기
-        // 없으면? 업데이트????????품의번호 가져오기
-        int productNumber = 0;
-        ProductNumberReqDTO productNumberReqDTO = new ProductNumberReqDTO();
-        productNumberReqDTO.setSeqCode(seqCode);
-        for(String product:productList) {
-            if(product.contains(SequenceItem.DEPTNAME.getCode())) {
-                System.out.println("부서명");
-                productNumberReqDTO.setStatus(OrganizationStatus.DEPARTMENT.getCode());
-                productNumberReqDTO.setUseId(belongs.getDeptId());
 
-                productNumber = sequenceDAO.updateProductNumber(productNumberReqDTO);
-                sequenceDAO.insertProductNumberLog(productNumberReqDTO);
-            } else if (product.contains(SequenceItem.ESTNAME.getCode())) {
-                System.out.println("사업장명");
-                productNumberReqDTO.setStatus(OrganizationStatus.ESTABLISHMENT.getCode());
-                productNumberReqDTO.setUseId(belongs.getEstId());
-
-                productNumber = sequenceDAO.updateProductNumber(productNumberReqDTO);
-                sequenceDAO.insertProductNumberLog(productNumberReqDTO);
-            } else if (product.contains(SequenceItem.COMPNAME.getCode())) {
-                System.out.println("회사명");
-                productNumberReqDTO.setStatus(OrganizationStatus.COMPANY.getCode());
-                productNumberReqDTO.setUseId(belongs.getCompId());
-
-                productNumber = sequenceDAO.updateProductNumber(productNumberReqDTO);
-                sequenceDAO.insertProductNumberLog(productNumberReqDTO);
-            } else {
-                //?????????????????????????????????????????
-            }
-        }
-
-        //결재문서에 만들어진 품의번호 넣기
+        //품의번호 만들기
         StringBuffer buffer = new StringBuffer();
         for(String product:productList) {
             switch (product) {
-                case"01": case"02": case"03": case"04":
-                case"05": case"06": case"07": case"08":
+                case"01":
                     buffer.append(product);
+                    break;
+                case"02":
+                    buffer.append(SequenceItem.JE.getProductItem());
+                    break;
+                case"03":
+                    buffer.append(SequenceItem.HO.getProductItem());
+                    break;
+                case"04":
+                    buffer.append(SequenceItem.HYPHEN.getProductItem());
+                    break;
+                case"05":
+                    buffer.append(SequenceItem.SLASH.getProductItem());
+                    break;
+                case"06":
+                    buffer.append(SequenceItem.PERIOD.getProductItem());
+                    break;
+                case"07":
+                    buffer.append(SequenceItem.COMMA.getProductItem());
+                    break;
+                case"08":
+                    buffer.append(SequenceItem.TILDE.getProductItem());
                     break;
                 case"09":
                     buffer.append(LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY")));
@@ -88,16 +77,16 @@ public class SequenceService {
                     buffer.append(LocalDate.now().format(DateTimeFormatter.ofPattern("DD")));
                     break;
                 case "12":
-                    buffer.append(String.format("%02d", productNumber));
+                    buffer.append(SequenceItem.CODE2);
                     break;
                 case "13":
-                    buffer.append(String.format("%03d", productNumber));
+                    buffer.append(SequenceItem.CODE3);
                     break;
                 case "14":
-                    buffer.append(String.format("%04d", productNumber));
+                    buffer.append(SequenceItem.CODE4);
                     break;
                 case "15":
-                    buffer.append(String.format("%05d", productNumber));
+                    buffer.append(SequenceItem.CODE5);
                     break;
                 case "16":
                     buffer.append(belongs.getCompName());
@@ -106,14 +95,44 @@ public class SequenceService {
                     buffer.append(belongs.getEstName());
                     break;
                 case "18":
-                    buffer.append(belongs.getDeptId()); //추후 수정필요
+                    buffer.append(belongs.getDeptName());
                     break;
             }
         }
-        int affectedCount = approveDAO.insertProductNumber(buffer.toString(), approvalDocId);
-        if(affectedCount ==0) {
-            throw  new RuntimeException();
+
+        //만들어진 품의번호가 품의번호 테이블에 존재하는지 확인
+        List<ProductNumberResDTO> productFullNameList = sequenceDAO.selectProductFullNameList(seqCode);
+        boolean isStringPresent = productFullNameList.stream()
+                .anyMatch(s -> s.getProductFullName().contains(buffer.toString()));
+        //없다면 품의번호 테이블에 insert, 로그 insert
+        //있다면 품의번호 update, 로그 insert
+        ProductNumberReqDTO productNumberReqDTO = new ProductNumberReqDTO();
+        productNumberReqDTO.setSeqCode(seqCode);
+        productNumberReqDTO.setProductFullName(buffer.toString());
+        int productNum = 0; // 최근 삽입된 품의번호
+        if(!isStringPresent) {
+            productNum = sequenceDAO.insertProductNumber(productNumberReqDTO);
+        }else {
+            int productId = productFullNameList.stream()
+                    .filter(s -> s.getProductFullName().equals(buffer.toString()))
+                    .collect(Collectors.toList()).get(0).getProductId();
+            productNum = sequenceDAO.updateProductNumber(productId,productNumberReqDTO);
         }
+
+        //완전히 만든 품의번호 return
+        String productFullName = buffer.toString();
+        if(productFullName.contains("CODE2")) {
+            productFullName = productFullName.replace("CODE2", String.format("%02d", productNum));
+        } else if(productFullName.contains("CODE3")) {
+            productFullName = productFullName.replace("CODE3", String.format("%03d", productNum));
+        }else if(productFullName.contains("CODE4")) {
+            productFullName = productFullName.replace("CODE4", String.format("%04d", productNum));
+        }else if(productFullName.contains("CODE5")) {
+            productFullName = productFullName.replace("CODE5", String.format("%05d", productNum));
+        }
+
+        //System.out.println("완성 productName:" + productFullName);
+        return productFullName;
 
     }
 

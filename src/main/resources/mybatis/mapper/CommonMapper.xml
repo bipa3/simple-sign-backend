@@ -11,12 +11,14 @@
 
     <!--해당 사용자의 소속 조직(부서,사업장,회사) 검색-->
     <select id="getBelongs" resultType="BelongOrganizationDTO" parameterType="int">
-        select t1.user_id, t1.dept_id, t2.comp_id, t3.est_id, t2.comp_name, t3.est_name
+        select t1.user_id, t1.dept_id, t2.comp_id, t3.est_id, t2.comp_name, t3.est_name, t4.dept_name
         from organization_user t1
-            left join
-            company t2 on t1.comp_name = t2.comp_name
-            left join
-            establishment t3 on t1.est_name = t3.est_name
+        left join
+        company t2 on t1.comp_name = t2.comp_name
+        left join
+        establishment t3 on t1.est_name = t3.est_name
+        left join
+        department t4 on t1.dept_id = t4.dept_id
         where user_id = #{userId};
     </select>
 
