@@ -1,10 +1,9 @@
 package bitedu.bipa.simplesignbackend.dao;
 import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
 import bitedu.bipa.simplesignbackend.mapper.SeqManageMapper;
-import bitedu.bipa.simplesignbackend.model.dto.SeqAndCompDTO;
+import bitedu.bipa.simplesignbackend.model.dto.*;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -23,8 +22,12 @@ public class SeqManageDAO {
         return seqAndCompList;
     }
 
-//    public ArrayList<FormAndCompDTO> selectFormAndComp(FormAndCompDTO formAndCompDTO) {
-//        ArrayList<FormAndCompDTO> formAndCompList = (ArrayList) formManageMapper.getFormAndCompList(formAndCompDTO);
-//        return formAndCompList;
-//    }
+    public SeqDetailDTO selectSeqDetail(int code) {
+        SeqDetailDTO seqDetail = seqManageMapper.getSeqDetail(code);
+        List<SeqScopeDTO> deptScopeList = seqManageMapper.getSeqDeptScope(code);
+        List<SeqScopeDTO> formScopeList = seqManageMapper.getSeqFormScope(code);
+        seqDetail.setDeptScope(deptScopeList);
+        seqDetail.setFormScope(formScopeList);
+        return seqDetail;
+    }
 }
