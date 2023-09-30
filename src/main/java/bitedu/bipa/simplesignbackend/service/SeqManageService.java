@@ -1,6 +1,7 @@
 package bitedu.bipa.simplesignbackend.service;
 import bitedu.bipa.simplesignbackend.dao.SeqManageDAO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqAndCompDTO;
+import bitedu.bipa.simplesignbackend.model.dto.SeqDetailDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,6 +19,10 @@ public class SeqManageService {
 
     public List<SeqAndCompDTO> searchSeqAndCompList(SeqAndCompDTO seqAndCompDTO) {
         return seqManageDAO.selectSeqAndComp(seqAndCompDTO);
+    }
+
+    public SeqDetailDTO searchSeqDetail(int code) {
+        return seqManageDAO.selectSeqDetail(code);
     }
 
 //    public ArrayList<FormAndCompDTO> selectFormAndCompList(FormAndCompDTO formAndCompDTO) {
