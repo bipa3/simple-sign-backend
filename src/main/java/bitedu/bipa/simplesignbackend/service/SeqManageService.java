@@ -25,15 +25,11 @@ public class SeqManageService {
         return seqManageDAO.selectSeqDetail(code);
     }
 
-//    public ArrayList<FormAndCompDTO> selectFormAndCompList(FormAndCompDTO formAndCompDTO) {
-//        return formManageDAO.selectFormAndComp(formAndCompDTO);
-//    }
-//
-//    public FormDetailResDTO searchFormDetail(int code) {
-//        return formManageDAO.selectFormDetail(code);
-//    }
-//
-//    public List<FormListDTO> showFormList(int userId) {
-//        return formManageDAO.selectFormList(userId);
-//    }
+    public Boolean removeSeq(int code) {
+        return seqManageDAO.deleteSeq(code);
+    }
+
+    public Boolean seqDetailRegist(SeqDetailDTO seqDetail) {
+        return seqManageDAO.insertSeqDetail(seqDetail);
+    }
 }
