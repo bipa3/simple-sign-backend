@@ -3,9 +3,11 @@ package bitedu.bipa.simplesignbackend.dao;
 import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
 import bitedu.bipa.simplesignbackend.model.dto.CompanyDTO;
 import bitedu.bipa.simplesignbackend.model.dto.PositionAndGradeDTO;
+import bitedu.bipa.simplesignbackend.model.dto.SeqItemListDTO;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class CommonDAO {
@@ -29,4 +31,7 @@ public class CommonDAO {
     }
 
 
+    public List<SeqItemListDTO> selectSeqItemList() {
+        return commonMapper.selectSeqItemList();
+    }
 }

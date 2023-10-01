@@ -1,5 +1,6 @@
 package bitedu.bipa.simplesignbackend.controller;
 import bitedu.bipa.simplesignbackend.model.dto.CompanyDTO;
+import bitedu.bipa.simplesignbackend.model.dto.SeqItemListDTO;
 import bitedu.bipa.simplesignbackend.service.CommonService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/common")
@@ -25,6 +27,17 @@ public class CommonController {
 
         if (companyList != null && !companyList.isEmpty()) {
             return new ResponseEntity<>(companyList, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/seq/item")
+    public ResponseEntity<List<SeqItemListDTO>> seqItemListSelect() {
+        List<SeqItemListDTO> seqItemList = commonService.selectSeqItemList();
+
+        if (seqItemList != null && !seqItemList.isEmpty()) {
+            return new ResponseEntity<>(seqItemList, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

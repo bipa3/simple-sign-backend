@@ -8,7 +8,7 @@
     <select id="getSeqAndCompList" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqAndCompDTO">
         SELECT comp.seq_code AS id, comp.seq_code AS code, comp_name, seq_name, seq_description as description
         FROM (select used.seq_code, comp_name FROM (SELECT * FROM sequence_use_department WHERE status="C") AS used INNER JOIN company ON used.use_id = company.comp_id WHERE comp_name=#{compName}) AS comp
-        INNER JOIN sequence ON comp.seq_code = sequence.seq_code WHERE seq_name like CONCAT('%', #{seqName}, '%') AND sequence.seq_code like CONCAT('%', #{code}, '%')
+        INNER JOIN sequence ON comp.seq_code = sequence.seq_code WHERE seq_name like CONCAT('%', #{seqName}, '%') AND sequence.seq_code like CONCAT('%', #{code}, '%') AND sequence.seq_del_status=0
         ORDER BY seq_sort_order;
     </select>
 
@@ -39,5 +39,22 @@
         SELECT "F" AS category, fl.form_code AS useId, form_name AS name FROM (SELECT form_code FROM sequence_use_form WHERE seq_code=#{code}) fl
         LEFT JOIN form ON fl.form_code = form.form_code;
     </select>
+
+    <update id="deleteSeq">
+        UPDATE sequence SET seq_del_status=1 WHERE seq_code = #{code}
+    </update>
+
+    <insert id="createSeqDetail" >
+        INSERT INTO sequence(seq_name, seq_description, seq_sort_order, product_form)
+        VALUES(#{seqName}, #{description}, #{sortOrder}, #{seqString});
+    </insert>
+
+    <insert id="createSeqDeptScope" parameterType="map">
+        INSERT INTO sequence_use_department(status, seq_code, use_id) VALUES(#{category}, #{seqCode}, #{useId});
+    </insert>
+
+    <insert id="createSeqFormScope" parameterType="map">
+        INSERT INTO sequence_use_form(form_code, seq_code) VALUES(#{formCode}, #{seqCode});
+    </insert>
 
 </mapper>
