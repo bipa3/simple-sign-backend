@@ -7,11 +7,11 @@
 
 
     <!--결재문서삽입-->
-   <insert id="insertApprovalDoc" parameterType="ApprovalReqDTO">
+   <insert id="insertApprovalDoc" parameterType="ApprovalDocReqDTO">
         insert into approval_doc (user_id, dept_id, grade_name, position_name, form_code, approval_doc_title, contents,
-            created_at, approval_count, doc_status, enforcement_date, doc_del_status)
+            created_at, approval_count, doc_status, enforcement_date, doc_del_status, seq_code)
         values (#{userId}, #{deptId}, #{gradeName}, #{positionName}, #{formCode}, #{approvalDocTitle}, #{contents},
-            #{createdAt}, #{approvalCount}, #{docStatus}, #{enforcementDate}, 0);
+            #{createdAt}, #{approvalCount}, #{docStatus}, #{enforcementDate}, 0, #{seqCode});
    </insert>
 
     <!--결재라인 삽입-->
@@ -37,5 +37,64 @@
         insert into approval_doc (product_num) values(#{productNum})
             where approval_doc_id = #{approvalDocId};
     </insert>
+
+    <!--결재승인-->
+
+    <!--결재 가져오기-->
+    <select id="selectApprovalByApprovalId" resultType="ApprovalResDTO" parameterType="Map">
+        select approval_id, approval_doc_id, receive_date, approval_date, approval_order, approval_status,
+                user_id, dept_id
+        from approval
+        where approval_doc_id = #{approvalDocId} and user_id = #{userId};
+    </select>
+
+    <!--결재 승인하기-->
+    <update id="updateCurrentApproval" parameterType="ApprovalResDTO">
+        update approval
+        set approval_status = #{approvalStatus}, approval_date = #{approvalDate}
+        where approval_id = #{approvalId} and user_id = #{userId};
+    </update>
+
+
+    <!--결재문서의 총 결재개수 가져오기-->
+    <select id="selectApprovalCount" parameterType="int" resultType="ApprovalDocResDTO">
+        select approval_doc_id, approval_count, doc_status, seq_code, user_id
+        from approval_doc
+        where approval_doc_id = #{approvalDocId};
+    </select>
+
+    <!--결재문서 업데이트-->
+    <update id="updateApprovalDoc" parameterType="ApprovalDocResDTO">
+        update approval_doc
+        set doc_status = #{docStatus}, product_num = #{productNum}
+        where approval_doc_id = #{approvalDocId};
+    </update>
+
+    <!--상신 상위자 아이디 가져오기-->
+    <select id="selectUpperApproverId" parameterType="ApprovalResDTO" resultType="ApprovalResDTO">
+        select approval_id, user_id from approval
+        where approval_doc_id = #{approvalDocId} and approval_order = #{approvalOrder}+1;
+    </select>
+
+    <!--결재 상신자 상태 업데이트하기-->
+    <update id="updateUpperApproverId" parameterType="ApprovalResDTO">
+        update approval
+        set approval_status = #{approvalStatus}, receive_date = #{receiveDate}
+        where approval_id = #{approvalId};
+    </update>
+
+    <!--결재문서 상신자 아이디 가져오기-->
+    <select id="selectRecipientId" parameterType="int" resultType="int">
+        select user_id from approval_doc where approval_doc_id = #{approvalDocId};
+    </select>
+
+    <!--하위결재자 아이디 리스트 가져오기-->
+
+    <select id="selectLowerApproverId" parameterType="Map" resultType="int">
+        <![CDATA[
+            select user_id from approval where approval_doc_id = #{approvalDocId} and approval_order < #{approvalOrder};
+        ]]>
+    </select>
+
 
 </mapper>
