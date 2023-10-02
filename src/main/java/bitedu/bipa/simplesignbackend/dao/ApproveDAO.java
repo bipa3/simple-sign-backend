@@ -20,14 +20,14 @@ public class ApproveDAO {
         this.commonMapper = commonMapper;
     }
 
-    public int insertApprovalDoc(ApprovalReqDTO approvalReqDTO, int userId) {
+    public int insertApprovalDoc(ApprovalDocReqDTO approvalDocReqDTO, int userId) {
         PositionAndGradeDTO positionAndGradeDTO = commonMapper.getPositionAndGrade(userId);
-        approvalReqDTO.setPositionName(positionAndGradeDTO.getPositionName());
-        approvalReqDTO.setGradeName(positionAndGradeDTO.getGradeName());
-        approvalReqDTO.setDeptId(positionAndGradeDTO.getDeptId());
-        approvalReqDTO.setUserId(userId);
+        approvalDocReqDTO.setPositionName(positionAndGradeDTO.getPositionName());
+        approvalDocReqDTO.setGradeName(positionAndGradeDTO.getGradeName());
+        approvalDocReqDTO.setDeptId(positionAndGradeDTO.getDeptId());
+        approvalDocReqDTO.setUserId(userId);
 
-        int affectedCount =  approveMapper.insertApprovalDoc(approvalReqDTO);
+        int affectedCount =  approveMapper.insertApprovalDoc(approvalDocReqDTO);
         if(affectedCount ==0) {
             throw new RuntimeException();
         }
@@ -49,5 +49,43 @@ public class ApproveDAO {
         map.put("approvalDocId", approvalDocId);
 
         return approveMapper.insertProductNumber(map);
+    }
+
+    public ApprovalResDTO selectApprovalByApprovalId(int userId, int approvalDocId) {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("userId", userId);
+        map.put("approvalDocId",approvalDocId);
+        return approveMapper.selectApprovalByApprovalId(map);
+    }
+
+    public int updateCurrentApproval(ApprovalResDTO approvalResDTO) {
+        return approveMapper.updateCurrentApproval(approvalResDTO);
+    }
+
+    public ApprovalDocResDTO selectApprovalCount(int approvalDocId) {
+        return approveMapper.selectApprovalCount(approvalDocId);
+    }
+
+    public int updateApprovalDoc(ApprovalDocResDTO approvalDocResDTO) {
+        return approveMapper.updateApprovalDoc(approvalDocResDTO);
+    }
+
+    public ApprovalResDTO selectUpperApproverId(ApprovalResDTO approvalResDTO) {
+        return approveMapper.selectUpperApproverId(approvalResDTO);
+    }
+
+    public int updateUpperApproverId(ApprovalResDTO approvalResDTO) {
+        return approveMapper.updateUpperApproverId(approvalResDTO);
+    }
+
+    public int selectRecipientId(int approvalDocId) {
+        return approveMapper.selectRecipientId(approvalDocId);
+    }
+
+    public List<Integer> selectLowerApproverId(int approvalDocId, int approvalOrder) {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("approvalDocId", approvalDocId);
+        map.put("approvalOrder", approvalOrder);
+        return approveMapper.selectLowerApproverId(map);
     }
 }
