@@ -44,6 +44,10 @@
         SELECT LAST_INSERT_ID()
     </select>
 
+    <select id="selectSeqItemList">
+        SELECT code_id AS id, code_value AS value FROM common_code WHERE section_id = "005";
+    </select>
+
 <!--    <select id="getMember" resultType="Member">-->
 <!--        select * from member where id = #{id}-->
 <!--    </select>-->

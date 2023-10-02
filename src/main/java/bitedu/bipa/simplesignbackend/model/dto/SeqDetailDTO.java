@@ -14,4 +14,5 @@ public class SeqDetailDTO {
     private String description;
     private int sortOrder;
     private List<SeqItemDTO> seqList;
+    private String seqString;
 }
