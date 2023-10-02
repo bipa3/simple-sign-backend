@@ -1,0 +1,14 @@
+package bitedu.bipa.simplesignbackend.model.dto;
+
+import lombok.Data;
+
+@Data
+public class ApprovalDocResDTO {
+
+    private int approvalDocId;
+    private int approvalCount;
+    private char docStatus;
+    private String productNum;
+    private int seqCode;
+    private int userId;
+}
