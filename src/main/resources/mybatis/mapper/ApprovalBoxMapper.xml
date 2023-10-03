@@ -4,75 +4,1148 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="bitedu.bipa.simplesignbackend.mapper.ApprovalBoxMapper">
-    <select id="getSendDocList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        SELECT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-        FROM approval_doc ad
-        JOIN user u ON ad.user_id = u.user_id
-        JOIN organization_user ou ON u.user_id = ou.user_id
-        JOIN department d ON d.dept_id = ou.dept_id
-        LEFT JOIN form f ON ad.form_code = f.form_code
-        WHERE ad.user_id = #{userId}
-        AND ad.doc_status IN ('A', 'R', 'P', 'W')
-        AND ad.doc_del_status = 0
-        ORDER BY ad.created_at DESC
-    </select>
-    <select id="getTemporDocList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        SELECT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
-        FROM approval_doc ad
-        JOIN user u ON ad.user_id = u.user_id
-        JOIN organization_user ou ON u.user_id = ou.user_id
-        JOIN department d ON d.dept_id = ou.dept_id
-        LEFT JOIN form f ON ad.form_code = f.form_code
-        WHERE ad.user_id = #{userId}
-        AND ad.doc_status = 'T'
-        AND ad.doc_del_status = 0
-        ORDER BY ad.created_at DESC
-        LIMIT #{itemsPerPage} OFFSET #{offset};
-    </select>
-    <select id="getPendDocList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        SELECT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-        FROM approval_doc ad
-        JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-        JOIN user u ON ad.user_id = u.user_id
-        JOIN organization_user ou ON u.user_id = ou.user_id
-        JOIN department d ON d.dept_id = ou.dept_id
-        LEFT JOIN form f ON ad.form_code = f.form_code
-        WHERE a.user_id = #{userId}
-        AND ad.doc_status = 'P'
-        AND a.approval_status = 'P'
-        AND ad.doc_del_status = 0
-        ORDER BY ad.created_at DESC
-        LIMIT #{itemsPerPage} OFFSET #{offset};
-    </select>
-    <select id="getConcludeDocList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        SELECT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-        FROM approval_doc ad
-        JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-        JOIN user u ON ad.user_id = u.user_id
-        JOIN organization_user ou ON u.user_id = ou.user_id
-        JOIN department d ON d.dept_id = ou.dept_id
-        LEFT JOIN form f ON ad.form_code = f.form_code
-        WHERE a.user_id = #{userId}
-        AND ad.doc_status IN ('A', 'R', 'P')
-        AND a.approval_status IN ('A', 'R')
-        AND ad.doc_del_status = 0
-        ORDER BY ad.created_at DESC
-        LIMIT #{itemsPerPage} OFFSET #{offset};
-    </select>
-    <select id="getReferenceDocList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO" parameterType="map">
-        SELECT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-        FROM approval_doc ad
-        JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-        JOIN user u ON ad.user_id = u.user_id
-        JOIN organization_user ou ON u.user_id = ou.user_id
-        JOIN department d ON d.dept_id = ou.dept_id
-        JOIN received_ref r ON ad.approval_doc_id = r.approval_doc_id
-        LEFT JOIN form f ON ad.form_code = f.form_code
-        WHERE a.user_id = #{userId}
-        AND r.user_id = #{userId} OR a.dept_id = #{deptId}
-        AND ad.doc_del_status = 0
-        ORDER BY ad.created_at DESC
-        LIMIT #{itemsPerPage} OFFSET #{offset};
+    <select id="getDocumentsByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
+        <foreach collection="viewItems" item="viewItem" separator="UNION">
+            <choose>
+                <when test="viewItem == 'send'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE ad.user_id = #{userId}
+                    AND ad.doc_status IN ('A', 'R', 'P', 'W')
+                    AND ad.doc_del_status = 0
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+                <when test="viewItem == 'tempor'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE ad.user_id = #{userId}
+                    AND ad.doc_status = 'T'
+                    AND ad.doc_del_status = 0
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+                <when test="viewItem == 'pend'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE a.user_id = #{userId}
+                    AND ad.doc_status = 'P'
+                    AND a.approval_status = 'P'
+                    AND ad.doc_del_status = 0
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+                <when test="viewItem == 'concluded'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE a.user_id = #{userId}
+                    AND ad.doc_status IN ('A', 'R', 'P')
+                    AND a.approval_status IN ('A', 'R')
+                    AND ad.doc_del_status = 0
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+                <when test="viewItem == 'reference'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    JOIN received_ref r ON ad.approval_doc_id = r.approval_doc_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
+                    AND ad.doc_del_status = 0
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+            </choose>
+        </foreach>
     </select>
 
+    <select id="getDocCountByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
+        <foreach collection="viewItems" item="viewItem" separator="UNION">
+            <choose>
+                <when test="viewItem == 'send'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE ad.user_id = #{userId}
+                    AND ad.doc_status IN ('A', 'R', 'P', 'W')
+                    AND ad.doc_del_status = 0
+                    ORDER BY ad.created_at DESC;
+                </when>
+                <when test="viewItem == 'tempor'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE ad.user_id = #{userId}
+                    AND ad.doc_status = 'T'
+                    AND ad.doc_del_status = 0
+                    ORDER BY ad.created_at DESC;
+                </when>
+                <when test="viewItem == 'pend'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE a.user_id = #{userId}
+                    AND ad.doc_status = 'P'
+                    AND a.approval_status = 'P'
+                    AND ad.doc_del_status = 0
+                    ORDER BY ad.created_at DESC;
+                </when>
+                <when test="viewItem == 'concluded'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE a.user_id = #{userId}
+                    AND ad.doc_status IN ('A', 'R', 'P')
+                    AND a.approval_status IN ('A', 'R')
+                    AND ad.doc_del_status = 0
+                    ORDER BY ad.created_at DESC;
+                </when>
+                <when test="viewItem == 'reference'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    JOIN received_ref r ON ad.approval_doc_id = r.approval_doc_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
+                    AND ad.doc_del_status = 0
+                    ORDER BY ad.created_at DESC;
+                </when>
+            </choose>
+        </foreach>
+    </select>
+
+    <select id="getSearchDocumentsByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
+        <foreach collection="viewItems" item="viewItem" separator="UNION">
+            <choose>
+                <when test="viewItem == 'send'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE ad.user_id = #{userId}
+                    AND ad.doc_status IN ('A', 'R', 'P', 'W')
+                    AND ad.doc_del_status = 0
+                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
+                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
+                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+                <when test="viewItem == 'tempor'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE ad.user_id = #{userId}
+                    AND ad.doc_status = 'T'
+                    AND ad.doc_del_status = 0
+                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
+                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
+                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+                <when test="viewItem == 'pend'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE a.user_id = #{userId}
+                    AND ad.doc_status = 'P'
+                    AND a.approval_status = 'P'
+                    AND ad.doc_del_status = 0
+                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
+                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
+                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+                <when test="viewItem == 'concluded'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE a.user_id = #{userId}
+                    AND ad.doc_status IN ('A', 'R', 'P')
+                    AND a.approval_status IN ('A', 'R')
+                    AND ad.doc_del_status = 0
+                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
+                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
+                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+                <when test="viewItem == 'reference'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    JOIN received_ref r ON ad.approval_doc_id = r.approval_doc_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
+                    AND ad.doc_del_status = 0
+                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
+                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
+                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+            </choose>
+        </foreach>
+    </select>
+
+    <select id="getSearchDocCountByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
+        <foreach collection="viewItems" item="viewItem" separator="UNION">
+            <choose>
+                <when test="viewItem == 'send'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE ad.user_id = #{userId}
+                    AND ad.doc_status IN ('A', 'R', 'P', 'W')
+                    AND ad.doc_del_status = 0
+                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
+                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
+                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
+                    ORDER BY ad.created_at DESC;
+                </when>
+                <when test="viewItem == 'tempor'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE ad.user_id = #{userId}
+                    AND ad.doc_status = 'T'
+                    AND ad.doc_del_status = 0
+                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
+                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
+                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
+                    ORDER BY ad.created_at DESC;
+                </when>
+                <when test="viewItem == 'pend'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE a.user_id = #{userId}
+                    AND ad.doc_status = 'P'
+                    AND a.approval_status = 'P'
+                    AND ad.doc_del_status = 0
+                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
+                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
+                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
+                    ORDER BY ad.created_at DESC;
+                </when>
+                <when test="viewItem == 'concluded'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE a.user_id = #{userId}
+                    AND ad.doc_status IN ('A', 'R', 'P')
+                    AND a.approval_status IN ('A', 'R')
+                    AND ad.doc_del_status = 0
+                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
+                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
+                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
+                    ORDER BY ad.created_at DESC;
+                </when>
+                <when test="viewItem == 'reference'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    JOIN received_ref r ON ad.approval_doc_id = r.approval_doc_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
+                    AND ad.doc_del_status = 0
+                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
+                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
+                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
+                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
+                    ORDER BY ad.created_at DESC;
+                </when>
+            </choose>
+        </foreach>
+    </select>
+
+    <select id="getDetailSearchDocsList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
+        <foreach collection="viewItems" item="viewItem" separator="UNION">
+            <choose>
+                <when test="viewItem == 'send'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE ad.user_id = #{userId}
+                    AND ad.doc_status IN ('A', 'R', 'P', 'W')
+                    AND ad.doc_del_status = 0
+                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                        <choose>
+                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
+
+                            </when>
+                            <when test="criteria.searchDate == 'approvDate'">
+
+                            </when>
+                            <when test="criteria.searchDate == 'closedDate'">
+
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
+                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
+                    </if>
+
+                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
+                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
+                    </if>
+
+                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
+                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
+                    </if>
+
+                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
+                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
+                    </if>
+
+                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
+                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
+                    </if>
+
+                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
+                        <choose>
+                            <when test="criteria.searchApprovState == 2"  >
+                                AND ad.doc_status = 'W'
+                            </when>
+                            <when test="criteria.searchApprovState == 3">
+                                AND ad.doc_status = 'P'
+                            </when>
+                            <when test="criteria.searchApprovState == 4">
+                                AND ad.doc_status IN ('A', 'R')
+                            </when>
+                            <when test="criteria.searchApprovState == 5">
+                                AND ad.doc_status = 'R'
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
+                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
+                    </if>
+
+                    <if test="criteria.searchDocNumber > 0">
+                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
+                    </if>
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+                <when test="viewItem == 'tempor'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE ad.user_id = #{userId}
+                    AND ad.doc_status = 'T'
+                    AND ad.doc_del_status = 0
+                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                        <choose>
+                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
+
+                            </when>
+                            <when test="criteria.searchDate == 'approvDate'">
+
+                            </when>
+                            <when test="criteria.searchDate == 'closedDate'">
+
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
+                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
+                    </if>
+
+                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
+                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
+                    </if>
+
+                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
+                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
+                    </if>
+
+                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
+                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
+                    </if>
+
+                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
+                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
+                    </if>
+
+                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
+                        <choose>
+                            <when test="criteria.searchApprovState == '2'"  >
+                                AND ad.doc_status = 'W'
+                            </when>
+                            <when test="criteria.searchApprovState == '3'">
+                                AND ad.doc_status = 'P'
+                            </when>
+                            <when test="criteria.searchApprovState == '4'">
+                                AND ad.doc_status IN ('A', 'R')
+                            </when>
+                            <when test="criteria.searchApprovState == '5'">
+                                AND ad.doc_status = 'R'
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
+                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
+                    </if>
+
+                    <if test="criteria.searchDocNumber > 0">
+                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
+                    </if>
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+                <when test="viewItem == 'pend'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE a.user_id = #{userId}
+                    AND ad.doc_status = 'P'
+                    AND a.approval_status = 'P'
+                    AND ad.doc_del_status = 0
+                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                        <choose>
+                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
+
+                            </when>
+                            <when test="criteria.searchDate == 'approvDate'">
+
+                            </when>
+                            <when test="criteria.searchDate == 'closedDate'">
+
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
+                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
+                    </if>
+
+                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
+                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
+                    </if>
+
+                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
+                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
+                    </if>
+
+                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
+                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
+                    </if>
+
+                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
+                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
+                    </if>
+
+                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
+                        <choose>
+                            <when test="criteria.searchApprovState == '2'"  >
+                                AND ad.doc_status = 'W'
+                            </when>
+                            <when test="criteria.searchApprovState == '3'">
+                                AND ad.doc_status = 'P'
+                            </when>
+                            <when test="criteria.searchApprovState == '4'">
+                                AND ad.doc_status IN ('A', 'R')
+                            </when>
+                            <when test="criteria.searchApprovState == '5'">
+                                AND ad.doc_status = 'R'
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
+                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
+                    </if>
+
+                    <if test="criteria.searchDocNumber > 0">
+                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
+                    </if>
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+                <when test="viewItem == 'concluded'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE a.user_id = #{userId}
+                    AND ad.doc_status IN ('A', 'R', 'P')
+                    AND a.approval_status IN ('A', 'R')
+                    AND ad.doc_del_status = 0
+                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                        <choose>
+                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
+
+                            </when>
+                            <when test="criteria.searchDate == 'approvDate'">
+
+                            </when>
+                            <when test="criteria.searchDate == 'closedDate'">
+
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
+                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
+                    </if>
+
+                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
+                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
+                    </if>
+
+                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
+                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
+                    </if>
+
+                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
+                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
+                    </if>
+
+                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
+                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
+                    </if>
+
+                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
+                        <choose>
+                            <when test="criteria.searchApprovState == '2'"  >
+                                AND ad.doc_status = 'W'
+                            </when>
+                            <when test="criteria.searchApprovState == '3'">
+                                AND ad.doc_status = 'P'
+                            </when>
+                            <when test="criteria.searchApprovState == '4'">
+                                AND ad.doc_status IN ('A', 'R')
+                            </when>
+                            <when test="criteria.searchApprovState == '5'">
+                                AND ad.doc_status = 'R'
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
+                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
+                    </if>
+
+                    <if test="criteria.searchDocNumber > 0">
+                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
+                    </if>
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+                <when test="viewItem == 'reference'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    JOIN received_ref r ON ad.approval_doc_id = r.approval_doc_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
+                    AND ad.doc_del_status = 0
+                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                        <choose>
+                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
+
+                            </when>
+                            <when test="criteria.searchDate == 'approvDate'">
+
+                            </when>
+                            <when test="criteria.searchDate == 'closedDate'">
+
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
+                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
+                    </if>
+
+                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
+                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
+                    </if>
+
+                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
+                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
+                    </if>
+
+                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
+                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
+                    </if>
+
+                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
+                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
+                    </if>
+
+                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
+                        <choose>
+                            <when test="criteria.searchApprovState == '2'"  >
+                                AND ad.doc_status = 'W'
+                            </when>
+                            <when test="criteria.searchApprovState == '3'">
+                                AND ad.doc_status = 'P'
+                            </when>
+                            <when test="criteria.searchApprovState == '4'">
+                                AND ad.doc_status IN ('A', 'R')
+                            </when>
+                            <when test="criteria.searchApprovState == '5'">
+                                AND ad.doc_status = 'R'
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
+                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
+                    </if>
+
+                    <if test="criteria.searchDocNumber > 0">
+                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
+                    </if>
+
+                    ORDER BY ad.created_at DESC
+                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                </when>
+            </choose>
+        </foreach>
+    </select>
+
+    <select id="getDetailSearchDocsCount" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
+        <foreach collection="viewItems" item="viewItem" separator="UNION">
+            <choose>
+                <when test="viewItem == 'send'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE ad.user_id = #{userId}
+                    AND ad.doc_status IN ('A', 'R', 'P', 'W')
+                    AND ad.doc_del_status = 0
+                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                        <choose>
+                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
+
+                            </when>
+                            <when test="criteria.searchDate == 'approvDate'">
+
+                            </when>
+                            <when test="criteria.searchDate == 'closedDate'">
+
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
+                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
+                    </if>
+
+                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
+                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
+                    </if>
+
+                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
+                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
+                    </if>
+
+                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
+                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
+                    </if>
+
+                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
+                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
+                    </if>
+
+                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
+                        <choose>
+                            <when test="criteria.searchApprovState == '2'"  >
+                                AND ad.doc_status = 'W'
+                            </when>
+                            <when test="criteria.searchApprovState == '3'">
+                                AND ad.doc_status = 'P'
+                            </when>
+                            <when test="criteria.searchApprovState == '4'">
+                                AND ad.doc_status IN ('A', 'R')
+                            </when>
+                            <when test="criteria.searchApprovState == '5'">
+                                AND ad.doc_status = 'R'
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
+                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
+                    </if>
+
+                    <if test="criteria.searchDocNumber > 0">
+                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
+                    </if>
+                    ORDER BY ad.created_at DESC;
+                </when>
+                <when test="viewItem == 'tempor'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE ad.user_id = #{userId}
+                    AND ad.doc_status = 'T'
+                    AND ad.doc_del_status = 0
+                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                        <choose>
+                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
+
+                            </when>
+                            <when test="criteria.searchDate == 'approvDate'">
+
+                            </when>
+                            <when test="criteria.searchDate == 'closedDate'">
+
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
+                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
+                    </if>
+
+                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
+                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
+                    </if>
+
+                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
+                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
+                    </if>
+
+                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
+                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
+                    </if>
+
+                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
+                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
+                    </if>
+
+                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
+                        <choose>
+                            <when test="criteria.searchApprovState == '2'"  >
+                                AND ad.doc_status = 'W'
+                            </when>
+                            <when test="criteria.searchApprovState == '3'">
+                                AND ad.doc_status = 'P'
+                            </when>
+                            <when test="criteria.searchApprovState == '4'">
+                                AND ad.doc_status IN ('A', 'R')
+                            </when>
+                            <when test="criteria.searchApprovState == '5'">
+                                AND ad.doc_status = 'R'
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
+                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
+                    </if>
+
+                    <if test="criteria.searchDocNumber > 0">
+                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
+                    </if>
+                    ORDER BY ad.created_at DESC;
+                </when>
+                <when test="viewItem == 'pend'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE a.user_id = #{userId}
+                    AND ad.doc_status = 'P'
+                    AND a.approval_status = 'P'
+                    AND ad.doc_del_status = 0
+                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                        <choose>
+                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
+
+                            </when>
+                            <when test="criteria.searchDate == 'approvDate'">
+
+                            </when>
+                            <when test="criteria.searchDate == 'closedDate'">
+
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
+                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
+                    </if>
+
+                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
+                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
+                    </if>
+
+                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
+                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
+                    </if>
+
+                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
+                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
+                    </if>
+
+                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
+                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
+                    </if>
+
+                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
+                        <choose>
+                            <when test="criteria.searchApprovState == '2'"  >
+                                AND ad.doc_status = 'W'
+                            </when>
+                            <when test="criteria.searchApprovState == '3'">
+                                AND ad.doc_status = 'P'
+                            </when>
+                            <when test="criteria.searchApprovState == '4'">
+                                AND ad.doc_status IN ('A', 'R')
+                            </when>
+                            <when test="criteria.searchApprovState == '5'">
+                                AND ad.doc_status = 'R'
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
+                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
+                    </if>
+
+                    <if test="criteria.searchDocNumber > 0">
+                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
+                    </if>
+                    ORDER BY ad.created_at DESC;
+                </when>
+                <when test="viewItem == 'concluded'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE a.user_id = #{userId}
+                    AND ad.doc_status IN ('A', 'R', 'P')
+                    AND a.approval_status IN ('A', 'R')
+                    AND ad.doc_del_status = 0
+                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                        <choose>
+                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
+
+                            </when>
+                            <when test="criteria.searchDate == 'approvDate'">
+
+                            </when>
+                            <when test="criteria.searchDate == 'closedDate'">
+
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
+                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
+                    </if>
+
+                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
+                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
+                    </if>
+
+                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
+                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
+                    </if>
+
+                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
+                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
+                    </if>
+
+                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
+                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
+                    </if>
+
+                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
+                        <choose>
+                            <when test="criteria.searchApprovState == '2'"  >
+                                AND ad.doc_status = 'W'
+                            </when>
+                            <when test="criteria.searchApprovState == '3'">
+                                AND ad.doc_status = 'P'
+                            </when>
+                            <when test="criteria.searchApprovState == '4'">
+                                AND ad.doc_status IN ('A', 'R')
+                            </when>
+                            <when test="criteria.searchApprovState == '5'">
+                                AND ad.doc_status = 'R'
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
+                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
+                    </if>
+
+                    <if test="criteria.searchDocNumber > 0">
+                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
+                    </if>
+                    ORDER BY ad.created_at DESC;
+                </when>
+                <when test="viewItem == 'reference'">
+                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+                    FROM approval_doc ad
+                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+                    JOIN user u ON ad.user_id = u.user_id
+                    JOIN organization_user ou ON u.user_id = ou.user_id
+                    JOIN department d ON d.dept_id = ou.dept_id
+                    JOIN received_ref r ON ad.approval_doc_id = r.approval_doc_id
+                    LEFT JOIN form f ON ad.form_code = f.form_code
+                    WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
+                    AND ad.doc_del_status = 0
+                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                        <choose>
+                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
+
+                            </when>
+                            <when test="criteria.searchDate == 'approvDate'">
+
+                            </when>
+                            <when test="criteria.searchDate == 'closedDate'">
+
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
+                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
+                    </if>
+
+                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
+                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
+                    </if>
+
+                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
+                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
+                    </if>
+
+                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
+                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
+                    </if>
+
+                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
+                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
+                    </if>
+
+                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
+                        <choose>
+                            <when test="criteria.searchApprovState == '2'"  >
+                                AND ad.doc_status = 'W'
+                            </when>
+                            <when test="criteria.searchApprovState == '3'">
+                                AND ad.doc_status = 'P'
+                            </when>
+                            <when test="criteria.searchApprovState == '4'">
+                                AND ad.doc_status IN ('A', 'R')
+                            </when>
+                            <when test="criteria.searchApprovState == '5'">
+                                AND ad.doc_status = 'R'
+                            </when>
+                            <otherwise>
+
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
+                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
+                    </if>
+
+                    <if test="criteria.searchDocNumber > 0">
+                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
+                    </if>
+                    ORDER BY ad.created_at DESC;
+                </when>
+            </choose>
+        </foreach>
+    </select>
 </mapper>
+
