@@ -51,7 +51,7 @@
     </select>
 
     <select id="selectSequence" resultType="SequenceListDTO" parameterType="Map">
-        select t1.seq_code, seq_name as name
+        select distinct t1.seq_code, seq_name as name
         from sequence t1
             left join
             sequence_use_form t2 on t1.seq_code = t2.seq_code

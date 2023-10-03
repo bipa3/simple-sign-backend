@@ -36,4 +36,6 @@ public interface ApproveMapper {
 
 
     List<Integer> selectLowerApproverId(Map map);
+
+    ApprovalDocDetailDTO selectApprovalDocById(int approvalDocId);
 }

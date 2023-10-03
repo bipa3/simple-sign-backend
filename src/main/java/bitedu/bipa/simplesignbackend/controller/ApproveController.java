@@ -1,5 +1,6 @@
 package bitedu.bipa.simplesignbackend.controller;
 
+import bitedu.bipa.simplesignbackend.model.dto.ApprovalDocDetailDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalDocReqDTO;
 import bitedu.bipa.simplesignbackend.service.ApproveService;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,13 @@ public class ApproveController {
         int userId = 3;
         approveService.returnApprovalDoc(userId, approvalDocId);
         return ResponseEntity.ok("ok");
+    }
+
+    @GetMapping("/detail/{num}")
+    public ResponseEntity<ApprovalDocDetailDTO> showDetailApprovalDoc(@PathVariable("num") int approvalDocId) {
+        ApprovalDocDetailDTO approvalDocDetailDTO =  approveService.showDetailApprovalDoc(approvalDocId);
+        return ResponseEntity.ok(approvalDocDetailDTO);
+
     }
 
 }
