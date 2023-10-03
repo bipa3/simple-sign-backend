@@ -88,4 +88,8 @@ public class ApproveDAO {
         map.put("approvalOrder", approvalOrder);
         return approveMapper.selectLowerApproverId(map);
     }
+
+    public ApprovalDocDetailDTO selectApprovalDocById(int approvalDocId) {
+        return approveMapper.selectApprovalDocById(approvalDocId);
+    }
 }
