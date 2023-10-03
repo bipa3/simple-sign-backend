@@ -160,8 +160,10 @@ public class ApproveService {
         }
     }
 
-
-
+    public ApprovalDocDetailDTO showDetailApprovalDoc(int approvalDocId) {
+        ApprovalDocDetailDTO approvalDocDetailDTO =  approveDAO.selectApprovalDocById(approvalDocId);
+        return approvalDocDetailDTO;
+    }
 
 
 //            //수신참조 insert ---> 활성화 여부를 넣고 활성화 된 것만 불러와서 보여주게?
