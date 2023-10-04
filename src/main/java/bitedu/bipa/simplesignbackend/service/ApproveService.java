@@ -67,6 +67,20 @@ public class ApproveService {
                 count++;
             }
         }
+
+        //수신참조 insert ---> 활성화 여부를 넣고 활성화 된 것만 불러와서 보여주게하기
+        List<Integer> receivedRef = approvalDocReqDTO.getReceiveRefList();
+        int totalCount = receivedRef.size();
+        int receiveCount = 0;
+        for(int receiver: receivedRef) {
+            int deptId = commonDAO.selectDeptId(receiver);
+            ReceivedRefDTO receivedRefDTO = new ReceivedRefDTO(receiver,deptId,approvalDocId);
+            int affectedCount = approveDAO.insertReceivedRef(receivedRefDTO);
+            receiveCount +=affectedCount;
+        }
+        if(totalCount !=receiveCount) {
+            throw new RuntimeException();
+        }
     }
 
     @Transactional
@@ -86,16 +100,20 @@ public class ApproveService {
             }
         }
 
-        //3. 결재승인자의 결재순서와 결재문서의 결재 개수가 같은지 확인하고 같다면 결재문서도 '승인'상태로 바꿔주고 결재 종결
+        //3. 결재승인자의 결재순서와 결재문서의 결재 개수가 같은지 확인하고 같다면 결재문서도 '승인'상태로 바꿔주고 종결일자 넣어주고 결재 종결
         ApprovalDocResDTO approvalDocResDTO = approveDAO.selectApprovalCount(approvalDocId);
         boolean isApprovalDocEnd = approvalDocResDTO.getApprovalCount() == approvalResDTO.getApprovalOrder();
         int upperApproverId = 0;
         if(isApprovalDocEnd) {
             approvalDocResDTO.setDocStatus(ApprovalStatus.APPROVAL.getCode());
+            approvalDocResDTO.setEndAt(LocalDateTime.now());
             String productNumber = sequenceService.createProductNum(approvalDocResDTO.getSeqCode(), approvalDocResDTO.getUserId());
             approvalDocResDTO.setProductNum(productNumber);
 
-            //수신참조 insert --------------------추후 삽입 예정
+            //수신참조 활성화 업데이트
+            approveDAO.updateReceivedRefState(approvalDocId);
+
+
         }else {
             //같지 않다면 '진행'으로 바꾸고 상신 상위자의 결재테이블 상태도 '진행'으로, 결재수신시간도 넣어주기
             approvalDocResDTO.setDocStatus(ApprovalStatus.PROGRESS.getCode());
@@ -115,8 +133,12 @@ public class ApproveService {
 
         //4. 알림보내기(결재승인알람 및 결재문서가 종결이라면 종결알람)
         if(isApprovalDocEnd) {
-            //종결일 경우는 상신자에게 알림
+            //종결일 경우는 상신자와 수신참조자에게 알림
             alarmService.createNewAlarm(approvalDocId, approvalDocResDTO.getUserId(),AlarmStatus.APPROVE.getCode());
+            List<Integer> receivedRefUserIdList = approveDAO.selectRecievedRefUserId(approvalDocId);
+            for(int receiveUser: receivedRefUserIdList) {
+                alarmService.createNewAlarm(approvalDocId, receiveUser, AlarmStatus.RECEIVEDREF.getCode());
+            }
         }else {
             //미종결일 경우는 상위자에게 알림
             alarmService.createNewAlarm(approvalDocId,upperApproverId,AlarmStatus.SUBMIT.getCode());
@@ -166,19 +188,5 @@ public class ApproveService {
     }
 
 
-//            //수신참조 insert ---> 활성화 여부를 넣고 활성화 된 것만 불러와서 보여주게?
-//            List<Integer> receivedRef = approvalReqDTO.getReceiveRefList();
-//            int totalCount = receivedRef.size();
-//            int receiveCount = 0;
-//            for(int receiver: receivedRef) {
-//               int deptId = commonDAO.selectDeptId(receiver);
-//                ReceivedRefDTO receivedRefDTO = new ReceivedRefDTO(receiver,deptId,approvalDocId);
-//                int affectedCount = approveDAO.insertReceivedRef(receivedRefDTO);
-//                createNewAlarm(approvalDocId,receiver,AlarmStatus.ReceivedRef.getCode());
-//                receiveCount +=affectedCount;
-//            }
-//            if(totalCount !=receiveCount) {
-//                throw new RuntimeException();
-//            }
 
 }
