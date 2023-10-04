@@ -33,6 +33,12 @@ public class SeqManageDAO {
         List<SeqScopeDTO> formScopeList = seqManageMapper.getSeqFormScope(code);
         seqDetail.setDeptScope(deptScopeList);
         seqDetail.setFormScope(formScopeList);
+        List<String> seqItems = List.of(seqDetail.getSeqString().split(","));
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("seqItems", seqItems);
+        String seqList = seqManageMapper.selectSeqItems(map);
+        seqDetail.setSeqList(seqList);
         return seqDetail;
     }
 

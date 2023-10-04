@@ -6,13 +6,13 @@ import java.util.List;
 
 @Data
 public class SeqDetailDTO {
-    private String compName;
+    private String compId;
     private String code;
     private String seqName;
     private List<SeqScopeDTO> deptScope;
     private List<SeqScopeDTO> formScope;
     private String description;
     private int sortOrder;
-    private List<SeqItemDTO> seqList;
+    private String seqList;
     private String seqString;
 }
