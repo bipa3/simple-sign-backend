@@ -66,7 +66,7 @@
     <!--결재문서 업데이트-->
     <update id="updateApprovalDoc" parameterType="ApprovalDocResDTO">
         update approval_doc
-        set doc_status = #{docStatus}, product_num = #{productNum}
+        set doc_status = #{docStatus}, product_num = #{productNum}, end_at = #{endAt}
         where approval_doc_id = #{approvalDocId};
     </update>
 
@@ -88,6 +88,12 @@
         select user_id from approval_doc where approval_doc_id = #{approvalDocId};
     </select>
 
+    <!--수신참조 활성화 업데이트-->
+    <update id="updateReceivedRefState" parameterType="int">
+        update received_ref set active_state = 1
+            where approval_doc_id = #{approvalDocId};
+    </update>
+
     <!--하위결재자 아이디 리스트 가져오기-->
 
     <select id="selectLowerApproverId" parameterType="Map" resultType="int">
@@ -108,6 +114,11 @@
             left join form t4
             on t1.form_code = t4.form_code
         where approval_doc_id = #{approvalDocId};
+    </select>
+
+    <!--수신참조자 조회-->
+    <select id="selectRecievedRefUserId" parameterType="int" resultType="int">
+        select user_id from received_ref where approval_doc_id = #{approvalDocId} and active_state = 1;
     </select>
 
 </mapper>

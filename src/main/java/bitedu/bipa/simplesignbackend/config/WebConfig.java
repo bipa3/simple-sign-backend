@@ -12,13 +12,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 
-//    @Autowired
-//    AuthorityInterceptor authorityInterceptor;
-//
-//    @Override
-//    public void addInterceptors(InterceptorRegistry registry) {
-//        registry.addInterceptor(authorityInterceptor);
-//    }
+    @Autowired
+    AuthorityInterceptor authorityInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(authorityInterceptor);
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
