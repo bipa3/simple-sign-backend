@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.OrgMapper">
+
+    <select id="selectOrgTreeView" resultType="OrgCompanyDTO">
+        select c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name, d.upper_dept_id
+        from company c
+        left join establishment e on c.comp_id = e.comp_id
+        left join department d on e.est_id = d.est_id
+        order by c.comp_id, e.est_id, d.dept_id;
+    </select>
+
+</mapper>
