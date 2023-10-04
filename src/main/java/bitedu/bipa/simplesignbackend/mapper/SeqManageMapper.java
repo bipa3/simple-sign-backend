@@ -19,4 +19,9 @@ public interface SeqManageMapper {
     void createSeqFormScope(Map map);
 
     String selectSeqItems(Map map);
+    void updateSeqDetail(SeqDetailDTO seqDetail);
+    void delDeptScope(Map map);
+    void insertIgnoreDeptScope(Map map);
+    void delFormScope(Map map);
+    void insertIgnoreFormScope(Map map);
 }

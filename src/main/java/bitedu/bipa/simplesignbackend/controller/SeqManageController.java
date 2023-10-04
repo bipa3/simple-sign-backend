@@ -62,4 +62,14 @@ public class SeqManageController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @PatchMapping("/detail")
+    public ResponseEntity changeSeqDetail(@RequestBody SeqDetailDTO seqDetailDTO){
+        Boolean updateResult = seqManageService.seqDetailChange(seqDetailDTO);
+        if (updateResult) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }
