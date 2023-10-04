@@ -33,4 +33,6 @@ public interface FormManageMapper {
 
     void insertIgnoreFormScope(Map map);
 
+    void deleteForm(int code);
+
 }

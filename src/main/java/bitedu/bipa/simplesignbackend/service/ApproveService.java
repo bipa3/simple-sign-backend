@@ -1,17 +1,14 @@
 package bitedu.bipa.simplesignbackend.service;
 
-import bitedu.bipa.simplesignbackend.dao.AlarmDAO;
 import bitedu.bipa.simplesignbackend.dao.ApproveDAO;
 import bitedu.bipa.simplesignbackend.dao.CommonDAO;
+import bitedu.bipa.simplesignbackend.enums.AlarmStatus;
+import bitedu.bipa.simplesignbackend.enums.ApprovalStatus;
 import bitedu.bipa.simplesignbackend.model.dto.*;
-import org.springframework.boot.autoconfigure.web.format.DateTimeFormatters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Formatter;
 import java.util.List;
 
 @Service
@@ -19,32 +16,32 @@ public class ApproveService {
 
     private final ApproveDAO approveDAO;
     private final CommonDAO commonDAO;
-    private final AlarmDAO alarmDAO;
+    private final AlarmService alarmService;
+    private final SequenceService sequenceService;
 
-    public ApproveService(ApproveDAO approveDAO, CommonDAO commonDAO, AlarmDAO alarmDAO) {
+
+    public ApproveService(ApproveDAO approveDAO, CommonDAO commonDAO, AlarmService alarmService, SequenceService sequenceService) {
         this.approveDAO = approveDAO;
         this.commonDAO = commonDAO;
-        this.alarmDAO = alarmDAO;
+        this.alarmService = alarmService;
+        this.sequenceService = sequenceService;
     }
 
     @Transactional
-    public void  registerApprovalDoc(ApprovalReqDTO approvalReqDTO, int userId) {
-        //approval insert
-        List<Integer> approverList = approvalReqDTO.getApproverList();
+    public void  registerApprovalDoc(ApprovalDocReqDTO approvalDocReqDTO, int userId) {
+        List<Integer> approverList = approvalDocReqDTO.getApproverList();
         int approvalCount = approverList.size();
 
-        approvalReqDTO.setApprovalCount(approvalCount);
-        int approvalDocId =approveDAO.insertApprovalDoc(approvalReqDTO, userId);
+        approvalDocReqDTO.setApprovalCount(approvalCount);
+        int approvalDocId =approveDAO.insertApprovalDoc(approvalDocReqDTO, userId);
 
 
         //docStatus 가 상신인지 임시저장인지 확인
-        if(approvalReqDTO.getDocStatus() =='T') {
-            //임시저장이면 첨부파일, 알림 insert
-            createNewAlarm(approvalDocId,userId,"00");
+        if(approvalDocReqDTO.getDocStatus() == ApprovalStatus.TEMPORARY.getCode()) {
+            //임시저장이면 첨부파일 insert
 
-        }else if(approvalReqDTO.getDocStatus() =='W') {
-            //상신이면 approval, 수신참조,  alarm, 품의번호이력, 첨부파일 insert
-            createNewAlarm(approvalDocId, userId,"01");
+        }else if(approvalDocReqDTO.getDocStatus() == ApprovalStatus.WAIT.getCode()) {
+            //상신이면 approval, alarm, 첨부파일 insert
 
             int count = 1;
             for(int approver: approverList) {
@@ -52,15 +49,11 @@ public class ApproveService {
                 ApprovalLineDTO approvalLineDTO = new ApprovalLineDTO();
                 approvalLineDTO.setApprovalOrder(count);
                 if(count ==1) {
-                    approvalLineDTO.setApprovalStatus('A');
+                    approvalLineDTO.setApprovalStatus(ApprovalStatus.PROGRESS.getCode());
                     approvalLineDTO.setReceiveDate(LocalDateTime.now());
-                    approvalLineDTO.setApprovalDate(LocalDateTime.now());
-                }else if(count ==2) {
-                    approvalLineDTO.setApprovalStatus('P');
-                    approvalLineDTO.setReceiveDate(LocalDateTime.now());
-                    createNewAlarm(approvalDocId,approver,"02");
+                    alarmService.createNewAlarm(approvalDocId,approver, AlarmStatus.SUBMIT.getCode());
                 }else {
-                    approvalLineDTO.setApprovalStatus('W');
+                    approvalLineDTO.setApprovalStatus(ApprovalStatus.WAIT.getCode());
                 }
                 approvalLineDTO.setApprovalDocId(approvalDocId);
                 approvalLineDTO.setUserId(approver);
@@ -73,82 +66,127 @@ public class ApproveService {
                 }
                 count++;
             }
-            //품의번호 insert
-            int seqCode = approvalReqDTO.getSeqCode();
-            int formCode = approvalReqDTO.getFormCode();
-            createProductNum(seqCode, formCode);
+        }
 
+        //수신참조 insert ---> 활성화 여부를 넣고 활성화 된 것만 불러와서 보여주게하기
+        List<Integer> receivedRef = approvalDocReqDTO.getReceiveRefList();
+        int totalCount = receivedRef.size();
+        int receiveCount = 0;
+        for(int receiver: receivedRef) {
+            int deptId = commonDAO.selectDeptId(receiver);
+            ReceivedRefDTO receivedRefDTO = new ReceivedRefDTO(receiver,deptId,approvalDocId);
+            int affectedCount = approveDAO.insertReceivedRef(receivedRefDTO);
+            receiveCount +=affectedCount;
+        }
+        if(totalCount !=receiveCount) {
+            throw new RuntimeException();
+        }
+    }
 
-            //수신참조 insert
-            List<Integer> receivedRef = approvalReqDTO.getReceiveRefList();
-            int totalCount = receivedRef.size();
-            int receiveCount = 0;
-            for(int receiver: receivedRef) {
-               int deptId = commonDAO.selectDeptId(receiver);
-                ReceivedRefDTO receivedRefDTO = new ReceivedRefDTO(receiver,deptId,approvalDocId);
-                int affectedCount = approveDAO.insertReceivedRef(receivedRefDTO);
-                createNewAlarm(approvalDocId,receiver,"12");
-                receiveCount +=affectedCount;
-            }
-            if(totalCount !=receiveCount) {
+    @Transactional
+    public void approveApprovalDoc(int userId, int approvalDocId) {
+        //결재하기
+        //1. 결재테이블에서 결재할 문서가 있는지 가져오기, 없으면 bad request
+        ApprovalResDTO approvalResDTO =  approveDAO.selectApprovalByApprovalId(userId,approvalDocId);
+        if(approvalResDTO.getApprovalId() ==0 || approvalResDTO.getApprovalStatus() !='P') {
+            throw  new RuntimeException();
+        }else {
+            //2. 결재문서가 있다면 결재 상태를 '승인'으로 바꾸고 결재시간 삽입하기
+            approvalResDTO.setApprovalStatus(ApprovalStatus.APPROVAL.getCode());
+            approvalResDTO.setApprovalDate(LocalDateTime.now());
+            int affectedCount = approveDAO.updateCurrentApproval(approvalResDTO);
+            if(affectedCount ==0) {
                 throw new RuntimeException();
             }
-
         }
-    }
 
-    private void createNewAlarm(int approvalDocId, int userId, String alarmCode) {
-        PositionAndGradeDTO positionAndGradeDTO = commonDAO.getPositionAndGrade(userId);
-        AlarmReqDTO alarmReqDTO = new AlarmReqDTO();
-        alarmReqDTO.setAlarmCode(alarmCode);
-        alarmReqDTO.setAlarmDate(LocalDateTime.now());
-        alarmReqDTO.setUserId(userId);
-        alarmReqDTO.setDeptId(positionAndGradeDTO.getDeptId());
-        alarmReqDTO.setGradeName(positionAndGradeDTO.getGradeName());
-        alarmReqDTO.setPositionName(positionAndGradeDTO.getPositionName());
-        alarmReqDTO.setApprovalDocId(approvalDocId);
+        //3. 결재승인자의 결재순서와 결재문서의 결재 개수가 같은지 확인하고 같다면 결재문서도 '승인'상태로 바꿔주고 종결일자 넣어주고 결재 종결
+        ApprovalDocResDTO approvalDocResDTO = approveDAO.selectApprovalCount(approvalDocId);
+        boolean isApprovalDocEnd = approvalDocResDTO.getApprovalCount() == approvalResDTO.getApprovalOrder();
+        int upperApproverId = 0;
+        if(isApprovalDocEnd) {
+            approvalDocResDTO.setDocStatus(ApprovalStatus.APPROVAL.getCode());
+            approvalDocResDTO.setEndAt(LocalDateTime.now());
+            String productNumber = sequenceService.createProductNum(approvalDocResDTO.getSeqCode(), approvalDocResDTO.getUserId());
+            approvalDocResDTO.setProductNum(productNumber);
 
-        String defaultMessage = alarmDAO.selectDefaultMessage(alarmCode);
-        //조건에 따른 알람 메세지 넣기(추후 수정)
-        alarmReqDTO.setAlarmContent(defaultMessage);
-        int affectedCount = alarmDAO.insertAlarm(alarmReqDTO);
-        if(affectedCount ==0) {
-            throw  new RuntimeException();
-        }
-    }
+            //수신참조 활성화 업데이트
+            approveDAO.updateReceivedRefState(approvalDocId);
 
-    private void createProductNum(int seqCode, int formCode) {
-        int recentProductNum = approveDAO.selectMaxProductNumber(seqCode, formCode);
-        int affectedCount = 0;
 
-        StringBuffer buffer = returnProductFullName(seqCode,recentProductNum);
-        SequenceUseFormDTO sequenceUseFormDTO = new SequenceUseFormDTO(seqCode,formCode,buffer.toString(),recentProductNum+1);
-        affectedCount = approveDAO.insertProductNumber(sequenceUseFormDTO);
-        if(affectedCount ==0) {
-            throw  new RuntimeException();
-        }
-    }
-
-    private StringBuffer returnProductFullName(int seqCode, int recentProductNum) {
-        List<ProductNumberDTO> sequenceFormList = approveDAO.selectSequenceForm(seqCode);
-        StringBuffer buffer = new StringBuffer();
-        for(int i=0;i<sequenceFormList.size();i++) {
-            ProductNumberDTO dto = sequenceFormList.get(i);
-            if(dto.getSeqFormOrder()==i+1) {
-                String codeValue = dto.getCodeValue();
-                if(codeValue.equals("자리수")) {
-                    if(recentProductNum ==0) {
-                        codeValue = "1";
-                    }else {
-                        codeValue = String.valueOf(recentProductNum+1);
-                    }
-                }else if(codeValue.equals("년도")) {
-                    codeValue = LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY"));
-                }
-                buffer.append(codeValue);
+        }else {
+            //같지 않다면 '진행'으로 바꾸고 상신 상위자의 결재테이블 상태도 '진행'으로, 결재수신시간도 넣어주기
+            approvalDocResDTO.setDocStatus(ApprovalStatus.PROGRESS.getCode());
+            ApprovalResDTO upperApproverDTO = approveDAO.selectUpperApproverId(approvalResDTO);
+            upperApproverId = upperApproverDTO.getUserId();
+            upperApproverDTO.setApprovalStatus(ApprovalStatus.PROGRESS.getCode());
+            upperApproverDTO.setReceiveDate(LocalDateTime.now());
+            int affectedCount = approveDAO.updateUpperApproverId(upperApproverDTO);
+            if(affectedCount ==0) {
+                throw  new RuntimeException();
             }
         }
-        return buffer;
+        int affectedCount = approveDAO.updateApprovalDoc(approvalDocResDTO);
+        if(affectedCount ==0) {
+            throw new RuntimeException();
+        }
+
+        //4. 알림보내기(결재승인알람 및 결재문서가 종결이라면 종결알람)
+        if(isApprovalDocEnd) {
+            //종결일 경우는 상신자와 수신참조자에게 알림
+            alarmService.createNewAlarm(approvalDocId, approvalDocResDTO.getUserId(),AlarmStatus.APPROVE.getCode());
+            List<Integer> receivedRefUserIdList = approveDAO.selectRecievedRefUserId(approvalDocId);
+            for(int receiveUser: receivedRefUserIdList) {
+                alarmService.createNewAlarm(approvalDocId, receiveUser, AlarmStatus.RECEIVEDREF.getCode());
+            }
+        }else {
+            //미종결일 경우는 상위자에게 알림
+            alarmService.createNewAlarm(approvalDocId,upperApproverId,AlarmStatus.SUBMIT.getCode());
+        }
     }
+
+    @Transactional
+    public void returnApprovalDoc(int userId, int approvalDocId) {
+        //1. 결재테이블에서 결재할 문서가 있는지 가져오기, 없으면 bad request
+        //결재하기
+        ApprovalResDTO approvalResDTO =  approveDAO.selectApprovalByApprovalId(userId,approvalDocId);
+        if(approvalResDTO.getApprovalId() ==0 || approvalResDTO.getApprovalStatus() !='P') {
+            throw  new RuntimeException();
+        }else {
+            //2. 결재문서가 있다면 결재상태를 '반려'로 바꾸고 결재시간 삽입하기
+            approvalResDTO.setApprovalStatus(ApprovalStatus.RETURN.getCode());
+            approvalResDTO.setApprovalDate(LocalDateTime.now());
+            int affectedCount = approveDAO.updateCurrentApproval(approvalResDTO);
+            if(affectedCount ==0) {
+                throw new RuntimeException();
+            }
+        }
+        //3. 결재 문서를 '반려' 상태로 바꾸기(이후 결재자 행은 어떻게 할건지?)
+        ApprovalDocResDTO approvalDocResDTO = new ApprovalDocResDTO();
+        approvalDocResDTO.setDocStatus(ApprovalStatus.RETURN.getCode());
+        approvalDocResDTO.setApprovalDocId(approvalDocId);
+        int affectedCount = approveDAO.updateApprovalDoc(approvalDocResDTO);
+        if(affectedCount ==0) {
+            throw new RuntimeException();
+        }
+
+        //4. 하위 결재자 모두에게 알림 보내기
+        int recipientId = approveDAO.selectRecipientId(approvalDocId);
+        alarmService.createNewAlarm(approvalDocId,recipientId,AlarmStatus.RETURN.getCode());
+        if(approvalResDTO.getApprovalOrder() >1) {
+            List<Integer> lowerApproverId = approveDAO.selectLowerApproverId(approvalDocId, approvalResDTO.getApprovalOrder());
+            for(int lowerId : lowerApproverId) {
+                if(lowerId ==recipientId) continue;
+                alarmService.createNewAlarm(approvalDocId, lowerId, AlarmStatus.RETURN.getCode());
+            }
+        }
+    }
+
+    public ApprovalDocDetailDTO showDetailApprovalDoc(int approvalDocId) {
+        ApprovalDocDetailDTO approvalDocDetailDTO =  approveDAO.selectApprovalDocById(approvalDocId);
+        return approvalDocDetailDTO;
+    }
+
+
 
 }
