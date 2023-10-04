@@ -42,12 +42,21 @@ public class OrgDAO {
         return orgMapper.selectBottomComp(compId);
     }
 
+    public List<OrgRespDTO> getBottomDeptComp(int compId){return orgMapper.selectBottomDeptComp(compId);}
+
     public List<OrgRespDTO> getBottomEst(int estId){
         return orgMapper.selectBottomDeptEst(estId);
+    }
+
+    public List<OrgRespDTO> getBottomUserEst(int estId){
+        return orgMapper.selectBottomUserEst(estId);
     }
 
     public List<OrgRespDTO> getBottonDept(int deptId){
         return orgMapper.selectBottomDept(deptId);
     }
 
+    public List<OrgRespDTO> getBottonUser(int deptId){
+        return orgMapper.selectBottomUser(deptId);
+    }
 }
