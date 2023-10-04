@@ -6,9 +6,9 @@
 <mapper namespace="bitedu.bipa.simplesignbackend.mapper.FormManageMapper">
 
     <select id="getFormAndCompList" resultType="bitedu.bipa.simplesignbackend.model.dto.FormAndCompDTO">
-        SELECT comp.form_code AS id, comp_name, form_name, form_used_status AS status
-        FROM (select form_code, comp_name FROM (SELECT * FROM form_use_department WHERE category="C") AS used INNER JOIN company ON used.use_id = company.comp_id WHERE comp_name=#{compName}) AS comp
-        INNER JOIN form ON comp.form_code = form.form_code WHERE form_name like CONCAT('%', #{formName}, '%') AND form_used_status=#{status} AND form_del_status=0;
+        SELECT form_code AS id, comp_name, form_name, form_used_status AS status FROM form
+        INNER JOIN company ON form.comp_id = company.comp_id
+        WHERE form.comp_id=#{compId} AND form_name like CONCAT('%', #{formName}, '%') AND form_used_status=#{status} AND form_del_status=0;
     </select>
 
     <select id="getFormDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.FormDetailResDTO">
@@ -33,8 +33,6 @@
             LEFT JOIN
             user t5 ON t1.use_id = t5.user_id;
     </select>
-
-
 
     <select id="selectFormListWithSearch" resultType="FormListDTO"
             parameterType="BelongOrganizationDTO">
@@ -69,8 +67,8 @@
     </select>
 
     <insert id="createFormDetail" >
-        INSERT INTO form(form_name, default_form, main_form, form_used_status)
-        VALUES(#{formName}, #{defaultForm}, #{mainForm}, #{status});
+        INSERT INTO form(form_code, form_name, default_form, main_form, form_used_status)
+        VALUES(#{formCode}, #{formName}, #{defaultForm}, #{mainForm}, #{status});
     </insert>
 
     <insert id="createFormScope" parameterType="map">

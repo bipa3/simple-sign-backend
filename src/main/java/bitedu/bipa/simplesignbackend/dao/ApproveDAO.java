@@ -74,6 +74,9 @@ public class ApproveDAO {
         return approveMapper.selectUpperApproverId(approvalResDTO);
     }
 
+    public int updateReceivedRefState(int approvalDocId) {
+        return approveMapper.updateReceivedRefState(approvalDocId);
+    }
     public int updateUpperApproverId(ApprovalResDTO approvalResDTO) {
         return approveMapper.updateUpperApproverId(approvalResDTO);
     }
@@ -91,5 +94,9 @@ public class ApproveDAO {
 
     public ApprovalDocDetailDTO selectApprovalDocById(int approvalDocId) {
         return approveMapper.selectApprovalDocById(approvalDocId);
+    }
+
+    public List<Integer> selectRecievedRefUserId(int approvalDocId) {
+        return approveMapper.selectRecievedRefUserId(approvalDocId);
     }
 }

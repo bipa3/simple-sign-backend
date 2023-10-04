@@ -2,6 +2,8 @@ package bitedu.bipa.simplesignbackend.model.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class ApprovalDocResDTO {
 
@@ -11,4 +13,5 @@ public class ApprovalDocResDTO {
     private String productNum;
     private int seqCode;
     private int userId;
+    private LocalDateTime endAt;
 }

@@ -30,6 +30,8 @@ public interface ApproveMapper {
 
     ApprovalResDTO selectUpperApproverId(ApprovalResDTO approvalResDTO);
 
+    int updateReceivedRefState(int approvalDocId);
+
     int updateUpperApproverId(ApprovalResDTO approvalResDTO);
 
     int selectRecipientId(int approvalDocId);
@@ -38,4 +40,6 @@ public interface ApproveMapper {
     List<Integer> selectLowerApproverId(Map map);
 
     ApprovalDocDetailDTO selectApprovalDocById(int approvalDocId);
+
+    List<Integer> selectRecievedRefUserId(int approvalDocId);
 }

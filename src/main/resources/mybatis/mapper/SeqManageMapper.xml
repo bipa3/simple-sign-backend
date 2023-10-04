@@ -6,10 +6,9 @@
 <mapper namespace="bitedu.bipa.simplesignbackend.mapper.SeqManageMapper">
 
     <select id="getSeqAndCompList" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqAndCompDTO">
-        SELECT comp.seq_code AS id, comp.seq_code AS code, comp_name, seq_name, seq_description as description
-        FROM (select used.seq_code, comp_name FROM (SELECT * FROM sequence_use_department WHERE status="C") AS used INNER JOIN company ON used.use_id = company.comp_id WHERE comp_name=#{compName}) AS comp
-        INNER JOIN sequence ON comp.seq_code = sequence.seq_code WHERE seq_name like CONCAT('%', #{seqName}, '%') AND sequence.seq_code like CONCAT('%', #{code}, '%') AND sequence.seq_del_status=0
-        ORDER BY seq_sort_order;
+        SELECT seq_code AS id, comp_name, seq_code AS code, seq_name, seq_description AS description FROM sequence
+        INNER JOIN company ON sequence.comp_id = company.comp_id
+        WHERE sequence.comp_id=#{compId} AND seq_name like CONCAT('%', #{seqName}, '%') AND seq_del_status=0;
     </select>
 
     <select id="getSeqDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqDetailDTO">
@@ -45,8 +44,8 @@
     </update>
 
     <insert id="createSeqDetail" >
-        INSERT INTO sequence(seq_name, seq_description, seq_sort_order, product_form)
-        VALUES(#{seqName}, #{description}, #{sortOrder}, #{seqString});
+        INSERT INTO sequence(seq_code, seq_name, seq_description, seq_sort_order, product_form)
+        VALUES(#{code}, #{seqName}, #{description}, #{sortOrder}, #{seqString});
     </insert>
 
     <insert id="createSeqDeptScope" parameterType="map">
