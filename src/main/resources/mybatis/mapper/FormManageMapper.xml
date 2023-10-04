@@ -67,8 +67,8 @@
     </select>
 
     <insert id="createFormDetail" >
-        INSERT INTO form(form_code, form_name, default_form, main_form, form_used_status)
-        VALUES(#{formCode}, #{formName}, #{defaultForm}, #{mainForm}, #{status});
+        INSERT INTO form(comp_id, form_name, default_form, main_form, form_used_status)
+        VALUES(#{compId}, #{formName}, #{defaultForm}, #{mainForm}, #{status});
     </insert>
 
     <insert id="createFormScope" parameterType="map">

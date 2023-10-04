@@ -12,8 +12,22 @@
     </select>
 
     <select id="getSeqDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqDetailDTO">
-        select seq_code AS code, seq_name, Seq_description as description, seq_sort_order as sortOrder
+        select seq_code AS code, seq_name, Seq_description as description, seq_sort_order as sortOrder, product_form AS seqString
         from sequence where seq_code=#{code};
+    </select>
+
+    <select id="selectSeqItems" resultType="java.lang.String">
+        SELECT GROUP_CONCAT(code_value SEPARATOR ' ') AS result
+        FROM common_code
+        <where>
+                AND section_id = "005"
+            <if test="seqItems != null and seqItems.size() > 0">
+                AND code_id IN
+                <foreach collection="seqItems" item="seqItem" open="(" separator="," close=")">
+                    #{seqItem}
+                </foreach>
+            </if>
+        </where>
     </select>
 
     <select id="getSeqDeptScope" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqScopeDTO">
@@ -44,8 +58,8 @@
     </update>
 
     <insert id="createSeqDetail" >
-        INSERT INTO sequence(seq_code, seq_name, seq_description, seq_sort_order, product_form)
-        VALUES(#{code}, #{seqName}, #{description}, #{sortOrder}, #{seqString});
+        INSERT INTO sequence(seq_code, comp_id, seq_name, seq_description, seq_sort_order, product_form)
+        VALUES(#{code}, #{compId}, #{seqName}, #{description}, #{sortOrder}, #{seqString});
     </insert>
 
     <insert id="createSeqDeptScope" parameterType="map">

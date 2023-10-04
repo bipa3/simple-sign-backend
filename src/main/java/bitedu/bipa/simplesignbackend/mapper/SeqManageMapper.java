@@ -17,4 +17,6 @@ public interface SeqManageMapper {
     void createSeqDetail(SeqDetailDTO seqDetail);
     void createSeqDeptScope(Map map);
     void createSeqFormScope(Map map);
+
+    String selectSeqItems(Map map);
 }
