@@ -51,14 +51,14 @@ public class SeqManageDAO {
         for(SeqScopeDTO deptScope : deptScopeList){
             Map<String, Object> map = new HashMap<>();
             map.put("category", deptScope.getCategory());
-            map.put("seqCode", seqCode);
+            map.put("seqCode", seqDetail.getCode());
             map.put("useId", deptScope.getUseId());
             seqManageMapper.createSeqDeptScope(map);
         }
 
         for(SeqScopeDTO formScope : formScopeList){
             Map<String, Object> map = new HashMap<>();
-            map.put("seqCode", seqCode);
+            map.put("seqCode", seqDetail.getCode());
             map.put("formCode", formScope.getUseId());
             seqManageMapper.createSeqFormScope(map);
         }
