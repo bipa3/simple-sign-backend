@@ -1,5 +1,6 @@
 package bitedu.bipa.simplesignbackend.mapper;
 import bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO;
+import bitedu.bipa.simplesignbackend.model.dto.SearchRequestDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -8,14 +9,42 @@ import java.util.List;
 
 @Mapper
 public interface ApprovalBoxMapper {
-    ArrayList<DocumentListDTO> getSendDocList(@Param("userId") int userId, @Param("itemsPerPage")int itemsPerPage, @Param("offset")int offset);
+    ArrayList<DocumentListDTO> getDocumentsByViewItems(
+            @Param("userId") int userId,
+            @Param("itemsPerPage") int itemsPerPage,
+            @Param("offset") int offset,
+            @Param("deptId") int deptId,
+            @Param("viewItems") List<String> viewItems
+    );
 
-    ArrayList<DocumentListDTO> getTemporDocList(@Param("userId") int userId, @Param("itemsPerPage")int itemsPerPage, @Param("offset")int offset);
+    ArrayList<DocumentListDTO> getDocCountByViewItems(@Param("userId") int userId,
+                                                      @Param("deptId") int deptId,
+                                                      @Param("viewItems") List<String> viewItems);
 
-    ArrayList<DocumentListDTO> getPendDocList(@Param("userId") int userId, @Param("itemsPerPage")int itemsPerPage, @Param("offset")int offset);
 
-    ArrayList<DocumentListDTO> getConcludeDocList(@Param("userId") int userId, @Param("itemsPerPage")int itemsPerPage, @Param("offset")int offset);
 
-    ArrayList<DocumentListDTO> getReferenceDocList(@Param("userId") int userId, @Param("itemsPerPage")int itemsPerPage, @Param("offset")int offset, @Param("deptId") int deptId);
+    ArrayList<DocumentListDTO> getSearchDocumentsByViewItems(@Param("userId") int userId,
+                                                             @Param("itemsPerPage") int itemsPerPage,
+                                                             @Param("offset") int offset,
+                                                             @Param("deptId") int deptId,
+                                                             @Param("viewItems") List<String> viewItems,
+                                                             @Param("searchInput") String searchInput);
 
+    ArrayList<DocumentListDTO> getSearchDocCountByViewItems(@Param("userId") int userId,
+                                                            @Param("deptId") int deptId,
+                                                            @Param("viewItems") List<String> viewItems,
+                                                            @Param("searchInput") String searchInput);
+
+
+    ArrayList<DocumentListDTO> getDetailSearchDocsList(@Param("userId") int userId,
+                                                        @Param("deptId") int deptId,
+                                                        @Param("viewItems") List<String> viewItems,
+                                                        @Param("itemsPerPage") int itemsPerPage,
+                                                        @Param("offset") int offset,
+                                                        @Param("criteria") SearchRequestDTO criteria);
+
+    ArrayList<DocumentListDTO> getDetailSearchDocsCount(@Param("userId") int userId,
+                                                        @Param("deptId") int deptId,
+                                                        @Param("viewItems") List<String> viewItems,
+                                                        @Param("criteria") SearchRequestDTO criteria);
 }
