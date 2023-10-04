@@ -8,6 +8,7 @@ import java.util.ArrayList;
 @Data
 public class FormDetailResDTO {
     private int code;
+    private String compId;
     private String formName;
     private ArrayList<FormDetailScopeVO> scope;
     private String defaultForm;
