@@ -13,7 +13,6 @@ public class OrgService {
     @Autowired
     private OrgDAO orgDAO;
 
-
     // TreeView
     public List<OrgCompanyDTO> orgTreeView() {
         List<OrgCompanyDTO> rawDataList = orgDAO.getOrgTreeView();
@@ -70,6 +69,55 @@ public class OrgService {
         }
 
         return new ArrayList<>(companyMap.values());
+    }
+
+    // TopGridView
+    public List<OrgRespDTO> getGrid(String nodeId, String type, boolean isChecked){
+        String[] ids = nodeId.split("-");
+
+
+        if(isChecked){
+            // 하위 부서가 체크 O
+            switch (ids.length){
+                case 1:
+                    return orgDAO.getBottomComp(Integer.parseInt(ids[0]));
+                case 2:
+                    if("dept".equals(type)){
+                        return orgDAO.getBottomEst(Integer.parseInt(ids[1]));
+                    }else if("user".equals(type)){
+                    }
+                case 3:
+                    if("dept".equals(type)){
+                        return orgDAO.getBottonDept(Integer.parseInt(ids[2]));
+                    } else if ("user".equals(type)) {
+                    }
+                    break;
+                default:
+                    return new ArrayList<>();
+            }
+        }else{
+            // 하위 부서 체크 X
+            switch (ids.length){
+                case 1:
+                    return orgDAO.getComp(Integer.parseInt(ids[0]));
+                case 2:
+                    if("dept".equals(type)){
+                        return orgDAO.getDeptEst(Integer.parseInt(ids[1]));
+                    }else if("user".equals(type)){
+                        return orgDAO.getEst(Integer.parseInt(ids[1]));
+                    }
+                case 3:
+                    if("dept".equals(type)){
+                        return orgDAO.getDept(Integer.parseInt(ids[2]));
+                    } else if ("user".equals(type)) {
+                        return orgDAO.getUser(Integer.parseInt(ids[2]));
+                    }
+                    break;
+                default:
+                    return new ArrayList<>();
+            }
+        }
+        return new ArrayList<>();
     }
 
 }

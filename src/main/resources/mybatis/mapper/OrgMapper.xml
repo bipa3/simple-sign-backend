@@ -13,4 +13,114 @@
         order by c.comp_id, e.est_id, d.dept_id;
     </select>
 
+    <select id="selectComp" parameterType="int" resultType="OrgRespDTO">
+        select * from company where comp_id = #{compId};
+    </select>
+
+    <select id="selectDeptEst" parameterType="int" resultType="OrgRespDTO">
+        select c.comp_id, c.comp_name, e.est_id, e.est_name,
+        null as dept_id, null as dept_name
+        from company c
+        left join establishment e on c.comp_id = e.comp_id
+        where e.est_id = #{estId}
+        union
+        select c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name
+        from company c
+        left join establishment e on c.comp_id = e.comp_id
+        left join department d on e.est_id = d.est_id
+        where e.est_id = #{estId} and d.dept_level = 1;
+    </select>
+
+    <select id="selectEst" parameterType="int" resultType="OrgRespDTO">
+        select c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name
+        from company c
+        left join establishment e on c.comp_id = e.comp_id
+        left join department d on e.est_id = d.est_id and d.dept_level = 1
+        where d.est_id=#{estId}
+        order by c.comp_id, e.est_id, d.dept_id;
+    </select>
+
+    <select id="selectDept" parameterType="int" resultType="OrgRespDTO">
+        select c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name
+        from company c
+        left join establishment e on c.comp_id = e.comp_id
+        left join department d on e.est_id = d.est_id
+        where d.dept_id=#{deptId}
+        order by c.comp_id, e.est_id, d.dept_id;
+    </select>
+
+    <select id="selectUser" parameterType="int" resultType="OrgRespDTO">
+        select c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name,
+        NULL as position_code, NULL as position_name,
+        NULL as grade_code, NULL as grade_name,
+        NULL as user_id, NULL as user_name
+        from company c
+        left join establishment e on c.comp_id = e.comp_id
+        left join department d on e.est_id = d.est_id
+        where d.dept_id = #{deptId}
+        UNION ALL
+        select c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name,
+        p.position_code, p.position_name, g.grade_code, g.grade_name, u.user_id, u.user_name
+        from organization_user o
+        left join user u on o.user_id = u.user_id
+        left join department d on o.dept_id = d.dept_id
+        left join position p on o.position_code = p.position_code
+        left join grade g on o.grade_code = g.grade_code
+        left join establishment e on d.est_id = e.est_id
+        left join company c on e.comp_id = c.comp_id
+        where d.dept_id = #{deptId};
+    </select>
+
+    <select id="selectBottomComp" parameterType="int" resultType="OrgRespDTO">
+        select comp_id, comp_name,
+        null as est_id, null as est_name,
+        null as dept_id, null as dept_name
+        from company where comp_id = #{compId}
+        UNION
+        select c.comp_id, c.comp_name, e.est_id, e.est_name,
+        null as dept_id, null as dept_name
+        from company c
+        left join establishment e on c.comp_id = e.comp_id
+        where c.comp_id = #{compId}
+        union
+        select c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name
+        from company c
+        left join establishment e on c.comp_id = e.comp_id
+        left join department d on e.est_id = d.est_id
+        where c.comp_id = #{compId}
+        order by comp_id, est_id, dept_id;
+    </select>
+
+    <select id="selectBottomDeptEst" parameterType="int" resultType="OrgRespDTO">
+        select c.comp_id, c.comp_name, e.est_id, e.est_name,
+        null as dept_id, null as dept_name
+        from establishment e
+        left join company c on c.comp_id = e.comp_id
+        where e.est_id = #{estId}
+        union
+        select c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name
+        from establishment e
+        left join company c on c.comp_id = e.comp_id
+        left join department d on e.est_id = d.est_id
+        where e.est_id = #{estId}
+        order by comp_id, est_id, dept_id;
+    </select>
+
+    <select id="selectBottomDept" parameterType="int" resultType="OrgRespDTO">
+        WITH RECURSIVE RecursiveDept AS (
+        SELECT c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name
+        FROM department d
+        left join establishment e on d.est_id = e.est_id
+        left join company c on e.comp_id = c.comp_id
+        WHERE dept_id = #{deptId}
+        UNION ALL
+        SELECT c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name
+        FROM department d
+        JOIN RecursiveDept rd ON d.upper_dept_id = rd.dept_id
+        left join establishment e on d.est_id = e.est_id
+        left join company c on e.comp_id = c.comp_id
+        )
+        SELECT * FROM RecursiveDept;
+    </select>
+
 </mapper>
