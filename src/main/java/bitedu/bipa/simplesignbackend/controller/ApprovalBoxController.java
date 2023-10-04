@@ -1,13 +1,11 @@
 package bitedu.bipa.simplesignbackend.controller;
 import bitedu.bipa.simplesignbackend.dao.CommonDAO;
-import bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SearchRequestDTO;
 import bitedu.bipa.simplesignbackend.service.ApprovalBoxService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

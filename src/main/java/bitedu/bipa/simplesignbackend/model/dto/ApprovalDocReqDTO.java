@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class ApprovalReqDTO {
+public class ApprovalDocReqDTO {
     //상신시에는 모든 값이 null 값이면 안됨
     private int userId;
     private int deptId;

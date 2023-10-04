@@ -10,7 +10,7 @@ import java.util.Map;
 @Mapper
 public interface ApproveMapper {
 
-    int insertApprovalDoc(ApprovalReqDTO dto);
+    int insertApprovalDoc(ApprovalDocReqDTO dto);
 
     int insertApprovalLine(ApprovalLineDTO dto);
 
@@ -20,6 +20,22 @@ public interface ApproveMapper {
 
     int insertProductNumber(Map map);
 
+    ApprovalResDTO selectApprovalByApprovalId(Map map);
+
+    int updateCurrentApproval(ApprovalResDTO approvalResDTO);
+
+    ApprovalDocResDTO selectApprovalCount(int approvalDocId);
+
+    int updateApprovalDoc(ApprovalDocResDTO approvalDocResDTO);
+
+    ApprovalResDTO selectUpperApproverId(ApprovalResDTO approvalResDTO);
+
+    int updateUpperApproverId(ApprovalResDTO approvalResDTO);
+
+    int selectRecipientId(int approvalDocId);
 
 
+    List<Integer> selectLowerApproverId(Map map);
+
+    ApprovalDocDetailDTO selectApprovalDocById(int approvalDocId);
 }

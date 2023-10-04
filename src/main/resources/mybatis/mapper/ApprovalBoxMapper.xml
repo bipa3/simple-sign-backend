@@ -370,16 +370,19 @@
                     WHERE ad.user_id = #{userId}
                     AND ad.doc_status IN ('A', 'R', 'P', 'W')
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
-                        <choose>
-                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
-
+                    <if test="criteria.startDate != null || criteria.endDate != null">
+                    <choose>
+                            <when test="criteria.searchDate == 'sendDate'"  >
+                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                            </when>
+                            <when test="criteria.searchDate == 'arrivedDate'">
+                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'approvDate'">
-
+                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'closedDate'">
-
+                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <otherwise>
 
@@ -447,16 +450,19 @@
                     WHERE ad.user_id = #{userId}
                     AND ad.doc_status = 'T'
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                    <if test="criteria.startDate != null || criteria.endDate != null">
                         <choose>
-                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
-
+                            <when test="criteria.searchDate == 'sendDate'"  >
+                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                            </when>
+                            <when test="criteria.searchDate == 'arrivedDate'">
+                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'approvDate'">
-
+                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'closedDate'">
-
+                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <otherwise>
 
@@ -526,16 +532,19 @@
                     AND ad.doc_status = 'P'
                     AND a.approval_status = 'P'
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                    <if test="criteria.startDate != null || criteria.endDate != null">
                         <choose>
-                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
-
+                            <when test="criteria.searchDate == 'sendDate'"  >
+                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                            </when>
+                            <when test="criteria.searchDate == 'arrivedDate'">
+                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'approvDate'">
-
+                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'closedDate'">
-
+                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <otherwise>
 
@@ -605,16 +614,19 @@
                     AND ad.doc_status IN ('A', 'R', 'P')
                     AND a.approval_status IN ('A', 'R')
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                    <if test="criteria.startDate != null || criteria.endDate != null">
                         <choose>
-                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
-
+                            <when test="criteria.searchDate == 'sendDate'"  >
+                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                            </when>
+                            <when test="criteria.searchDate == 'arrivedDate'">
+                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'approvDate'">
-
+                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'closedDate'">
-
+                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <otherwise>
 
@@ -683,16 +695,19 @@
                     LEFT JOIN form f ON ad.form_code = f.form_code
                     WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                    <if test="criteria.startDate != null || criteria.endDate != null">
                         <choose>
-                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
-
+                            <when test="criteria.searchDate == 'sendDate'"  >
+                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                            </when>
+                            <when test="criteria.searchDate == 'arrivedDate'">
+                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'approvDate'">
-
+                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'closedDate'">
-
+                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <otherwise>
 
@@ -769,16 +784,19 @@
                     WHERE ad.user_id = #{userId}
                     AND ad.doc_status IN ('A', 'R', 'P', 'W')
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                    <if test="criteria.startDate != null || criteria.endDate != null">
                         <choose>
-                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
-
+                            <when test="criteria.searchDate == 'sendDate'"  >
+                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                            </when>
+                            <when test="criteria.searchDate == 'arrivedDate'">
+                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'approvDate'">
-
+                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'closedDate'">
-
+                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <otherwise>
 
@@ -808,16 +826,16 @@
 
                     <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
                         <choose>
-                            <when test="criteria.searchApprovState == '2'"  >
+                            <when test="criteria.searchApprovState == 2"  >
                                 AND ad.doc_status = 'W'
                             </when>
-                            <when test="criteria.searchApprovState == '3'">
+                            <when test="criteria.searchApprovState == 3">
                                 AND ad.doc_status = 'P'
                             </when>
-                            <when test="criteria.searchApprovState == '4'">
+                            <when test="criteria.searchApprovState == 4">
                                 AND ad.doc_status IN ('A', 'R')
                             </when>
-                            <when test="criteria.searchApprovState == '5'">
+                            <when test="criteria.searchApprovState == 5">
                                 AND ad.doc_status = 'R'
                             </when>
                             <otherwise>
@@ -845,16 +863,19 @@
                     WHERE ad.user_id = #{userId}
                     AND ad.doc_status = 'T'
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                    <if test="criteria.startDate != null || criteria.endDate != null">
                         <choose>
-                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
-
+                            <when test="criteria.searchDate == 'sendDate'"  >
+                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                            </when>
+                            <when test="criteria.searchDate == 'arrivedDate'">
+                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'approvDate'">
-
+                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'closedDate'">
-
+                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <otherwise>
 
@@ -923,16 +944,19 @@
                     AND ad.doc_status = 'P'
                     AND a.approval_status = 'P'
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                    <if test="criteria.startDate != null || criteria.endDate != null">
                         <choose>
-                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
-
+                            <when test="criteria.searchDate == 'sendDate'"  >
+                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                            </when>
+                            <when test="criteria.searchDate == 'arrivedDate'">
+                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'approvDate'">
-
+                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'closedDate'">
-
+                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <otherwise>
 
@@ -1001,16 +1025,19 @@
                     AND ad.doc_status IN ('A', 'R', 'P')
                     AND a.approval_status IN ('A', 'R')
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                    <if test="criteria.startDate != null || criteria.endDate != null">
                         <choose>
-                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
-
+                            <when test="criteria.searchDate == 'sendDate'"  >
+                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                            </when>
+                            <when test="criteria.searchDate == 'arrivedDate'">
+                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'approvDate'">
-
+                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'closedDate'">
-
+                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <otherwise>
 
@@ -1078,16 +1105,19 @@
                     LEFT JOIN form f ON ad.form_code = f.form_code
                     WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.startDate != '' || criteria.endDate != null and criteria.endDate != ''">
+                    <if test="criteria.startDate != null || criteria.endDate != null">
                         <choose>
-                            <when test="criteria.searchDate == 'sendDate' || criteria.searchDate == 'arriveDate'"  >
-
+                            <when test="criteria.searchDate == 'sendDate'"  >
+                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                            </when>
+                            <when test="criteria.searchDate == 'arrivedDate'">
+                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'approvDate'">
-
+                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <when test="criteria.searchDate == 'closedDate'">
-
+                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                             </when>
                             <otherwise>
 
