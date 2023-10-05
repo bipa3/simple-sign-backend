@@ -22,9 +22,9 @@ public interface OrgMapper {
 
     List<OrgRespDTO> selectUser(int deptId);
 
-    List<OrgRespDTO> selectBottomComp(int compId);
-
     List<OrgRespDTO> selectBottomDeptComp(int compId);
+
+    List<OrgRespDTO> selectBottomUserComp(int compId);
 
     List<OrgRespDTO> selectBottomDeptEst(int estId);
 
@@ -33,4 +33,13 @@ public interface OrgMapper {
     List<OrgRespDTO> selectBottomDept(int deptId);
 
     List<OrgRespDTO> selectBottomUser(int deptId);
+
+    // Search
+    List<OrgRespDTO> searchComp(String search);
+
+    List<OrgRespDTO> searchEst(String search);
+
+    List<OrgRespDTO> searchDept(String search);
+
+    List<OrgRespDTO> searchUser(String search);
 }
