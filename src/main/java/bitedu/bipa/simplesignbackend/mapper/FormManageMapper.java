@@ -35,4 +35,6 @@ public interface FormManageMapper {
 
     void deleteForm(int code);
 
+    List<FormDTO> selectFormListAll();
+
 }

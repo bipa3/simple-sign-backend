@@ -98,4 +98,8 @@
         UPDATE form SET form_del_status=1 WHERE form_code = #{code}
     </update>
 
+    <select id="selectFormListAll">
+        select form_code AS id, form_name from form;
+    </select>
+
 </mapper>

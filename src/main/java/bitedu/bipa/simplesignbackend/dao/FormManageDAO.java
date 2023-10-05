@@ -105,4 +105,8 @@ public class FormManageDAO {
         formManageMapper.deleteForm(code);
         return true;
     }
+
+    public List<FormDTO> searchFormListAll() {
+        return formManageMapper.selectFormListAll();
+    }
 }

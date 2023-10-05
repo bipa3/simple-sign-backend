@@ -48,4 +48,8 @@ public class FormManageService {
     public Boolean removeForm(int code) {
         return formManageDAO.deleteForm(code);
     }
+
+    public List<FormDTO> searchFormList() {
+        return formManageDAO.searchFormListAll();
+    }
 }
