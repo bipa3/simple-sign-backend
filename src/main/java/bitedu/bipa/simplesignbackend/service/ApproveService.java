@@ -190,7 +190,7 @@ public class ApproveService {
     @Transactional
     public void updateApprovalDoc(int userId, int approvalDocId, ApprovalDocReqDTO approvalDocReqDTO) {
         //1. 결재라인에서 수정자 아이디가 존재하는지 확인
-        ApprovalOrderResDTO approvalOrderResDTO = approveDAO.selectUserIdByApprovalDoc(userId,approvalDocId);
+        ApprovalOrderResDTO approvalOrderResDTO = approveDAO.selectUserCountByApprovalDoc(userId,approvalDocId);
         if(approvalOrderResDTO.getCount() !=1) {
             throw  new RuntimeException(); //권한이 없음
         } else {
@@ -228,4 +228,19 @@ public class ApproveService {
         }
     }
 
+    @Transactional
+    public void removeApprovalDoc(int userId, int approvalDocId) {
+        //삭제하고 싶은 결재문서의 작성자 확인
+        int approvalDocRegisterId = approveDAO.selectUserIdByApprovalDoc(approvalDocId);
+
+        //권한에 따른 삭제 -> 본인이거나, 부서관리자거나 시스템관리자거나?
+        if(approvalDocRegisterId == userId) {
+            //있으면 del_status 업데이트 하기
+            int affectedCount = approveDAO.deleteApprovalDoc(approvalDocId);
+            if(affectedCount ==0) {
+                throw  new RuntimeException(); //삭제안됨
+            }
+        }
+
+    }
 }
