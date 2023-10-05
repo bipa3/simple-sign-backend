@@ -80,9 +80,9 @@ public class OrgService {
             switch (ids.length){
                 case 1:
                     if("dept".equals(type)){
-                        return orgDAO.getBottomComp(Integer.parseInt(ids[0]));
-                    } else if ("user".equals(type)) {
                         return orgDAO.getBottomDeptComp(Integer.parseInt(ids[0]));
+                    } else if ("user".equals(type)) {
+                        return orgDAO.getBottomUserComp(Integer.parseInt(ids[0]));
                     }
                 case 2:
                     if("dept".equals(type)){
@@ -120,6 +120,20 @@ public class OrgService {
                 default:
                     return new ArrayList<>();
             }
+        }
+        return new ArrayList<>();
+    }
+
+    // Search
+    public List<OrgRespDTO> searchOrg(String category, String search) {
+        if (category.equals("회사")) {
+            return orgDAO.searchComp(search);
+        } else if (category.equals("사업장")) {
+            return orgDAO.searchEst(search);
+        }else if(category.equals("부서")){
+            return orgDAO.searchDept(search);
+        } else if (category.equals("사용자")) {
+            return orgDAO.searchUser(search);
         }
         return new ArrayList<>();
     }
