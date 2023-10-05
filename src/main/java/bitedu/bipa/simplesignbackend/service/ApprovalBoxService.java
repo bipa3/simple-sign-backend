@@ -1,5 +1,7 @@
 package bitedu.bipa.simplesignbackend.service;
 import bitedu.bipa.simplesignbackend.dao.ApprovalBoxDAO;
+import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO;
+import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDetailDTO;
 import bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SearchRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,4 +60,11 @@ public class ApprovalBoxService {
         return result;
     }
 
+    public ArrayList<ApprovalBoxDTO> selectApprovalBox(int company) {
+        return approvalBoxDAO.selectBoxList(company);
+    }
+
+    public ArrayList<ApprovalBoxDetailDTO> selectApprovalBoxDetail(int boxId) {
+        return approvalBoxDAO.selectBoxDetail(boxId);
+    }
 }

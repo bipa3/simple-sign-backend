@@ -21,8 +21,6 @@ public interface ApprovalBoxMapper {
                                                       @Param("deptId") int deptId,
                                                       @Param("viewItems") List<String> viewItems);
 
-
-
     ArrayList<DocumentListDTO> getSearchDocumentsByViewItems(@Param("userId") int userId,
                                                              @Param("itemsPerPage") int itemsPerPage,
                                                              @Param("offset") int offset,
@@ -35,7 +33,6 @@ public interface ApprovalBoxMapper {
                                                             @Param("viewItems") List<String> viewItems,
                                                             @Param("searchInput") String searchInput);
 
-
     ArrayList<DocumentListDTO> getDetailSearchDocsList(@Param("userId") int userId,
                                                         @Param("deptId") int deptId,
                                                         @Param("viewItems") List<String> viewItems,
@@ -47,4 +44,5 @@ public interface ApprovalBoxMapper {
                                                         @Param("deptId") int deptId,
                                                         @Param("viewItems") List<String> viewItems,
                                                         @Param("criteria") SearchRequestDTO criteria);
+
 }
