@@ -101,11 +101,11 @@ public class ApproveDAO {
         return approveMapper.selectRecievedRefUserId(approvalDocId);
     }
 
-    public ApprovalOrderResDTO selectUserIdByApprovalDoc(int userId, int approvalDocId) {
+    public ApprovalOrderResDTO selectUserCountByApprovalDoc(int userId, int approvalDocId) {
         Map<String, Integer> map = new HashMap<>();
         map.put("userId", userId);
         map.put("approvalDocId", approvalDocId);
-        return approveMapper.selectUserIdByApprovalDoc(map);
+        return approveMapper.selectUserCountByApprovalDoc(map);
 
     }
 
@@ -136,5 +136,13 @@ public class ApproveDAO {
 
     public int deleteReceivedRef(int approvalDocId) {
         return approveMapper.deleteReceivedRef(approvalDocId);
+    }
+
+    public int selectUserIdByApprovalDoc(int approvalDocId) {
+        return approveMapper.selectUserIdByApprovalDoc(approvalDocId);
+    }
+
+    public int deleteApprovalDoc(int approvalDocId) {
+        return approveMapper.deleteApprovalDoc(approvalDocId);
     }
 }

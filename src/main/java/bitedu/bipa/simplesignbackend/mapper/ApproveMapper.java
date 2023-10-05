@@ -44,7 +44,7 @@ public interface ApproveMapper {
 
     List<Integer> selectRecievedRefUserId(int approvalDocId);
 
-    ApprovalOrderResDTO selectUserIdByApprovalDoc(Map map);
+    ApprovalOrderResDTO selectUserCountByApprovalDoc(Map map);
 
     char selectApprovalDocStatus(int approvalDocId);
 
@@ -55,4 +55,8 @@ public interface ApproveMapper {
     List<Integer> selectUpdateAlarmRecipient(int approvalDocId);
 
     int deleteReceivedRef(int approvalDocId);
+
+    int selectUserIdByApprovalDoc(int approvalDocId);
+
+    int deleteApprovalDoc(int approvalDocId);
 }

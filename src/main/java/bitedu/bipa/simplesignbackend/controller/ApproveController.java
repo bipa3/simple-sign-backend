@@ -54,4 +54,11 @@ public class ApproveController {
         return ResponseEntity.ok("ok");
     }
 
+    @DeleteMapping("/{num}")
+    public ResponseEntity<String> removeApprovalDoc(@PathVariable("num") int approvalDocId) {
+        int userId = 1;
+        approveService.removeApprovalDoc(userId, approvalDocId);
+        return ResponseEntity.ok("ok");
+    }
+
 }
