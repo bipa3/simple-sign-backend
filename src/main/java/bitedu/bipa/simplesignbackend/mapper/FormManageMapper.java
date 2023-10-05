@@ -35,4 +35,12 @@ public interface FormManageMapper {
 
     void deleteForm(int code);
 
+    List<FormDTO> selectFormListAll();
+
+    List<DefaultApprovalLineDTO> selectDefaultApprovalLine(int code);
+    void createDefaultApprovalLine(Map map);
+
+    void delDefaultLine(Map map);
+    void insertIgnoreDefaultLine(Map map);
+
 }
