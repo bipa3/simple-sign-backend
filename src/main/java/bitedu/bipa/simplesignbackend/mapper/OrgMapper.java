@@ -24,8 +24,13 @@ public interface OrgMapper {
 
     List<OrgRespDTO> selectBottomComp(int compId);
 
+    List<OrgRespDTO> selectBottomDeptComp(int compId);
+
     List<OrgRespDTO> selectBottomDeptEst(int estId);
+
+    List<OrgRespDTO> selectBottomUserEst(int estId);
 
     List<OrgRespDTO> selectBottomDept(int deptId);
 
+    List<OrgRespDTO> selectBottomUser(int deptId);
 }
