@@ -113,7 +113,7 @@
             on t1.user_id = t3.user_id
             left join form t4
             on t1.form_code = t4.form_code
-        where approval_doc_id = #{approvalDocId};
+        where approval_doc_id = #{approvalDocId} and doc_del_status = 0;
     </select>
 
     <!--수신참조자 조회-->
@@ -122,7 +122,7 @@
     </select>
 
     <!--결재자 여부 확인-->
-    <select id="selectUserIdByApprovalDoc" parameterType="Map" resultType="ApprovalOrderResDTO">
+    <select id="selectUserCountByApprovalDoc" parameterType="Map" resultType="ApprovalOrderResDTO">
         select count(*) as count, approval_order from approval
         where approval_doc_id = #{approvalDocId} and user_id = #{userId};
     </select>
@@ -160,5 +160,17 @@
         delete from received_ref
         where approval_doc_id = #{approvalDocId};
     </delete>
+
+    <!--삭제할 결재문서의 작성자 확인-->
+    <select id="selectUserIdByApprovalDoc" parameterType="int" resultType="int">
+        select user_id from approval_doc
+        where approval_doc_id = #{approvalDocId};
+    </select>
+
+    <!--결재문서 삭제하기-->
+    <update id="deleteApprovalDoc" parameterType="int">
+        update approval_doc set doc_del_status = 1
+        where approval_doc_id = #{approvalDocId};
+    </update>
 
 </mapper>

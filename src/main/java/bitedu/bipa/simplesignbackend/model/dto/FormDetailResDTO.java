@@ -4,6 +4,7 @@ import bitedu.bipa.simplesignbackend.model.vo.FormDetailScopeVO;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class FormDetailResDTO {
@@ -14,4 +15,5 @@ public class FormDetailResDTO {
     private String defaultForm;
     private String mainForm;
     private Boolean status;
+    private List<DefaultApprovalLineDTO> approvalLine;
 }

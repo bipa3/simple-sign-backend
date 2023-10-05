@@ -56,6 +56,7 @@ public class FormManageDAO {
         formManageMapper.createFormDetail(formDetail);
         int formCode = commonMapper.getLastInsertId();
 
+        // 공개범위
         ArrayList<FormDetailScopeVO> scopeList = formDetail.getScope();
         for(FormDetailScopeVO scope : scopeList){
             Map<String, Object> map = new HashMap<>();
@@ -64,6 +65,19 @@ public class FormManageDAO {
             map.put("useId", scope.getUseId());
             formManageMapper.createFormScope(map);
         }
+
+        //결재 라인
+        List<DefaultApprovalLineDTO> lineList = formDetail.getApprovalLine();
+
+        for(DefaultApprovalLineDTO line : lineList) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("formCode", formCode);
+            map.put("userId", line.getUserId());
+            map.put("deptId", line.getDeptId());
+            map.put("lineOrder", line.getLineOrder());
+            map.put("compId", line.getCompId());
+            formManageMapper.createDefaultApprovalLine(map);
+        }
         return true;
     }
 
@@ -71,6 +85,7 @@ public class FormManageDAO {
     public Boolean updateFormDetail(FormDetailResDTO formDetail) {
         formManageMapper.updateFormDetail(formDetail);
 
+        //공개 범위
         int formCode = formDetail.getCode();
         ArrayList<FormDetailScopeVO> updateScopeList = formDetail.getScope();
         ArrayList<FormDetailScopeVO> defaultScopeList = (ArrayList) formManageMapper.getFormDetailScope(formCode);
@@ -98,11 +113,49 @@ public class FormManageDAO {
             formManageMapper.insertIgnoreFormScope(map);
         }
 
+        //결재 라인
+        List<DefaultApprovalLineDTO> updateLineList = formDetail.getApprovalLine();
+        List<DefaultApprovalLineDTO> defaultLineList = searchDefaultApprovalLineAll(formCode);
+        List<DefaultApprovalLineDTO> missingLineList = new ArrayList<>();
+
+        for (DefaultApprovalLineDTO defaultLine : defaultLineList) {
+            if (!updateLineList.contains(defaultLine)) {
+                missingLineList.add(defaultLine);
+            }
+        }
+
+        for (DefaultApprovalLineDTO delLine : missingLineList) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("formCode", formCode);
+            map.put("userId", delLine.getUserId());
+            map.put("deptId", delLine.getDeptId());
+            map.put("compId", delLine.getCompId());
+            formManageMapper.delDefaultLine(map);
+        }
+
+        for (DefaultApprovalLineDTO insertLine : updateLineList) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("formCode", formCode);
+            map.put("userId", insertLine.getUserId());
+            map.put("deptId", insertLine.getDeptId());
+            map.put("lineOrder", insertLine.getLineOrder());
+            map.put("compId", insertLine.getCompId());
+            formManageMapper.insertIgnoreDefaultLine(map);
+        }
+
         return true;
     }
 
     public Boolean deleteForm(int code) {
         formManageMapper.deleteForm(code);
         return true;
+    }
+
+    public List<FormDTO> searchFormListAll() {
+        return formManageMapper.selectFormListAll();
+    }
+
+    public List<DefaultApprovalLineDTO> searchDefaultApprovalLineAll(int code) {
+        return formManageMapper.selectDefaultApprovalLine(code);
     }
 }
