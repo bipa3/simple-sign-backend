@@ -52,4 +52,8 @@ public class FormManageService {
     public List<FormDTO> searchFormList() {
         return formManageDAO.searchFormListAll();
     }
+
+    public List<DefaultApprovalLineDTO> searchDefaultApprovalLine(int code) {
+        return formManageDAO.searchDefaultApprovalLineAll(code);
+    }
 }

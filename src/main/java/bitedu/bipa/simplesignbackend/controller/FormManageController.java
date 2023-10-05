@@ -54,6 +54,17 @@ public class FormManageController {
         }
     }
 
+    @GetMapping("/detail/dal/{code}")
+    public ResponseEntity<List<DefaultApprovalLineDTO>> defaultApprovalLineSearch(@PathVariable int code) {
+        List<DefaultApprovalLineDTO> formDetail = formManageService.searchDefaultApprovalLine(code);
+
+        if (formDetail != null) {
+            return new ResponseEntity<>(formDetail, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/item/list")
     public ResponseEntity<List<FormItemDTO>> formIteamSearch() {
         List<FormItemDTO> formDetail = formManageService.searchFormItem();
@@ -80,6 +91,7 @@ public class FormManageController {
 
     @PostMapping("/detail")
     public ResponseEntity registFormDetail(@RequestBody FormDetailResDTO formDetail){
+        System.out.println(formDetail.toString());
         Boolean createResult = formManageService.formDetailRegist(formDetail);
         if (createResult) {
             return new ResponseEntity<>(HttpStatus.OK);
@@ -90,6 +102,7 @@ public class FormManageController {
 
     @PatchMapping("/detail")
     public ResponseEntity changeFormDetail(@RequestBody FormDetailResDTO formDetail){
+        System.out.println(formDetail.toString());
         Boolean updateResult = formManageService.formDetailChange(formDetail);
         if (updateResult) {
             return new ResponseEntity<>(HttpStatus.OK);
