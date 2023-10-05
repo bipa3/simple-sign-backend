@@ -32,6 +32,17 @@ public class FormManageController {
         }
     }
 
+    @GetMapping("/list/all")
+    public ResponseEntity<List<FormDTO>> formListSearch( ) {
+        List<FormDTO> formList = formManageService.searchFormList();
+
+        if (formList != null) {
+            return new ResponseEntity<>(formList, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/detail/{code}")
     public ResponseEntity<FormDetailResDTO> formDetailSearch(@PathVariable int code) {
         FormDetailResDTO formDetail = formManageService.searchFormDetail(code);
