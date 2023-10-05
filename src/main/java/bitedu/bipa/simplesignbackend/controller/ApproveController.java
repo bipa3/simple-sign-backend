@@ -33,7 +33,7 @@ public class ApproveController {
 
     @PostMapping("/return/{num}")
     public ResponseEntity<String> returnApprovalDoc(@PathVariable("num") int approvalDocId) {
-        int userId = 3;
+        int userId = 1;
         approveService.returnApprovalDoc(userId, approvalDocId);
         return ResponseEntity.ok("ok");
     }
@@ -43,6 +43,15 @@ public class ApproveController {
         ApprovalDocDetailDTO approvalDocDetailDTO =  approveService.showDetailApprovalDoc(approvalDocId);
         return ResponseEntity.ok(approvalDocDetailDTO);
 
+    }
+
+    @PatchMapping("/{num}")
+    public ResponseEntity<String>  updateApporvalDoc(@PathVariable("num") int approvalDocId, @RequestBody ApprovalDocReqDTO approvalDocReqDTO) {
+        int userId = 1;
+        //System.out.println(approvalDocId);
+        //System.out.println(approvalDocReqDTO);
+        approveService.updateApprovalDoc(userId, approvalDocId, approvalDocReqDTO);
+        return ResponseEntity.ok("ok");
     }
 
 }

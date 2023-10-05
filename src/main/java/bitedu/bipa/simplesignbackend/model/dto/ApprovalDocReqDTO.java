@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 public class ApprovalDocReqDTO {
     //상신시에는 모든 값이 null 값이면 안됨
+    private int approvalDocId;
     private int userId;
     private int deptId;
     private String gradeName;
@@ -18,6 +19,7 @@ public class ApprovalDocReqDTO {
     private String approvalDocTitle;
     private String contents;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private int approvalCount;
     private char docStatus;
     private LocalDate enforcementDate;
