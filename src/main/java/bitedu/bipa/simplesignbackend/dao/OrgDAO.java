@@ -38,11 +38,11 @@ public class OrgDAO {
         return orgMapper.selectUser(deptId);
     }
 
-    public List<OrgRespDTO> getBottomComp(int compId){
-        return orgMapper.selectBottomComp(compId);
+    public List<OrgRespDTO> getBottomDeptComp(int compId){
+        return orgMapper.selectBottomDeptComp(compId);
     }
 
-    public List<OrgRespDTO> getBottomDeptComp(int compId){return orgMapper.selectBottomDeptComp(compId);}
+    public List<OrgRespDTO> getBottomUserComp(int compId){return orgMapper.selectBottomUserComp(compId);}
 
     public List<OrgRespDTO> getBottomEst(int estId){
         return orgMapper.selectBottomDeptEst(estId);
@@ -58,5 +58,22 @@ public class OrgDAO {
 
     public List<OrgRespDTO> getBottonUser(int deptId){
         return orgMapper.selectBottomUser(deptId);
+    }
+
+    // Search
+    public List<OrgRespDTO> searchComp(String search){
+        return orgMapper.searchComp(search);
+    }
+
+    public List<OrgRespDTO> searchEst(String search){
+        return orgMapper.searchEst(search);
+    }
+
+    public List<OrgRespDTO> searchDept(String search){
+        return orgMapper.searchDept(search);
+    }
+
+    public List<OrgRespDTO> searchUser(String search){
+        return orgMapper.searchUser(search);
     }
 }
