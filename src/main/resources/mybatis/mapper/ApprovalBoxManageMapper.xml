@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.ApprovalBoxManageMapper">
+
+    <select id="getApprovalBoxList" resultType="bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO">
+        <choose>
+            <when test="company == 0">
+                SELECT approval_box_id,approval_box_name FROM approval_box
+                WHERE box_delete_status != 1;
+            </when>
+            <otherwise>
+                SELECT ab.approval_box_id, ab.approval_box_name FROM approval_box ab
+                join box_use_department bud ON bud.approval_box_id = ab.approval_box_id
+                join company c ON bud.use_id = c.comp_id AND bud.using_category = 'C'
+                WHERE ab.box_delete_status != 1
+                AND c.comp_id = #{company};
+            </otherwise>
+        </choose>
+    </select>
+    <select id="getApprovalBoxDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDetailDTO">
+        SELECT ab.approval_box_id, c.comp_id,c.comp_name, ab.approval_box_name, ab.approval_box_used_status, ab.menu_using_range, ab.sort_order
+        FROM approval_box ab
+        JOIN box_use_department bud ON bud.approval_box_id = ab.approval_box_id
+        JOIN company c ON (c.comp_id = bud.use_id AND using_category = 'C')
+        AND ab.approval_box_id =#{boxId};
+    </select>
+
+    <update id="upDateDelApprovalBox">
+        UPDATE approval_box SET box_delete_status=1 WHERE approval_box_id = #{boxId};
+    </update>
+
+
+</mapper>

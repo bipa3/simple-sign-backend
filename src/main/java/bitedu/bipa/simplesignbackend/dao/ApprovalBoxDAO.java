@@ -1,9 +1,13 @@
 package bitedu.bipa.simplesignbackend.dao;
 
 
+import bitedu.bipa.simplesignbackend.mapper.ApprovalBoxManageMapper;
 import bitedu.bipa.simplesignbackend.mapper.ApprovalBoxMapper;
+import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO;
+import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDetailDTO;
 import bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SearchRequestDTO;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +18,8 @@ import java.util.List;
 public class ApprovalBoxDAO {
     @Autowired
     ApprovalBoxMapper approvalBoxMapper;
+    @Autowired
+    ApprovalBoxManageMapper approvalBoxManageMapper;
 
     public ArrayList<DocumentListDTO> selectDocsList(List<String> viewItems, int userId, int deptId, int itemsPerPage, int offset) {
         return approvalBoxMapper.getDocumentsByViewItems(userId,itemsPerPage,offset,deptId,viewItems);
@@ -40,4 +46,15 @@ public class ApprovalBoxDAO {
         return approvalBoxMapper.getDetailSearchDocsCount(userId,deptId,viewItems,criteria);
     }
 
+    public ArrayList<ApprovalBoxDTO> selectBoxList(int company) {
+        return approvalBoxManageMapper.getApprovalBoxList(company);
+    }
+
+    public ArrayList<ApprovalBoxDetailDTO> selectBoxDetail(int boxId) {
+        return approvalBoxManageMapper.getApprovalBoxDetail(boxId);
+    }
+
+    public void deleteApprovalBox(int boxId) {
+        approvalBoxManageMapper.upDateDelApprovalBox(boxId);
+    }
 }
