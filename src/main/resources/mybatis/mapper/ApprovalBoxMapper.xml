@@ -43,7 +43,6 @@
                     JOIN department d ON d.dept_id = ou.dept_id
                     LEFT JOIN form f ON ad.form_code = f.form_code
                     WHERE a.user_id = #{userId}
-                    AND ad.doc_status = 'P'
                     AND a.approval_status = 'P'
                     AND ad.doc_del_status = 0
                     ORDER BY ad.created_at DESC
@@ -119,7 +118,6 @@
                     JOIN department d ON d.dept_id = ou.dept_id
                     LEFT JOIN form f ON ad.form_code = f.form_code
                     WHERE a.user_id = #{userId}
-                    AND ad.doc_status = 'P'
                     AND a.approval_status = 'P'
                     AND ad.doc_del_status = 0
                     ORDER BY ad.created_at DESC;
@@ -204,7 +202,6 @@
                     JOIN department d ON d.dept_id = ou.dept_id
                     LEFT JOIN form f ON ad.form_code = f.form_code
                     WHERE a.user_id = #{userId}
-                    AND ad.doc_status = 'P'
                     AND a.approval_status = 'P'
                     AND ad.doc_del_status = 0
                     AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
@@ -305,7 +302,6 @@
                     JOIN department d ON d.dept_id = ou.dept_id
                     LEFT JOIN form f ON ad.form_code = f.form_code
                     WHERE a.user_id = #{userId}
-                    AND ad.doc_status = 'P'
                     AND a.approval_status = 'P'
                     AND ad.doc_del_status = 0
                     AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
@@ -529,7 +525,6 @@
                     JOIN department d ON d.dept_id = ou.dept_id
                     LEFT JOIN form f ON ad.form_code = f.form_code
                     WHERE a.user_id = #{userId}
-                    AND ad.doc_status = 'P'
                     AND a.approval_status = 'P'
                     AND ad.doc_del_status = 0
                     <if test="criteria.startDate != null || criteria.endDate != null">
@@ -941,7 +936,6 @@
                     JOIN department d ON d.dept_id = ou.dept_id
                     LEFT JOIN form f ON ad.form_code = f.form_code
                     WHERE a.user_id = #{userId}
-                    AND ad.doc_status = 'P'
                     AND a.approval_status = 'P'
                     AND ad.doc_del_status = 0
                     <if test="criteria.startDate != null || criteria.endDate != null">
