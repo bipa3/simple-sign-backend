@@ -30,4 +30,10 @@ public class OrgController {
     public ResponseEntity<List<OrgRespDTO>> gridGet(@PathVariable String nodeId, @RequestParam String type, @RequestParam boolean isChecked){
         return ResponseEntity.ok(orgService.getGrid(nodeId, type, isChecked));
     }
+
+    // Search
+    @GetMapping("/orgsearch")
+    public ResponseEntity<List<OrgRespDTO>> orgSearch(@RequestParam String category, @RequestParam String search){
+        return ResponseEntity.ok(orgService.searchOrg(category, search));
+    }
 }
