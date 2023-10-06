@@ -1,5 +1,6 @@
 package bitedu.bipa.simplesignbackend.dao;
 
+import bitedu.bipa.simplesignbackend.enums.ApprovalStatus;
 import bitedu.bipa.simplesignbackend.mapper.ApproveMapper;
 import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
 import bitedu.bipa.simplesignbackend.model.dto.*;
@@ -98,5 +99,50 @@ public class ApproveDAO {
 
     public List<Integer> selectRecievedRefUserId(int approvalDocId) {
         return approveMapper.selectRecievedRefUserId(approvalDocId);
+    }
+
+    public ApprovalOrderResDTO selectUserCountByApprovalDoc(int userId, int approvalDocId) {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("userId", userId);
+        map.put("approvalDocId", approvalDocId);
+        return approveMapper.selectUserCountByApprovalDoc(map);
+
+    }
+
+    public boolean isUpdatePossible(int approvalDocId, int approvalOrder) {
+        char docStatus = approveMapper.selectApprovalDocStatus(approvalDocId);
+        if(docStatus == ApprovalStatus.APPROVAL.getCode() || docStatus == ApprovalStatus.RETURN.getCode()) {
+            throw new RuntimeException(); //이미 결재된 문서임
+        }
+        Map<String, Integer> map = new HashMap<>();
+        map.put("approvalDocId", approvalDocId);
+        map.put("approvalOrder", approvalOrder);
+        List<Character> approvalStatusList = approveMapper.selectApprovalStatusList(map);
+        for(char approvalStatus : approvalStatusList) {
+            if(approvalStatus == ApprovalStatus.APPROVAL.getCode() || approvalStatus == ApprovalStatus.RETURN.getCode()) {
+                throw  new RuntimeException(); //이미 상위 결재자 중 결재한 사람이 있음
+            }
+        }
+        return true;
+    }
+
+    public int updateApprovalDocFromRequest(ApprovalDocReqDTO approvalDocReqDTO) {
+        return approveMapper.updateApprovalDocFromRequest(approvalDocReqDTO);
+    }
+
+    public List<Integer> selectUpdateAlarmRecipient(int approvalDocId) {
+        return approveMapper.selectUpdateAlarmRecipient(approvalDocId);
+    }
+
+    public int deleteReceivedRef(int approvalDocId) {
+        return approveMapper.deleteReceivedRef(approvalDocId);
+    }
+
+    public int selectUserIdByApprovalDoc(int approvalDocId) {
+        return approveMapper.selectUserIdByApprovalDoc(approvalDocId);
+    }
+
+    public int deleteApprovalDoc(int approvalDocId) {
+        return approveMapper.deleteApprovalDoc(approvalDocId);
     }
 }

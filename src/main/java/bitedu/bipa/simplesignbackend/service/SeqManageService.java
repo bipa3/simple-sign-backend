@@ -32,4 +32,8 @@ public class SeqManageService {
     public Boolean seqDetailRegist(SeqDetailDTO seqDetail) {
         return seqManageDAO.insertSeqDetail(seqDetail);
     }
+
+    public Boolean seqDetailChange(SeqDetailDTO seqDetailDTO) {
+        return seqManageDAO.updateSeqDetail(seqDetailDTO);
+    }
 }

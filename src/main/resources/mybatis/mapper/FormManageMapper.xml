@@ -67,8 +67,8 @@
     </select>
 
     <insert id="createFormDetail" >
-        INSERT INTO form(form_code, form_name, default_form, main_form, form_used_status)
-        VALUES(#{formCode}, #{formName}, #{defaultForm}, #{mainForm}, #{status});
+        INSERT INTO form(comp_id, form_name, default_form, main_form, form_used_status)
+        VALUES(#{compId}, #{formName}, #{defaultForm}, #{mainForm}, #{status});
     </insert>
 
     <insert id="createFormScope" parameterType="map">
@@ -97,5 +97,37 @@
     <update id="deleteForm">
         UPDATE form SET form_del_status=1 WHERE form_code = #{code}
     </update>
+
+    <select id="selectFormListAll">
+        select form_code AS id, form_name from form;
+    </select>
+
+    <select id="selectDefaultApprovalLine">
+        SELECT c.comp_id, c.comp_name, d.dept_id, d.dept_name, u.user_id, u.user_name, line_order
+        FROM default_approval_line AS dl
+        INNER JOIN company AS c ON dl.comp_id=c.comp_id
+        INNER JOIN department AS d ON dl.dept_id=d.dept_id
+        INNER JOIN user AS u ON dl.user_id=u.user_id
+        WHERE form_code=#{code} ORDER BY line_order;
+    </select>
+
+    <insert id="createDefaultApprovalLine" parameterType="map">
+        insert into
+        default_approval_line(form_code, user_id, dept_id, line_order, comp_id)
+        values(#{formCode}, #{userId}, #{deptId}, #{lineOrder}, #{compId});
+    </insert>
+
+    <delete id="delDefaultLine" parameterType="map">
+        DELETE FROM default_approval_line
+        WHERE form_code=#{formCode} AND user_id = #{userId} AND dept_id = #{deptId} AND comp_id=#{compId}
+    </delete>
+
+    <insert id="insertIgnoreDefaultLine" parameterType="map">
+        INSERT IGNORE INTO
+        default_approval_line(form_code, user_id, dept_id, line_order, comp_id)
+        VALUES(#{formCode}, #{userId}, #{deptId}, #{lineOrder}, #{compId});
+    </insert>
+
+
 
 </mapper>

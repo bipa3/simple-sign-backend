@@ -113,12 +113,64 @@
             on t1.user_id = t3.user_id
             left join form t4
             on t1.form_code = t4.form_code
-        where approval_doc_id = #{approvalDocId};
+        where approval_doc_id = #{approvalDocId} and doc_del_status = 0;
     </select>
 
     <!--수신참조자 조회-->
     <select id="selectRecievedRefUserId" parameterType="int" resultType="int">
         select user_id from received_ref where approval_doc_id = #{approvalDocId} and active_state = 1;
     </select>
+
+    <!--결재자 여부 확인-->
+    <select id="selectUserCountByApprovalDoc" parameterType="Map" resultType="ApprovalOrderResDTO">
+        select count(*) as count, approval_order from approval
+        where approval_doc_id = #{approvalDocId} and user_id = #{userId};
+    </select>
+
+    <!--결재문서 수정이 가능한지 확인-->
+    <select id="selectApprovalDocStatus" parameterType="int" resultType="char">
+        select doc_status from approval_doc
+            where approval_doc_id = #{approvalDocId};
+    </select>
+    <select id="selectApprovalStatusList" parameterType="Map" resultType="char">
+        <![CDATA[
+            select approval_status from approval
+            where approval_doc_id = #{approvalDocId}
+            and approval_order > #{approvalOrder};
+        ]]>
+    </select>
+
+    <!--결재문서 수정하기-->
+    <update id="updateApprovalDocFromRequest" parameterType="ApprovalDocReqDTO">
+        update approval_doc
+        set approval_doc_title = #{approvalDocTitle}, contents = #{contents}, created_at = #{createdAt}, updated_at = #{updatedAt},
+        enforcement_date = #{enforcementDate}, seq_code = #{seqCode}
+        where approval_doc_id = #{approvalDocId};
+    </update>
+
+    <!--문서수정 알람수신자 가져오기-->
+    <select id="selectUpdateAlarmRecipient" parameterType="int" resultType="int">
+        select user_id from approval
+        where approval_doc_id = #{approvalDocId}
+        and (approval_status = 'P' or approval_status = 'A');
+    </select>
+
+    <!--수신참조 삭제-->
+    <delete id="deleteReceivedRef" parameterType="int">
+        delete from received_ref
+        where approval_doc_id = #{approvalDocId};
+    </delete>
+
+    <!--삭제할 결재문서의 작성자 확인-->
+    <select id="selectUserIdByApprovalDoc" parameterType="int" resultType="int">
+        select user_id from approval_doc
+        where approval_doc_id = #{approvalDocId};
+    </select>
+
+    <!--결재문서 삭제하기-->
+    <update id="deleteApprovalDoc" parameterType="int">
+        update approval_doc set doc_del_status = 1
+        where approval_doc_id = #{approvalDocId};
+    </update>
 
 </mapper>

@@ -187,6 +187,60 @@ public class ApproveService {
         return approvalDocDetailDTO;
     }
 
+    @Transactional
+    public void updateApprovalDoc(int userId, int approvalDocId, ApprovalDocReqDTO approvalDocReqDTO) {
+        //1. 결재라인에서 수정자 아이디가 존재하는지 확인
+        ApprovalOrderResDTO approvalOrderResDTO = approveDAO.selectUserCountByApprovalDoc(userId,approvalDocId);
+        if(approvalOrderResDTO.getCount() !=1) {
+            throw  new RuntimeException(); //권한이 없음
+        } else {
+            //2. 결재라인에서 수정자 아이디 이후 결재자는 결재를 안했는지 확인
+            int approvalOrder = approvalOrderResDTO.getApprovalOrder();
+            approveDAO.isUpdatePossible(approvalDocId, approvalOrder);
+        }
+        //3. 결재문서 수정
+        approvalDocReqDTO.setApprovalDocId(approvalDocId);
+        approvalDocReqDTO.setUpdatedAt(LocalDateTime.now());
+        int affectedCount = approveDAO.updateApprovalDocFromRequest(approvalDocReqDTO);
+        if(affectedCount ==0) {
+            throw  new RuntimeException(); //문서 수정 안됨
+        }
 
+        //4.원래 있던 수신참조 삭제 및 수신참조 재삽입
+        approveDAO.deleteReceivedRef(approvalDocId);
+        List<Integer> receivedRef = approvalDocReqDTO.getReceiveRefList();
+        int totalCount = receivedRef.size();
+        int receiveCount = 0;
+        for(int receiver: receivedRef) {
+            int deptId = commonDAO.selectDeptId(receiver);
+            ReceivedRefDTO receivedRefDTO = new ReceivedRefDTO(receiver,deptId,approvalDocId);
+             approveDAO.insertReceivedRef(receivedRefDTO);
+            receiveCount +=affectedCount;
+        }
+        if(totalCount !=receiveCount) {
+            throw new RuntimeException();
+        }
 
+        //5. 알림보내기(문서를 결재한 사람들, 문서를 수신한 사람)
+        List<Integer> updateAlarmRecipientList = approveDAO.selectUpdateAlarmRecipient(approvalDocId);
+        for(int recipient: updateAlarmRecipientList) {
+            alarmService.createNewAlarm(approvalDocId, recipient, AlarmStatus.UPDATE.getCode());
+        }
+    }
+
+    @Transactional
+    public void removeApprovalDoc(int userId, int approvalDocId) {
+        //삭제하고 싶은 결재문서의 작성자 확인
+        int approvalDocRegisterId = approveDAO.selectUserIdByApprovalDoc(approvalDocId);
+
+        //권한에 따른 삭제 -> 본인이거나, 부서관리자거나 시스템관리자거나?
+        if(approvalDocRegisterId == userId) {
+            //있으면 del_status 업데이트 하기
+            int affectedCount = approveDAO.deleteApprovalDoc(approvalDocId);
+            if(affectedCount ==0) {
+                throw  new RuntimeException(); //삭제안됨
+            }
+        }
+
+    }
 }
