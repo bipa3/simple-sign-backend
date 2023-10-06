@@ -66,6 +66,12 @@ public class ApprovalBoxController {
         return detail;
     }
 
+    @PutMapping("/box/delete")
+    public ResponseEntity<Void> viewDocBoxDelete(@RequestParam(name="boxId") int boxId) {
+        approvalBoxService.deleteApprovalBox(boxId);
+        return ResponseEntity.ok().build();  // 200 OK
+    }
+
 }
 
 

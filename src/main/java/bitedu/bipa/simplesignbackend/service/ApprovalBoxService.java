@@ -67,4 +67,8 @@ public class ApprovalBoxService {
     public ArrayList<ApprovalBoxDetailDTO> selectApprovalBoxDetail(int boxId) {
         return approvalBoxDAO.selectBoxDetail(boxId);
     }
+
+    public void deleteApprovalBox(int boxId) {
+        approvalBoxDAO.deleteApprovalBox(boxId);
+    }
 }

@@ -11,4 +11,6 @@ public interface ApprovalBoxManageMapper {
     ArrayList<ApprovalBoxDTO> getApprovalBoxList(@Param("company")int company);
 
     ArrayList<ApprovalBoxDetailDTO> getApprovalBoxDetail(@Param(("boxId")) int boxId);
+
+    void upDateDelApprovalBox(@Param("boxId")int boxId);
 }

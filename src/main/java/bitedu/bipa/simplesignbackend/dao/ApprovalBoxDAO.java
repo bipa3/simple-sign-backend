@@ -53,4 +53,8 @@ public class ApprovalBoxDAO {
     public ArrayList<ApprovalBoxDetailDTO> selectBoxDetail(int boxId) {
         return approvalBoxManageMapper.getApprovalBoxDetail(boxId);
     }
+
+    public void deleteApprovalBox(int boxId) {
+        approvalBoxManageMapper.upDateDelApprovalBox(boxId);
+    }
 }
