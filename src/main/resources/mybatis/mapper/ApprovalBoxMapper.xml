@@ -366,7 +366,7 @@
                     WHERE ad.user_id = #{userId}
                     AND ad.doc_status IN ('A', 'R', 'P', 'W')
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null || criteria.endDate != null">
+                    <if test="criteria.startDate != null and criteria.endDate != null">
                     <choose>
                             <when test="criteria.searchDate == 'sendDate'"  >
                                 AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
@@ -408,16 +408,16 @@
 
                     <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
                         <choose>
-                            <when test="criteria.searchApprovState == 2"  >
+                            <when test="criteria.searchApprovState == '상신'"  >
                                 AND ad.doc_status = 'W'
                             </when>
-                            <when test="criteria.searchApprovState == 3">
+                            <when test="criteria.searchApprovState == '진행'">
                                 AND ad.doc_status = 'P'
                             </when>
-                            <when test="criteria.searchApprovState == 4">
+                            <when test="criteria.searchApprovState == '종결'">
                                 AND ad.doc_status IN ('A', 'R')
                             </when>
-                            <when test="criteria.searchApprovState == 5">
+                            <when test="criteria.searchApprovState == '반려'">
                                 AND ad.doc_status = 'R'
                             </when>
                             <otherwise>
@@ -446,7 +446,7 @@
                     WHERE ad.user_id = #{userId}
                     AND ad.doc_status = 'T'
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null || criteria.endDate != null">
+                    <if test="criteria.startDate != null and criteria.endDate != null">
                         <choose>
                             <when test="criteria.searchDate == 'sendDate'"  >
                                 AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
@@ -488,16 +488,16 @@
 
                     <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
                         <choose>
-                            <when test="criteria.searchApprovState == '2'"  >
+                            <when test="criteria.searchApprovState == '상신'"  >
                                 AND ad.doc_status = 'W'
                             </when>
-                            <when test="criteria.searchApprovState == '3'">
+                            <when test="criteria.searchApprovState == '진행'">
                                 AND ad.doc_status = 'P'
                             </when>
-                            <when test="criteria.searchApprovState == '4'">
+                            <when test="criteria.searchApprovState == '종결'">
                                 AND ad.doc_status IN ('A', 'R')
                             </when>
-                            <when test="criteria.searchApprovState == '5'">
+                            <when test="criteria.searchApprovState == '반려'">
                                 AND ad.doc_status = 'R'
                             </when>
                             <otherwise>
@@ -527,7 +527,7 @@
                     WHERE a.user_id = #{userId}
                     AND a.approval_status = 'P'
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null || criteria.endDate != null">
+                    <if test="criteria.startDate != null and criteria.endDate != null">
                         <choose>
                             <when test="criteria.searchDate == 'sendDate'"  >
                                 AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
@@ -569,16 +569,16 @@
 
                     <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
                         <choose>
-                            <when test="criteria.searchApprovState == '2'"  >
+                            <when test="criteria.searchApprovState == '상신'"  >
                                 AND ad.doc_status = 'W'
                             </when>
-                            <when test="criteria.searchApprovState == '3'">
+                            <when test="criteria.searchApprovState == '진행'">
                                 AND ad.doc_status = 'P'
                             </when>
-                            <when test="criteria.searchApprovState == '4'">
+                            <when test="criteria.searchApprovState == '종결'">
                                 AND ad.doc_status IN ('A', 'R')
                             </when>
-                            <when test="criteria.searchApprovState == '5'">
+                            <when test="criteria.searchApprovState == '반려'">
                                 AND ad.doc_status = 'R'
                             </when>
                             <otherwise>
@@ -609,7 +609,7 @@
                     AND ad.doc_status IN ('A', 'R', 'P')
                     AND a.approval_status IN ('A', 'R')
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null || criteria.endDate != null">
+                    <if test="criteria.startDate != null and criteria.endDate != null">
                         <choose>
                             <when test="criteria.searchDate == 'sendDate'"  >
                                 AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
@@ -651,16 +651,16 @@
 
                     <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
                         <choose>
-                            <when test="criteria.searchApprovState == '2'"  >
+                            <when test="criteria.searchApprovState == '상신'"  >
                                 AND ad.doc_status = 'W'
                             </when>
-                            <when test="criteria.searchApprovState == '3'">
+                            <when test="criteria.searchApprovState == '진행'">
                                 AND ad.doc_status = 'P'
                             </when>
-                            <when test="criteria.searchApprovState == '4'">
+                            <when test="criteria.searchApprovState == '종결'">
                                 AND ad.doc_status IN ('A', 'R')
                             </when>
-                            <when test="criteria.searchApprovState == '5'">
+                            <when test="criteria.searchApprovState == '반려'">
                                 AND ad.doc_status = 'R'
                             </when>
                             <otherwise>
@@ -690,7 +690,7 @@
                     LEFT JOIN form f ON ad.form_code = f.form_code
                     WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null || criteria.endDate != null">
+                    <if test="criteria.startDate != null and criteria.endDate != null">
                         <choose>
                             <when test="criteria.searchDate == 'sendDate'"  >
                                 AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
@@ -732,16 +732,16 @@
 
                     <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
                         <choose>
-                            <when test="criteria.searchApprovState == '2'"  >
+                            <when test="criteria.searchApprovState == '상신'"  >
                                 AND ad.doc_status = 'W'
                             </when>
-                            <when test="criteria.searchApprovState == '3'">
+                            <when test="criteria.searchApprovState == '진행'">
                                 AND ad.doc_status = 'P'
                             </when>
-                            <when test="criteria.searchApprovState == '4'">
+                            <when test="criteria.searchApprovState == '종결'">
                                 AND ad.doc_status IN ('A', 'R')
                             </when>
-                            <when test="criteria.searchApprovState == '5'">
+                            <when test="criteria.searchApprovState == '반려'">
                                 AND ad.doc_status = 'R'
                             </when>
                             <otherwise>
@@ -757,7 +757,6 @@
                     <if test="criteria.searchDocNumber > 0">
                         AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
                     </if>
-
                     ORDER BY ad.created_at DESC
                     LIMIT #{itemsPerPage} OFFSET #{offset};
                 </when>
@@ -779,7 +778,7 @@
                     WHERE ad.user_id = #{userId}
                     AND ad.doc_status IN ('A', 'R', 'P', 'W')
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null || criteria.endDate != null">
+                    <if test="criteria.startDate != null and criteria.endDate != null">
                         <choose>
                             <when test="criteria.searchDate == 'sendDate'"  >
                                 AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
@@ -821,16 +820,16 @@
 
                     <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
                         <choose>
-                            <when test="criteria.searchApprovState == 2"  >
+                            <when test="criteria.searchApprovState == '상신'"  >
                                 AND ad.doc_status = 'W'
                             </when>
-                            <when test="criteria.searchApprovState == 3">
+                            <when test="criteria.searchApprovState == '진행'">
                                 AND ad.doc_status = 'P'
                             </when>
-                            <when test="criteria.searchApprovState == 4">
+                            <when test="criteria.searchApprovState == '종결'">
                                 AND ad.doc_status IN ('A', 'R')
                             </when>
-                            <when test="criteria.searchApprovState == 5">
+                            <when test="criteria.searchApprovState == '반려'">
                                 AND ad.doc_status = 'R'
                             </when>
                             <otherwise>
@@ -858,7 +857,7 @@
                     WHERE ad.user_id = #{userId}
                     AND ad.doc_status = 'T'
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null || criteria.endDate != null">
+                    <if test="criteria.startDate != null and criteria.endDate != null">
                         <choose>
                             <when test="criteria.searchDate == 'sendDate'"  >
                                 AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
@@ -900,16 +899,16 @@
 
                     <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
                         <choose>
-                            <when test="criteria.searchApprovState == '2'"  >
+                            <when test="criteria.searchApprovState == '상신'"  >
                                 AND ad.doc_status = 'W'
                             </when>
-                            <when test="criteria.searchApprovState == '3'">
+                            <when test="criteria.searchApprovState == '진행'">
                                 AND ad.doc_status = 'P'
                             </when>
-                            <when test="criteria.searchApprovState == '4'">
+                            <when test="criteria.searchApprovState == '종결'">
                                 AND ad.doc_status IN ('A', 'R')
                             </when>
-                            <when test="criteria.searchApprovState == '5'">
+                            <when test="criteria.searchApprovState == '반려'">
                                 AND ad.doc_status = 'R'
                             </when>
                             <otherwise>
@@ -938,7 +937,7 @@
                     WHERE a.user_id = #{userId}
                     AND a.approval_status = 'P'
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null || criteria.endDate != null">
+                    <if test="criteria.startDate != null and criteria.endDate != null">
                         <choose>
                             <when test="criteria.searchDate == 'sendDate'"  >
                                 AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
@@ -980,16 +979,16 @@
 
                     <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
                         <choose>
-                            <when test="criteria.searchApprovState == '2'"  >
+                            <when test="criteria.searchApprovState == '상신'"  >
                                 AND ad.doc_status = 'W'
                             </when>
-                            <when test="criteria.searchApprovState == '3'">
+                            <when test="criteria.searchApprovState == '진행'">
                                 AND ad.doc_status = 'P'
                             </when>
-                            <when test="criteria.searchApprovState == '4'">
+                            <when test="criteria.searchApprovState == '종결'">
                                 AND ad.doc_status IN ('A', 'R')
                             </when>
-                            <when test="criteria.searchApprovState == '5'">
+                            <when test="criteria.searchApprovState == '반려'">
                                 AND ad.doc_status = 'R'
                             </when>
                             <otherwise>
@@ -1019,7 +1018,7 @@
                     AND ad.doc_status IN ('A', 'R', 'P')
                     AND a.approval_status IN ('A', 'R')
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null || criteria.endDate != null">
+                    <if test="criteria.startDate != null and criteria.endDate != null">
                         <choose>
                             <when test="criteria.searchDate == 'sendDate'"  >
                                 AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
@@ -1061,16 +1060,16 @@
 
                     <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
                         <choose>
-                            <when test="criteria.searchApprovState == '2'"  >
+                            <when test="criteria.searchApprovState == '상신'"  >
                                 AND ad.doc_status = 'W'
                             </when>
-                            <when test="criteria.searchApprovState == '3'">
+                            <when test="criteria.searchApprovState == '진행'">
                                 AND ad.doc_status = 'P'
                             </when>
-                            <when test="criteria.searchApprovState == '4'">
+                            <when test="criteria.searchApprovState == '종결'">
                                 AND ad.doc_status IN ('A', 'R')
                             </when>
-                            <when test="criteria.searchApprovState == '5'">
+                            <when test="criteria.searchApprovState == '반려'">
                                 AND ad.doc_status = 'R'
                             </when>
                             <otherwise>
@@ -1099,7 +1098,7 @@
                     LEFT JOIN form f ON ad.form_code = f.form_code
                     WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null || criteria.endDate != null">
+                    <if test="criteria.startDate != null and criteria.endDate != null">
                         <choose>
                             <when test="criteria.searchDate == 'sendDate'"  >
                                 AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
@@ -1141,16 +1140,16 @@
 
                     <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
                         <choose>
-                            <when test="criteria.searchApprovState == '2'"  >
+                            <when test="criteria.searchApprovState == '상신'"  >
                                 AND ad.doc_status = 'W'
                             </when>
-                            <when test="criteria.searchApprovState == '3'">
+                            <when test="criteria.searchApprovState == '진행'">
                                 AND ad.doc_status = 'P'
                             </when>
-                            <when test="criteria.searchApprovState == '4'">
+                            <when test="criteria.searchApprovState == '종결'">
                                 AND ad.doc_status IN ('A', 'R')
                             </when>
-                            <when test="criteria.searchApprovState == '5'">
+                            <when test="criteria.searchApprovState == '반려'">
                                 AND ad.doc_status = 'R'
                             </when>
                             <otherwise>

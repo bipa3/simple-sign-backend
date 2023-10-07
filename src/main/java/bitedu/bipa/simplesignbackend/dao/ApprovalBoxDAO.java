@@ -7,7 +7,6 @@ import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDetailDTO;
 import bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SearchRequestDTO;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
