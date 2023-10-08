@@ -352,6 +352,62 @@
         </foreach>
     </select>
 
+    <sql id="commonIfConditions">
+        <if test="criteria.startDate != null and criteria.endDate != null">
+            <choose>
+                <when test="criteria.searchDate == 'sendDate'"  >
+                    AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                </when>
+                <when test="criteria.searchDate == 'arrivedDate'">
+                    AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                </when>
+                <when test="criteria.searchDate == 'approvDate'">
+                    AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                </when>
+                <when test="criteria.searchDate == 'closedDate'">
+                    AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                </when>
+            </choose>
+        </if>
+        <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
+            AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
+        </if>
+        <if test="criteria.searchContent != null and criteria.searchContent != ''">
+            AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
+        </if>
+        <if test="criteria.searchDept != null and criteria.searchDept != ''">
+            AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
+        </if>
+        <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
+            AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
+        </if>
+        <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
+            AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
+        </if>
+        <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
+            <choose>
+                <when test="criteria.searchApprovState == '상신'"  >
+                    AND ad.doc_status = 'W'
+                </when>
+                <when test="criteria.searchApprovState == '진행'">
+                    AND ad.doc_status = 'P'
+                </when>
+                <when test="criteria.searchApprovState == '종결'">
+                    AND ad.doc_status IN ('A', 'R')
+                </when>
+                <when test="criteria.searchApprovState == '반려'">
+                    AND ad.doc_status = 'R'
+                </when>
+            </choose>
+        </if>
+        <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
+            AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
+        </if>
+        <if test="criteria.searchDocNumber > 0">
+            AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
+        </if>
+    </sql>
+
     <select id="getDetailSearchDocsList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
         <foreach collection="viewItems" item="viewItem" separator="UNION">
             <choose>
@@ -366,73 +422,7 @@
                     WHERE ad.user_id = #{userId}
                     AND ad.doc_status IN ('A', 'R', 'P', 'W')
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.endDate != null">
-                    <choose>
-                            <when test="criteria.searchDate == 'sendDate'"  >
-                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'arrivedDate'">
-                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'approvDate'">
-                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'closedDate'">
-                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
-                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
-                    </if>
-
-                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
-                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
-                    </if>
-
-                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
-                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
-                    </if>
-
-                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
-                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
-                    </if>
-
-                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
-                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
-                    </if>
-
-                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
-                        <choose>
-                            <when test="criteria.searchApprovState == '상신'"  >
-                                AND ad.doc_status = 'W'
-                            </when>
-                            <when test="criteria.searchApprovState == '진행'">
-                                AND ad.doc_status = 'P'
-                            </when>
-                            <when test="criteria.searchApprovState == '종결'">
-                                AND ad.doc_status IN ('A', 'R')
-                            </when>
-                            <when test="criteria.searchApprovState == '반려'">
-                                AND ad.doc_status = 'R'
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
-                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
-                    </if>
-
-                    <if test="criteria.searchDocNumber > 0">
-                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
-                    </if>
+                    <include refid="commonIfConditions"/>
                     ORDER BY ad.created_at DESC
                     LIMIT #{itemsPerPage} OFFSET #{offset};
                 </when>
@@ -446,73 +436,7 @@
                     WHERE ad.user_id = #{userId}
                     AND ad.doc_status = 'T'
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.endDate != null">
-                        <choose>
-                            <when test="criteria.searchDate == 'sendDate'"  >
-                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'arrivedDate'">
-                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'approvDate'">
-                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'closedDate'">
-                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
-                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
-                    </if>
-
-                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
-                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
-                    </if>
-
-                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
-                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
-                    </if>
-
-                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
-                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
-                    </if>
-
-                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
-                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
-                    </if>
-
-                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
-                        <choose>
-                            <when test="criteria.searchApprovState == '상신'"  >
-                                AND ad.doc_status = 'W'
-                            </when>
-                            <when test="criteria.searchApprovState == '진행'">
-                                AND ad.doc_status = 'P'
-                            </when>
-                            <when test="criteria.searchApprovState == '종결'">
-                                AND ad.doc_status IN ('A', 'R')
-                            </when>
-                            <when test="criteria.searchApprovState == '반려'">
-                                AND ad.doc_status = 'R'
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
-                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
-                    </if>
-
-                    <if test="criteria.searchDocNumber > 0">
-                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
-                    </if>
+                    <include refid="commonIfConditions"/>
                     ORDER BY ad.created_at DESC
                     LIMIT #{itemsPerPage} OFFSET #{offset};
                 </when>
@@ -527,73 +451,7 @@
                     WHERE a.user_id = #{userId}
                     AND a.approval_status = 'P'
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.endDate != null">
-                        <choose>
-                            <when test="criteria.searchDate == 'sendDate'"  >
-                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'arrivedDate'">
-                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'approvDate'">
-                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'closedDate'">
-                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
-                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
-                    </if>
-
-                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
-                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
-                    </if>
-
-                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
-                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
-                    </if>
-
-                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
-                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
-                    </if>
-
-                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
-                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
-                    </if>
-
-                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
-                        <choose>
-                            <when test="criteria.searchApprovState == '상신'"  >
-                                AND ad.doc_status = 'W'
-                            </when>
-                            <when test="criteria.searchApprovState == '진행'">
-                                AND ad.doc_status = 'P'
-                            </when>
-                            <when test="criteria.searchApprovState == '종결'">
-                                AND ad.doc_status IN ('A', 'R')
-                            </when>
-                            <when test="criteria.searchApprovState == '반려'">
-                                AND ad.doc_status = 'R'
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
-                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
-                    </if>
-
-                    <if test="criteria.searchDocNumber > 0">
-                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
-                    </if>
+                    <include refid="commonIfConditions"/>
                     ORDER BY ad.created_at DESC
                     LIMIT #{itemsPerPage} OFFSET #{offset};
                 </when>
@@ -609,73 +467,7 @@
                     AND ad.doc_status IN ('A', 'R', 'P')
                     AND a.approval_status IN ('A', 'R')
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.endDate != null">
-                        <choose>
-                            <when test="criteria.searchDate == 'sendDate'"  >
-                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'arrivedDate'">
-                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'approvDate'">
-                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'closedDate'">
-                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
-                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
-                    </if>
-
-                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
-                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
-                    </if>
-
-                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
-                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
-                    </if>
-
-                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
-                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
-                    </if>
-
-                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
-                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
-                    </if>
-
-                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
-                        <choose>
-                            <when test="criteria.searchApprovState == '상신'"  >
-                                AND ad.doc_status = 'W'
-                            </when>
-                            <when test="criteria.searchApprovState == '진행'">
-                                AND ad.doc_status = 'P'
-                            </when>
-                            <when test="criteria.searchApprovState == '종결'">
-                                AND ad.doc_status IN ('A', 'R')
-                            </when>
-                            <when test="criteria.searchApprovState == '반려'">
-                                AND ad.doc_status = 'R'
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
-                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
-                    </if>
-
-                    <if test="criteria.searchDocNumber > 0">
-                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
-                    </if>
+                    <include refid="commonIfConditions"/>
                     ORDER BY ad.created_at DESC
                     LIMIT #{itemsPerPage} OFFSET #{offset};
                 </when>
@@ -690,73 +482,7 @@
                     LEFT JOIN form f ON ad.form_code = f.form_code
                     WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.endDate != null">
-                        <choose>
-                            <when test="criteria.searchDate == 'sendDate'"  >
-                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'arrivedDate'">
-                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'approvDate'">
-                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'closedDate'">
-                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
-                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
-                    </if>
-
-                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
-                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
-                    </if>
-
-                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
-                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
-                    </if>
-
-                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
-                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
-                    </if>
-
-                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
-                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
-                    </if>
-
-                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
-                        <choose>
-                            <when test="criteria.searchApprovState == '상신'"  >
-                                AND ad.doc_status = 'W'
-                            </when>
-                            <when test="criteria.searchApprovState == '진행'">
-                                AND ad.doc_status = 'P'
-                            </when>
-                            <when test="criteria.searchApprovState == '종결'">
-                                AND ad.doc_status IN ('A', 'R')
-                            </when>
-                            <when test="criteria.searchApprovState == '반려'">
-                                AND ad.doc_status = 'R'
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
-                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
-                    </if>
-
-                    <if test="criteria.searchDocNumber > 0">
-                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
-                    </if>
+                    <include refid="commonIfConditions"/>
                     ORDER BY ad.created_at DESC
                     LIMIT #{itemsPerPage} OFFSET #{offset};
                 </when>
@@ -778,73 +504,7 @@
                     WHERE ad.user_id = #{userId}
                     AND ad.doc_status IN ('A', 'R', 'P', 'W')
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.endDate != null">
-                        <choose>
-                            <when test="criteria.searchDate == 'sendDate'"  >
-                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'arrivedDate'">
-                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'approvDate'">
-                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'closedDate'">
-                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
-                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
-                    </if>
-
-                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
-                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
-                    </if>
-
-                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
-                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
-                    </if>
-
-                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
-                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
-                    </if>
-
-                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
-                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
-                    </if>
-
-                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
-                        <choose>
-                            <when test="criteria.searchApprovState == '상신'"  >
-                                AND ad.doc_status = 'W'
-                            </when>
-                            <when test="criteria.searchApprovState == '진행'">
-                                AND ad.doc_status = 'P'
-                            </when>
-                            <when test="criteria.searchApprovState == '종결'">
-                                AND ad.doc_status IN ('A', 'R')
-                            </when>
-                            <when test="criteria.searchApprovState == '반려'">
-                                AND ad.doc_status = 'R'
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
-                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
-                    </if>
-
-                    <if test="criteria.searchDocNumber > 0">
-                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
-                    </if>
+                    <include refid="commonIfConditions"/>
                     ORDER BY ad.created_at DESC;
                 </when>
                 <when test="viewItem == 'tempor'">
@@ -857,73 +517,7 @@
                     WHERE ad.user_id = #{userId}
                     AND ad.doc_status = 'T'
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.endDate != null">
-                        <choose>
-                            <when test="criteria.searchDate == 'sendDate'"  >
-                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'arrivedDate'">
-                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'approvDate'">
-                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'closedDate'">
-                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
-                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
-                    </if>
-
-                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
-                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
-                    </if>
-
-                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
-                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
-                    </if>
-
-                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
-                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
-                    </if>
-
-                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
-                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
-                    </if>
-
-                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
-                        <choose>
-                            <when test="criteria.searchApprovState == '상신'"  >
-                                AND ad.doc_status = 'W'
-                            </when>
-                            <when test="criteria.searchApprovState == '진행'">
-                                AND ad.doc_status = 'P'
-                            </when>
-                            <when test="criteria.searchApprovState == '종결'">
-                                AND ad.doc_status IN ('A', 'R')
-                            </when>
-                            <when test="criteria.searchApprovState == '반려'">
-                                AND ad.doc_status = 'R'
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
-                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
-                    </if>
-
-                    <if test="criteria.searchDocNumber > 0">
-                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
-                    </if>
+                    <include refid="commonIfConditions"/>
                     ORDER BY ad.created_at DESC;
                 </when>
                 <when test="viewItem == 'pend'">
@@ -937,73 +531,7 @@
                     WHERE a.user_id = #{userId}
                     AND a.approval_status = 'P'
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.endDate != null">
-                        <choose>
-                            <when test="criteria.searchDate == 'sendDate'"  >
-                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'arrivedDate'">
-                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'approvDate'">
-                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'closedDate'">
-                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
-                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
-                    </if>
-
-                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
-                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
-                    </if>
-
-                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
-                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
-                    </if>
-
-                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
-                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
-                    </if>
-
-                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
-                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
-                    </if>
-
-                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
-                        <choose>
-                            <when test="criteria.searchApprovState == '상신'"  >
-                                AND ad.doc_status = 'W'
-                            </when>
-                            <when test="criteria.searchApprovState == '진행'">
-                                AND ad.doc_status = 'P'
-                            </when>
-                            <when test="criteria.searchApprovState == '종결'">
-                                AND ad.doc_status IN ('A', 'R')
-                            </when>
-                            <when test="criteria.searchApprovState == '반려'">
-                                AND ad.doc_status = 'R'
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
-                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
-                    </if>
-
-                    <if test="criteria.searchDocNumber > 0">
-                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
-                    </if>
+                    <include refid="commonIfConditions"/>
                     ORDER BY ad.created_at DESC;
                 </when>
                 <when test="viewItem == 'concluded'">
@@ -1018,73 +546,7 @@
                     AND ad.doc_status IN ('A', 'R', 'P')
                     AND a.approval_status IN ('A', 'R')
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.endDate != null">
-                        <choose>
-                            <when test="criteria.searchDate == 'sendDate'"  >
-                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'arrivedDate'">
-                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'approvDate'">
-                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'closedDate'">
-                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
-                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
-                    </if>
-
-                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
-                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
-                    </if>
-
-                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
-                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
-                    </if>
-
-                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
-                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
-                    </if>
-
-                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
-                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
-                    </if>
-
-                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
-                        <choose>
-                            <when test="criteria.searchApprovState == '상신'"  >
-                                AND ad.doc_status = 'W'
-                            </when>
-                            <when test="criteria.searchApprovState == '진행'">
-                                AND ad.doc_status = 'P'
-                            </when>
-                            <when test="criteria.searchApprovState == '종결'">
-                                AND ad.doc_status IN ('A', 'R')
-                            </when>
-                            <when test="criteria.searchApprovState == '반려'">
-                                AND ad.doc_status = 'R'
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
-                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
-                    </if>
-
-                    <if test="criteria.searchDocNumber > 0">
-                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
-                    </if>
+                    <include refid="commonIfConditions"/>
                     ORDER BY ad.created_at DESC;
                 </when>
                 <when test="viewItem == 'reference'">
@@ -1098,73 +560,7 @@
                     LEFT JOIN form f ON ad.form_code = f.form_code
                     WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
                     AND ad.doc_del_status = 0
-                    <if test="criteria.startDate != null and criteria.endDate != null">
-                        <choose>
-                            <when test="criteria.searchDate == 'sendDate'"  >
-                                AND (ad.created_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'arrivedDate'">
-                                AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'approvDate'">
-                                AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <when test="criteria.searchDate == 'closedDate'">
-                                AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
-                        AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
-                    </if>
-
-                    <if test="criteria.searchContent != null and criteria.searchContent != ''">
-                        AND ad.contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
-                    </if>
-
-                    <if test="criteria.searchDept != null and criteria.searchDept != ''">
-                        AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
-                    </if>
-
-                    <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
-                        AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
-                    </if>
-
-                    <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
-                        AND (a.approval_status IN ('A', 'R') AND u.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%'))
-                    </if>
-
-                    <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
-                        <choose>
-                            <when test="criteria.searchApprovState == '상신'"  >
-                                AND ad.doc_status = 'W'
-                            </when>
-                            <when test="criteria.searchApprovState == '진행'">
-                                AND ad.doc_status = 'P'
-                            </when>
-                            <when test="criteria.searchApprovState == '종결'">
-                                AND ad.doc_status IN ('A', 'R')
-                            </when>
-                            <when test="criteria.searchApprovState == '반려'">
-                                AND ad.doc_status = 'R'
-                            </when>
-                            <otherwise>
-
-                            </otherwise>
-                        </choose>
-                    </if>
-
-                    <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
-                        AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
-                    </if>
-
-                    <if test="criteria.searchDocNumber > 0">
-                        AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
-                    </if>
+                    <include refid="commonIfConditions"/>
                     ORDER BY ad.created_at DESC;
                 </when>
             </choose>

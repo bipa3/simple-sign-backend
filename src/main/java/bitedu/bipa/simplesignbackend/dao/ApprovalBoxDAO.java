@@ -3,10 +3,7 @@ package bitedu.bipa.simplesignbackend.dao;
 
 import bitedu.bipa.simplesignbackend.mapper.ApprovalBoxManageMapper;
 import bitedu.bipa.simplesignbackend.mapper.ApprovalBoxMapper;
-import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO;
-import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDetailDTO;
-import bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO;
-import bitedu.bipa.simplesignbackend.model.dto.SearchRequestDTO;
+import bitedu.bipa.simplesignbackend.model.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -55,5 +52,9 @@ public class ApprovalBoxDAO {
 
     public void deleteApprovalBox(int boxId) {
         approvalBoxManageMapper.upDateDelApprovalBox(boxId);
+    }
+
+    public ArrayList<ViewItemDTO> selectViewItems(int boxId) {
+        return approvalBoxManageMapper.getViewItems(boxId);
     }
 }
