@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReceivedRefDTO {
 
-    private int userId;
-    private int deptId;
+    private int id;
+    private String category;
+    private String name;
     private int approvalDocId;
 
 }

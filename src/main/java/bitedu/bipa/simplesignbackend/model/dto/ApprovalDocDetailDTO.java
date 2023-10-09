@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class ApprovalDocDetailDTO {
@@ -19,4 +20,6 @@ public class ApprovalDocDetailDTO {
     private String productNum;
     private int formCode;
     private String defaultForm;
+    private List<ApprovalLineListDTO> approvalLineList;
+    private List<ReceivedRefListDTO> receivedRefList;
 }

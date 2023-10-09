@@ -33,6 +33,7 @@ public class ApproveService {
         int approvalCount = approverList.size();
 
         approvalDocReqDTO.setApprovalCount(approvalCount);
+        approvalDocReqDTO.setCreatedAt(LocalDateTime.now());
         int approvalDocId =approveDAO.insertApprovalDoc(approvalDocReqDTO, userId);
 
 
@@ -69,14 +70,12 @@ public class ApproveService {
         }
 
         //수신참조 insert ---> 활성화 여부를 넣고 활성화 된 것만 불러와서 보여주게하기
-        List<Integer> receivedRef = approvalDocReqDTO.getReceiveRefList();
+        List<ReceivedRefDTO> receivedRef = approvalDocReqDTO.getReceiveRefList();
         int totalCount = receivedRef.size();
         int receiveCount = 0;
-        for(int receiver: receivedRef) {
-            int deptId = commonDAO.selectDeptId(receiver);
-            ReceivedRefDTO receivedRefDTO = new ReceivedRefDTO(receiver,deptId,approvalDocId);
-            int affectedCount = approveDAO.insertReceivedRef(receivedRefDTO);
-            receiveCount +=affectedCount;
+        for(ReceivedRefDTO dto: receivedRef) {
+            dto.setApprovalDocId(approvalDocId);
+            receiveCount += approveDAO.insertReceivedRef(dto);
         }
         if(totalCount !=receiveCount) {
             throw new RuntimeException();
@@ -184,6 +183,8 @@ public class ApproveService {
 
     public ApprovalDocDetailDTO showDetailApprovalDoc(int approvalDocId) {
         ApprovalDocDetailDTO approvalDocDetailDTO =  approveDAO.selectApprovalDocById(approvalDocId);
+        approvalDocDetailDTO.setApprovalLineList(approveDAO.selectApprovalLineByApprovalDocId(approvalDocId));
+        approvalDocDetailDTO.setReceivedRefList(approveDAO.selectReceivedRefList(approvalDocId));
         return approvalDocDetailDTO;
     }
 
@@ -205,17 +206,16 @@ public class ApproveService {
         if(affectedCount ==0) {
             throw  new RuntimeException(); //문서 수정 안됨
         }
+        //결재라인 수정???????????? 결재가 하나도 안되면 수정되야 하는지?? 정책보고 수정
 
         //4.원래 있던 수신참조 삭제 및 수신참조 재삽입
         approveDAO.deleteReceivedRef(approvalDocId);
-        List<Integer> receivedRef = approvalDocReqDTO.getReceiveRefList();
+        List<ReceivedRefDTO> receivedRef = approvalDocReqDTO.getReceiveRefList();
         int totalCount = receivedRef.size();
         int receiveCount = 0;
-        for(int receiver: receivedRef) {
-            int deptId = commonDAO.selectDeptId(receiver);
-            ReceivedRefDTO receivedRefDTO = new ReceivedRefDTO(receiver,deptId,approvalDocId);
-             approveDAO.insertReceivedRef(receivedRefDTO);
-            receiveCount +=affectedCount;
+        for(ReceivedRefDTO dto: receivedRef) {
+            dto.setApprovalDocId(approvalDocId);
+            receiveCount += approveDAO.insertReceivedRef(dto);
         }
         if(totalCount !=receiveCount) {
             throw new RuntimeException();
