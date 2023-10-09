@@ -9,9 +9,9 @@
     <!--결재문서삽입-->
    <insert id="insertApprovalDoc" parameterType="ApprovalDocReqDTO">
         insert into approval_doc (user_id, dept_id, grade_name, position_name, form_code, approval_doc_title, contents,
-            created_at, approval_count, doc_status, enforcement_date, doc_del_status, seq_code)
+            created_at, approval_count, doc_status, enforcement_date, doc_del_status, seq_code, approval_date)
         values (#{userId}, #{deptId}, #{gradeName}, #{positionName}, #{formCode}, #{approvalDocTitle}, #{contents},
-            #{createdAt}, #{approvalCount}, #{docStatus}, #{enforcementDate}, 0, #{seqCode});
+            #{createdAt}, #{approvalCount}, #{docStatus}, #{enforcementDate}, 0, #{seqCode}, #{approvalDate});
    </insert>
 
     <!--결재라인 삽입-->
@@ -114,6 +114,23 @@
             left join form t4
             on t1.form_code = t4.form_code
         where approval_doc_id = #{approvalDocId} and doc_del_status = 0;
+    </select>
+
+    <select id="selectApprovalLineByApprovalDocId" parameterType="int" resultType="ApprovalLineListDTO">
+        select t1.user_id, user_name, approval_order
+        from approval t1
+            left join
+            user t2 on t1.user_id = t2.user_id
+        where approval_doc_id = #{approvalDocId};
+    </select>
+
+    <select id="selectReceivedRefList" parameterType="int" resultType="ReceivedRefListDTO">
+        select t3.user_id, user_name
+        from received_ref t1
+            left join
+            organization_user t2 on t1.use_id = t2.user_id
+            left join user t3 on t2.user_id = t3.user_id
+        where approval_doc_id = #{approvalDocId};
     </select>
 
     <!--수신참조자 조회-->
