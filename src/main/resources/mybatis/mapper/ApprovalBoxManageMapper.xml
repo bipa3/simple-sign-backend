@@ -54,6 +54,7 @@
         LEFT JOIN department d ON bud.use_id = d.dept_id AND bud.using_category = 'D'
         LEFT JOIN user u ON bud.use_id = u.user_id AND bud.using_category = 'U'
         WHERE ab.box_delete_status != 1
+        AND ab.approval_box_used_status = 0
         AND (c.comp_id = #{company} OR d.dept_id=#{deptId} OR u.user_id = #{userId});
     </select>
     <select id="getCustomBoxViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.ViewItemDTO">
@@ -67,9 +68,33 @@
         LEFT JOIN department d ON bud.use_id = d.dept_id AND bud.using_category = 'D'
         LEFT JOIN user u ON bud.use_id = u.user_id AND bud.using_category = 'U'
         WHERE ab.box_delete_status != 1
+        AND ab.approval_box_used_status = 0
         AND (c.comp_id = #{company} OR d.dept_id=#{deptId} OR u.user_id = #{userId});
 
     </select>
+
+    <delete id="deleteBoxViewItem">
+        delete from approval_box_view_item where approval_box_view_item.approval_box_id = #{approvalBoxId};
+    </delete>
+    <insert id="insertBoxViewItem">
+        INSERT INTO approval_box_view_item (approval_box_id, code_id)
+        SELECT #{approvalBoxId}, cc.code_id
+        FROM common_code AS cc
+        WHERE cc.code_value = #{item}
+    </insert>
+
+
+    <update id="updateApprovalBox">
+        UPDATE approval_box AS ab
+        JOIN box_use_department AS bud ON bud.using_category = 'C'
+        join company as c on bud.use_id = c.comp_id
+        SET
+        ab.approval_box_name = CASE WHEN #{approvalBoxName} IS NOT NULL THEN #{approvalBoxName} ELSE ab.approval_box_name END,
+        ab.approval_box_used_status = CASE WHEN #{approvalBoxUsedStatus} IS NOT NULL THEN #{approvalBoxUsedStatus} ELSE ab.approval_box_used_status END,
+        ab.menu_using_range = CASE WHEN #{menuUsingRange} IS NOT NULL THEN #{menuUsingRange} ELSE ab.menu_using_range END
+        WHERE ab.approval_box_id = #{approvalBoxId}
+        AND c.comp_id = #{compId};
+    </update>
 
 
 

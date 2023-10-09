@@ -95,6 +95,12 @@ public class ApprovalBoxController {
         return result;
     }
 
+    @PutMapping("/update")
+    public ResponseEntity<Void> modifyApprovalBox(@RequestBody ApprovalBoxReqDTO criteria) {
+        approvalBoxService.updateApprovalBox(criteria);
+        return ResponseEntity.ok().build();
+    }
+
 }
 
 

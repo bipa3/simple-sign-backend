@@ -22,4 +22,10 @@ public interface ApprovalBoxManageMapper {
     ArrayList<ApprovalBoxDTO> getCustomBoxList(@Param("company")int company, @Param("userId")int userId, @Param("deptId")int deptId);
 
     ArrayList<ViewItemDTO> getCustomBoxViewItems(@Param("company")int company, @Param("userId")int userId, @Param("deptId")int deptId);
+
+    void updateApprovalBox(@Param("approvalBoxId")int approvalBoxId, @Param("compId")int compId, @Param("approvalBoxName")String approvalBoxName, @Param("approvalBoxUsedStatus")int approvalBoxUsedStatus, @Param("menuUsingRange")char menuUsingRange, @Param("sortOrder")int sortOrder);
+
+    void deleteBoxViewItem(@Param("approvalBoxId")int approvalBoxId);
+
+    void insertBoxViewItem(@Param("approvalBoxId")int approvalBoxId, @Param("item") String item);
 }
