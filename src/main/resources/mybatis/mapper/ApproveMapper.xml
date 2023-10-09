@@ -28,8 +28,8 @@
 
     <!--수신참조 삽입-->
     <insert id="insertReceivedRef" parameterType="ReceivedRefDTO">
-        insert into received_ref (approval_doc_id, user_id, dept_id)
-            values(#{approvalDocId}, #{userId}, #{deptId});
+        insert into received_ref (category, use_id, approval_doc_id)
+            values( #{category}, #{id}, #{approvalDocId});
     </insert>
 
     <!--결재문서번호 삽입-->

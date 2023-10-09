@@ -25,6 +25,6 @@ public class ApprovalDocReqDTO {
     private LocalDate enforcementDate;
     private int seqCode;
     private List<Integer> approverList = new ArrayList<>();
-    private List<Integer> receiveRefList = new ArrayList<>();
+    private List<ReceivedRefDTO> receiveRefList = new ArrayList<>();
 
 }
