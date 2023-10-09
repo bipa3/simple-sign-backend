@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ViewItemDTO {
+    private int approvalBoxId;
+    private String approvalBoxName;
     private String codeId;
     private String codeValue;
 }

@@ -57,4 +57,15 @@ public class ApprovalBoxDAO {
     public ArrayList<ViewItemDTO> selectViewItems(int boxId) {
         return approvalBoxManageMapper.getViewItems(boxId);
     }
+    public int selectUserCompId( int userId){
+        return approvalBoxManageMapper.getUserCompId(userId);
+    }
+
+    public ArrayList<ApprovalBoxDTO> selectCustomBoxList(int company, int userId, int deptId) {
+        return approvalBoxManageMapper.getCustomBoxList(company,userId,deptId);
+    }
+
+    public ArrayList<ViewItemDTO> selectCustomBoxViewItems(int company, int userId, int deptId) {
+        return approvalBoxManageMapper.getCustomBoxViewItems(company,userId,deptId);
+    }
 }

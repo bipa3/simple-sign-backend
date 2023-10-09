@@ -72,4 +72,8 @@ public class ApprovalBoxService {
     public ArrayList<ViewItemDTO> selectViewItems(int boxId) {
         return approvalBoxDAO.selectViewItems(boxId);
     }
+
+    public ArrayList<ApprovalBoxDTO> selectCustomBoxList(int company, int userId, int deptId) {
+        return approvalBoxDAO.selectCustomBoxList(company, userId, deptId);
+    }
 }
