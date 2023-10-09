@@ -20,6 +20,7 @@ public class ApprovalDocReqDTO {
     private String contents;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime approvalDate;
     private int approvalCount;
     private char docStatus;
     private LocalDate enforcementDate;
