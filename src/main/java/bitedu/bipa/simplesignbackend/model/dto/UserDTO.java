@@ -22,4 +22,7 @@ public class UserDTO {
     private boolean employmentStatus;
     private String loginId;
     private String employeeNumber;
+
+    // 비밀번호 암호화
+    private String salt;
 }
