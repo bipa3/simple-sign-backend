@@ -20,7 +20,6 @@ public class ApproveController {
     public ResponseEntity<String> approveRegister(@RequestBody ApprovalDocReqDTO approvalDocReqDTO) {
         int userId = 1;
         approveService.registerApprovalDoc(approvalDocReqDTO,userId);
-
         return ResponseEntity.ok("ok");
     }
 

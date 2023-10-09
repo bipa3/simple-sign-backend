@@ -1,9 +1,7 @@
 package bitedu.bipa.simplesignbackend.controller;
+import bitedu.bipa.simplesignbackend.dao.ApprovalBoxDAO;
 import bitedu.bipa.simplesignbackend.dao.CommonDAO;
-import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO;
-import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDetailDTO;
-import bitedu.bipa.simplesignbackend.model.dto.SearchRequestDTO;
-import bitedu.bipa.simplesignbackend.model.dto.ViewItemDTO;
+import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.service.ApprovalBoxService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +19,8 @@ public class ApprovalBoxController {
     ApprovalBoxService approvalBoxService;
     @Autowired
     CommonDAO commonDAO;
+    @Autowired
+    ApprovalBoxDAO approvalBoxDAO;
 
     @GetMapping("/view")
     public Map<String, Object> viewDocList(
@@ -77,6 +77,28 @@ public class ApprovalBoxController {
     public ResponseEntity<Void> viewDocBoxDelete(@RequestParam(name="boxId") int boxId) {
         approvalBoxService.deleteApprovalBox(boxId);
         return ResponseEntity.ok().build();  // 200 OK
+    }
+
+    @GetMapping("/boxlist")
+    public Map<String, Object> viewApprovalBoxList(@SessionAttribute(name = "userId") String userIdStr){
+        int userId = Integer.parseInt(userIdStr);
+        int deptId = commonDAO.selectDeptId(userId);
+        int company = approvalBoxDAO.selectUserCompId(userId);
+
+        ArrayList<ApprovalBoxDTO> boxList = approvalBoxService.selectCustomBoxList(company,userId,deptId);
+        ArrayList<ViewItemDTO> viewItems = approvalBoxDAO.selectCustomBoxViewItems(company,userId,deptId);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("boxList", boxList);
+        result.put("viewItems", viewItems);
+
+        return result;
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Void> modifyApprovalBox(@RequestBody ApprovalBoxReqDTO criteria) {
+        approvalBoxService.updateApprovalBox(criteria);
+        return ResponseEntity.ok().build();
     }
 
 }

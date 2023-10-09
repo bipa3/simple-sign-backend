@@ -72,4 +72,24 @@ public class ApprovalBoxService {
     public ArrayList<ViewItemDTO> selectViewItems(int boxId) {
         return approvalBoxDAO.selectViewItems(boxId);
     }
+
+    public ArrayList<ApprovalBoxDTO> selectCustomBoxList(int company, int userId, int deptId) {
+        return approvalBoxDAO.selectCustomBoxList(company, userId, deptId);
+    }
+
+    public void updateApprovalBox(ApprovalBoxReqDTO criteria) {
+        ArrayList<String> viewItems = criteria.getViewItems();
+        int approvalBoxId = criteria.getApprovalBoxId();
+        int compId = criteria.getCompId();
+        String approvalBoxName = criteria.getApprovalBoxName();
+        int approvalBoxUsedStatus = 0;
+        if(criteria.getApprovalBoxUsedStatus() == "미사용") {
+            approvalBoxUsedStatus = 0;
+        }else{
+            approvalBoxUsedStatus = 1;
+        }
+        char menuUsingRange = criteria.getMenuUsingRange();
+        int sortOrder = criteria.getSortOrder();
+        approvalBoxDAO.updateApprovalBox(approvalBoxId, compId, approvalBoxName, viewItems,approvalBoxUsedStatus,menuUsingRange,sortOrder);
+    }
 }

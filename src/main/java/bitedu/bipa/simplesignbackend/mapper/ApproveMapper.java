@@ -42,6 +42,10 @@ public interface ApproveMapper {
 
     ApprovalDocDetailDTO selectApprovalDocById(int approvalDocId);
 
+    List<ApprovalLineListDTO> selectApprovalLineByApprovalDocId(int approvalDocId);
+
+    List<ReceivedRefListDTO> selectReceivedRefList(int approvalDocId);
+
     List<Integer> selectRecievedRefUserId(int approvalDocId);
 
     ApprovalOrderResDTO selectUserCountByApprovalDoc(Map map);
