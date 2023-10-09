@@ -2,6 +2,7 @@ package bitedu.bipa.simplesignbackend.controller;
 
 import bitedu.bipa.simplesignbackend.model.dto.UserDTO;
 import bitedu.bipa.simplesignbackend.service.UserService;
+import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +20,10 @@ public class UserController {
         UserDTO userDTO2 = userService.loginUser(userDTO.getLoginId(),userDTO.getPassword());
         if(userDTO2 != null){
 
-            String userId = String.valueOf(userDTO2.getUserId());
+            int userId = userDTO2.getUserId();
             String userName = userDTO2.getUserName();
-            session.setAttribute("userId", userId);
-            session.setAttribute("userName", userName);
+            SessionUtils.addAttribute("userId", userId);
+            SessionUtils.addAttribute("userName", userName);
 
             return new ResponseEntity(HttpStatus.OK);
         } else {
