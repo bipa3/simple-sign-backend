@@ -32,5 +32,10 @@
         UPDATE approval_box SET box_delete_status=1 WHERE approval_box_id = #{boxId};
     </update>
 
-
+    <select id="getViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.ViewItemDTO">
+        select cc.code_id, cc.code_value from common_code cc
+        join approval_box_view_item abvi on (abvi.code_id = cc.code_id and cc.section_id=004)
+        join approval_box ab on ab.approval_box_id = abvi.approval_box_id
+        where ab.approval_box_id = #{boxId};
+    </select>
 </mapper>

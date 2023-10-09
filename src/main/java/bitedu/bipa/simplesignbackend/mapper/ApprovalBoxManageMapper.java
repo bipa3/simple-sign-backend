@@ -1,6 +1,7 @@
 package bitedu.bipa.simplesignbackend.mapper;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDetailDTO;
+import bitedu.bipa.simplesignbackend.model.dto.ViewItemDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import java.util.ArrayList;
@@ -13,4 +14,6 @@ public interface ApprovalBoxManageMapper {
     ArrayList<ApprovalBoxDetailDTO> getApprovalBoxDetail(@Param(("boxId")) int boxId);
 
     void upDateDelApprovalBox(@Param("boxId")int boxId);
+
+    ArrayList<ViewItemDTO> getViewItems(@Param("boxId")int boxId);
 }

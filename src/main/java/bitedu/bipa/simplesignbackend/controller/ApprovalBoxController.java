@@ -3,6 +3,7 @@ import bitedu.bipa.simplesignbackend.dao.CommonDAO;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDetailDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SearchRequestDTO;
+import bitedu.bipa.simplesignbackend.model.dto.ViewItemDTO;
 import bitedu.bipa.simplesignbackend.service.ApprovalBoxService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -64,6 +65,12 @@ public class ApprovalBoxController {
     public ArrayList<ApprovalBoxDetailDTO> viewDocBoxDetail(@RequestParam(name="boxId")int boxId){
         ArrayList<ApprovalBoxDetailDTO> detail = approvalBoxService.selectApprovalBoxDetail(boxId);
         return detail;
+    }
+
+    @GetMapping("/box/detail/viewitem")
+    public ArrayList<ViewItemDTO> viewItemList(@RequestParam(name="boxId")int boxId){
+        ArrayList<ViewItemDTO> viewItems = approvalBoxService.selectViewItems(boxId);
+        return viewItems;
     }
 
     @PutMapping("/box/delete")
