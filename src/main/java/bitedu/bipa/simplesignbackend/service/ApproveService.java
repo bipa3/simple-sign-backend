@@ -69,14 +69,12 @@ public class ApproveService {
         }
 
         //수신참조 insert ---> 활성화 여부를 넣고 활성화 된 것만 불러와서 보여주게하기
-        List<Integer> receivedRef = approvalDocReqDTO.getReceiveRefList();
+        List<ReceivedRefDTO> receivedRef = approvalDocReqDTO.getReceiveRefList();
         int totalCount = receivedRef.size();
         int receiveCount = 0;
-        for(int receiver: receivedRef) {
-            int deptId = commonDAO.selectDeptId(receiver);
-            ReceivedRefDTO receivedRefDTO = new ReceivedRefDTO(receiver,deptId,approvalDocId);
-            int affectedCount = approveDAO.insertReceivedRef(receivedRefDTO);
-            receiveCount +=affectedCount;
+        for(ReceivedRefDTO dto: receivedRef) {
+            dto.setApprovalDocId(approvalDocId);
+            receiveCount += approveDAO.insertReceivedRef(dto);
         }
         if(totalCount !=receiveCount) {
             throw new RuntimeException();
@@ -208,14 +206,12 @@ public class ApproveService {
 
         //4.원래 있던 수신참조 삭제 및 수신참조 재삽입
         approveDAO.deleteReceivedRef(approvalDocId);
-        List<Integer> receivedRef = approvalDocReqDTO.getReceiveRefList();
+        List<ReceivedRefDTO> receivedRef = approvalDocReqDTO.getReceiveRefList();
         int totalCount = receivedRef.size();
         int receiveCount = 0;
-        for(int receiver: receivedRef) {
-            int deptId = commonDAO.selectDeptId(receiver);
-            ReceivedRefDTO receivedRefDTO = new ReceivedRefDTO(receiver,deptId,approvalDocId);
-             approveDAO.insertReceivedRef(receivedRefDTO);
-            receiveCount +=affectedCount;
+        for(ReceivedRefDTO dto: receivedRef) {
+            dto.setApprovalDocId(approvalDocId);
+            receiveCount += approveDAO.insertReceivedRef(dto);
         }
         if(totalCount !=receiveCount) {
             throw new RuntimeException();
