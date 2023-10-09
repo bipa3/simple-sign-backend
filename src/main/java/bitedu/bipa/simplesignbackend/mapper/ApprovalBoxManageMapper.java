@@ -16,4 +16,10 @@ public interface ApprovalBoxManageMapper {
     void upDateDelApprovalBox(@Param("boxId")int boxId);
 
     ArrayList<ViewItemDTO> getViewItems(@Param("boxId")int boxId);
+
+    int getUserCompId(@Param("userId") int userId);
+
+    ArrayList<ApprovalBoxDTO> getCustomBoxList(@Param("company")int company, @Param("userId")int userId, @Param("deptId")int deptId);
+
+    ArrayList<ViewItemDTO> getCustomBoxViewItems(@Param("company")int company, @Param("userId")int userId, @Param("deptId")int deptId);
 }

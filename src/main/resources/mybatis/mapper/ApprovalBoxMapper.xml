@@ -5,351 +5,166 @@
 
 <mapper namespace="bitedu.bipa.simplesignbackend.mapper.ApprovalBoxMapper">
     <select id="getDocumentsByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        <foreach collection="viewItems" item="viewItem" separator="UNION">
-            <choose>
-                <when test="viewItem == 'send'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE ad.user_id = #{userId}
-                    AND ad.doc_status IN ('A', 'R', 'P', 'W')
-                    AND ad.doc_del_status = 0
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
-                </when>
-                <when test="viewItem == 'tempor'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE ad.user_id = #{userId}
-                    AND ad.doc_status = 'T'
-                    AND ad.doc_del_status = 0
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
-                </when>
-                <when test="viewItem == 'pend'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE a.user_id = #{userId}
-                    AND a.approval_status = 'P'
-                    AND ad.doc_del_status = 0
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
-                </when>
-                <when test="viewItem == 'concluded'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE a.user_id = #{userId}
-                    AND ad.doc_status IN ('A', 'R', 'P')
-                    AND a.approval_status IN ('A', 'R')
-                    AND ad.doc_del_status = 0
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
-                </when>
-                <when test="viewItem == 'reference'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    JOIN received_ref r ON ad.approval_doc_id = r.approval_doc_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
-                    AND ad.doc_del_status = 0
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
-                </when>
-            </choose>
+        SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+        FROM approval_doc ad
+        JOIN user u ON ad.user_id = u.user_id
+        JOIN organization_user ou ON u.user_id = ou.user_id
+        JOIN department d ON d.dept_id = ou.dept_id
+        LEFT JOIN form f ON ad.form_code = f.form_code
+        WHERE ad.doc_del_status = 0
+        AND (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'send'">
+                (ad.user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P', 'W') AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'tempor'">
+                (ad.user_id = #{userId} AND ad.doc_status = 'T')
+            </if>
+            <if test="viewItem == 'pend'">
+                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status = 'P'))
+            </if>
+            <if test="viewItem == 'concluded'">
+                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'reference'">
+                (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.user_id = #{userId} OR r.dept_id = #{deptId})))
+            </if>
+            <if test="viewItem == 'progress'">
+                (ad.user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'end'">
+                (ad.user_id = #{userId} AND ad.doc_status  IN ('A', 'R') AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+            </if>
         </foreach>
+        )
+        ORDER BY ad.created_at DESC
+        LIMIT #{itemsPerPage} OFFSET #{offset};
     </select>
+
+
+
 
     <select id="getDocCountByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        <foreach collection="viewItems" item="viewItem" separator="UNION">
-            <choose>
-                <when test="viewItem == 'send'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE ad.user_id = #{userId}
-                    AND ad.doc_status IN ('A', 'R', 'P', 'W')
-                    AND ad.doc_del_status = 0
-                    ORDER BY ad.created_at DESC;
-                </when>
-                <when test="viewItem == 'tempor'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE ad.user_id = #{userId}
-                    AND ad.doc_status = 'T'
-                    AND ad.doc_del_status = 0
-                    ORDER BY ad.created_at DESC;
-                </when>
-                <when test="viewItem == 'pend'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE a.user_id = #{userId}
-                    AND a.approval_status = 'P'
-                    AND ad.doc_del_status = 0
-                    ORDER BY ad.created_at DESC;
-                </when>
-                <when test="viewItem == 'concluded'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE a.user_id = #{userId}
-                    AND ad.doc_status IN ('A', 'R', 'P')
-                    AND a.approval_status IN ('A', 'R')
-                    AND ad.doc_del_status = 0
-                    ORDER BY ad.created_at DESC;
-                </when>
-                <when test="viewItem == 'reference'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    JOIN received_ref r ON ad.approval_doc_id = r.approval_doc_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
-                    AND ad.doc_del_status = 0
-                    ORDER BY ad.created_at DESC;
-                </when>
-            </choose>
+        SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+        FROM approval_doc ad
+        JOIN user u ON ad.user_id = u.user_id
+        JOIN organization_user ou ON u.user_id = ou.user_id
+        JOIN department d ON d.dept_id = ou.dept_id
+        LEFT JOIN form f ON ad.form_code = f.form_code
+        WHERE ad.doc_del_status = 0
+        AND (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'send'">
+                (ad.user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P', 'W') AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'tempor'">
+                (ad.user_id = #{userId} AND ad.doc_status = 'T')
+            </if>
+            <if test="viewItem == 'pend'">
+                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status = 'P'))
+            </if>
+            <if test="viewItem == 'concluded'">
+                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'reference'">
+                (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.user_id = #{userId} OR r.dept_id = #{deptId})))
+            </if>
+            <if test="viewItem == 'progress'">
+                (ad.user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'end'">
+                (ad.user_id = #{userId} AND ad.doc_status  IN ('A', 'R') AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+            </if>
         </foreach>
+        );
     </select>
 
+
+
     <select id="getSearchDocumentsByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        <foreach collection="viewItems" item="viewItem" separator="UNION">
-            <choose>
-                <when test="viewItem == 'send'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE ad.user_id = #{userId}
-                    AND ad.doc_status IN ('A', 'R', 'P', 'W')
-                    AND ad.doc_del_status = 0
-                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
-                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
-                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
-                </when>
-                <when test="viewItem == 'tempor'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE ad.user_id = #{userId}
-                    AND ad.doc_status = 'T'
-                    AND ad.doc_del_status = 0
-                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
-                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
-                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
-                </when>
-                <when test="viewItem == 'pend'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE a.user_id = #{userId}
-                    AND a.approval_status = 'P'
-                    AND ad.doc_del_status = 0
-                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
-                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
-                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
-                </when>
-                <when test="viewItem == 'concluded'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE a.user_id = #{userId}
-                    AND ad.doc_status IN ('A', 'R', 'P')
-                    AND a.approval_status IN ('A', 'R')
-                    AND ad.doc_del_status = 0
-                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
-                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
-                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
-                </when>
-                <when test="viewItem == 'reference'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    JOIN received_ref r ON ad.approval_doc_id = r.approval_doc_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
-                    AND ad.doc_del_status = 0
-                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
-                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
-                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
-                </when>
-            </choose>
+        SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+        FROM approval_doc ad
+        JOIN user u ON ad.user_id = u.user_id
+        JOIN organization_user ou ON u.user_id = ou.user_id
+        JOIN department d ON d.dept_id = ou.dept_id
+        LEFT JOIN form f ON ad.form_code = f.form_code
+        WHERE ad.doc_del_status = 0
+        AND (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'send'">
+                (ad.user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P', 'W') AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'tempor'">
+                (ad.user_id = #{userId} AND ad.doc_status = 'T')
+            </if>
+            <if test="viewItem == 'pend'">
+                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status = 'P'))
+            </if>
+            <if test="viewItem == 'concluded'">
+                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'reference'">
+                (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.user_id = #{userId} OR r.dept_id = #{deptId})))
+            </if>
+            <if test="viewItem == 'progress'">
+                (ad.user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'end'">
+                (ad.user_id = #{userId} AND ad.doc_status  IN ('A', 'R') AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+            </if>
         </foreach>
+        )
+        AND (
+        ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+        OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
+        OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
+        OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
+        OR f.form_name LIKE CONCAT('%', #{searchInput}, '%')
+        )
+        ORDER BY ad.created_at DESC
+        LIMIT #{itemsPerPage} OFFSET #{offset};
     </select>
 
     <select id="getSearchDocCountByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        <foreach collection="viewItems" item="viewItem" separator="UNION">
-            <choose>
-                <when test="viewItem == 'send'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE ad.user_id = #{userId}
-                    AND ad.doc_status IN ('A', 'R', 'P', 'W')
-                    AND ad.doc_del_status = 0
-                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
-                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
-                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
-                    ORDER BY ad.created_at DESC;
-                </when>
-                <when test="viewItem == 'tempor'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE ad.user_id = #{userId}
-                    AND ad.doc_status = 'T'
-                    AND ad.doc_del_status = 0
-                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
-                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
-                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
-                    ORDER BY ad.created_at DESC;
-                </when>
-                <when test="viewItem == 'pend'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE a.user_id = #{userId}
-                    AND a.approval_status = 'P'
-                    AND ad.doc_del_status = 0
-                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
-                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
-                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
-                    ORDER BY ad.created_at DESC;
-                </when>
-                <when test="viewItem == 'concluded'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE a.user_id = #{userId}
-                    AND ad.doc_status IN ('A', 'R', 'P')
-                    AND a.approval_status IN ('A', 'R')
-                    AND ad.doc_del_status = 0
-                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
-                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
-                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
-                    ORDER BY ad.created_at DESC;
-                </when>
-                <when test="viewItem == 'reference'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    JOIN received_ref r ON ad.approval_doc_id = r.approval_doc_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
-                    AND ad.doc_del_status = 0
-                    AND (ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
-                    OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
-                    OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
-                    OR f.form_name LIKE CONCAT('%', #{searchInput}, '%'))
-                    ORDER BY ad.created_at DESC;
-                </when>
-            </choose>
+        SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+        FROM approval_doc ad
+        JOIN user u ON ad.user_id = u.user_id
+        JOIN organization_user ou ON u.user_id = ou.user_id
+        JOIN department d ON d.dept_id = ou.dept_id
+        LEFT JOIN form f ON ad.form_code = f.form_code
+        WHERE ad.doc_del_status = 0
+        AND (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'send'">
+                (ad.user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P', 'W') AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'tempor'">
+                (ad.user_id = #{userId} AND ad.doc_status = 'T')
+            </if>
+            <if test="viewItem == 'pend'">
+                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status = 'P'))
+            </if>
+            <if test="viewItem == 'concluded'">
+                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'reference'">
+                (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.user_id = #{userId} OR r.dept_id = #{deptId})))
+            </if>
+            <if test="viewItem == 'progress'">
+                (ad.user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'end'">
+                (ad.user_id = #{userId} AND ad.doc_status  IN ('A', 'R') AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+            </if>
         </foreach>
+        )
+        AND (
+        ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+        OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
+        OR ad.contents LIKE CONCAT('%', #{searchInput}, '%')
+        OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
+        OR f.form_name LIKE CONCAT('%', #{searchInput}, '%')
+        );
     </select>
 
     <sql id="commonIfConditions">
@@ -409,162 +224,87 @@
     </sql>
 
     <select id="getDetailSearchDocsList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        <foreach collection="viewItems" item="viewItem" separator="UNION">
+        SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+        FROM approval_doc ad
+        JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+        JOIN user u ON ad.user_id = u.user_id
+        JOIN organization_user ou ON u.user_id = ou.user_id
+        JOIN department d ON d.dept_id = ou.dept_id
+        LEFT JOIN form f ON ad.form_code = f.form_code
+        WHERE ad.doc_del_status = 0
+        AND (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            (
             <choose>
                 <when test="viewItem == 'send'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE ad.user_id = #{userId}
-                    AND ad.doc_status IN ('A', 'R', 'P', 'W')
-                    AND ad.doc_del_status = 0
-                    <include refid="commonIfConditions"/>
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                    ad.user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P', 'W') AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R'))
                 </when>
                 <when test="viewItem == 'tempor'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE ad.user_id = #{userId}
-                    AND ad.doc_status = 'T'
-                    AND ad.doc_del_status = 0
-                    <include refid="commonIfConditions"/>
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                    ad.user_id = #{userId} AND ad.doc_status = 'T'
                 </when>
                 <when test="viewItem == 'pend'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE a.user_id = #{userId}
-                    AND a.approval_status = 'P'
-                    AND ad.doc_del_status = 0
-                    <include refid="commonIfConditions"/>
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                    EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status = 'P')
                 </when>
                 <when test="viewItem == 'concluded'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE a.user_id = #{userId}
-                    AND ad.doc_status IN ('A', 'R', 'P')
-                    AND a.approval_status IN ('A', 'R')
-                    AND ad.doc_del_status = 0
-                    <include refid="commonIfConditions"/>
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                    EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R'))
                 </when>
                 <when test="viewItem == 'reference'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    JOIN received_ref r ON ad.approval_doc_id = r.approval_doc_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
-                    AND ad.doc_del_status = 0
-                    <include refid="commonIfConditions"/>
-                    ORDER BY ad.created_at DESC
-                    LIMIT #{itemsPerPage} OFFSET #{offset};
+                    EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.user_id = #{userId} OR r.dept_id = #{deptId}))
+                </when>
+                <when test="viewItem == 'progress'">
+                    ad.user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R'))
+                </when>
+                <when test="viewItem == 'end'">
+                    ad.user_id = #{userId} AND ad.doc_status IN ('A', 'R') AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R'))
                 </when>
             </choose>
+            )
         </foreach>
+        )
+        <include refid="commonIfConditions"/>
+        ORDER BY ad.created_at DESC
+        LIMIT #{itemsPerPage} OFFSET #{offset};
     </select>
 
     <select id="getDetailSearchDocsCount" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        <foreach collection="viewItems" item="viewItem" separator="UNION">
+        SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
+        FROM approval_doc ad
+        JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+        JOIN user u ON ad.user_id = u.user_id
+        JOIN organization_user ou ON u.user_id = ou.user_id
+        JOIN department d ON d.dept_id = ou.dept_id
+        LEFT JOIN form f ON ad.form_code = f.form_code
+        WHERE ad.doc_del_status = 0
+        AND (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            (
             <choose>
                 <when test="viewItem == 'send'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE ad.user_id = #{userId}
-                    AND ad.doc_status IN ('A', 'R', 'P', 'W')
-                    AND ad.doc_del_status = 0
-                    <include refid="commonIfConditions"/>
-                    ORDER BY ad.created_at DESC;
+                    ad.user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P', 'W') AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R'))
                 </when>
                 <when test="viewItem == 'tempor'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE ad.user_id = #{userId}
-                    AND ad.doc_status = 'T'
-                    AND ad.doc_del_status = 0
-                    <include refid="commonIfConditions"/>
-                    ORDER BY ad.created_at DESC;
+                    ad.user_id = #{userId} AND ad.doc_status = 'T'
                 </when>
                 <when test="viewItem == 'pend'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE a.user_id = #{userId}
-                    AND a.approval_status = 'P'
-                    AND ad.doc_del_status = 0
-                    <include refid="commonIfConditions"/>
-                    ORDER BY ad.created_at DESC;
+                    EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status = 'P')
                 </when>
                 <when test="viewItem == 'concluded'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE a.user_id = #{userId}
-                    AND ad.doc_status IN ('A', 'R', 'P')
-                    AND a.approval_status IN ('A', 'R')
-                    AND ad.doc_del_status = 0
-                    <include refid="commonIfConditions"/>
-                    ORDER BY ad.created_at DESC;
+                    EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R'))
                 </when>
                 <when test="viewItem == 'reference'">
-                    SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
-                    FROM approval_doc ad
-                    JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-                    JOIN user u ON ad.user_id = u.user_id
-                    JOIN organization_user ou ON u.user_id = ou.user_id
-                    JOIN department d ON d.dept_id = ou.dept_id
-                    JOIN received_ref r ON ad.approval_doc_id = r.approval_doc_id
-                    LEFT JOIN form f ON ad.form_code = f.form_code
-                    WHERE (r.user_id = #{userId} OR r.dept_id = #{deptId})
-                    AND ad.doc_del_status = 0
-                    <include refid="commonIfConditions"/>
-                    ORDER BY ad.created_at DESC;
+                    EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.user_id = #{userId} OR r.dept_id = #{deptId}))
+                </when>
+                <when test="viewItem == 'progress'">
+                    ad.user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R'))
+                </when>
+                <when test="viewItem == 'end'">
+                    ad.user_id = #{userId} AND ad.doc_status IN ('A', 'R') AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R'))
                 </when>
             </choose>
+            )
         </foreach>
+        )
+        <include refid="commonIfConditions"/>;
     </select>
 </mapper>
 
