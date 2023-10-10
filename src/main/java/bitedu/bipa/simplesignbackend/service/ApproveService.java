@@ -57,8 +57,7 @@ public class ApproveService {
                     approvalLineDTO.setApprovalStatus(ApprovalStatus.WAIT.getCode());
                 }
                 approvalLineDTO.setApprovalDocId(approvalDocId);
-                approvalLineDTO.setUserId(approver);
-                approvalLineDTO.setDeptId(positionAndGradeDTO.getDeptId());
+                approvalLineDTO.setOrgUserId(approver);
                 approvalLineDTO.setGradeName(positionAndGradeDTO.getGradeName());
                 approvalLineDTO.setPositionName(positionAndGradeDTO.getPositionName());
                 int affectedCount = approveDAO.insertApprovalLine(approvalLineDTO);
@@ -83,10 +82,10 @@ public class ApproveService {
     }
 
     @Transactional
-    public void approveApprovalDoc(int userId, int approvalDocId) {
+    public void approveApprovalDoc(int orgUserId, int approvalDocId) {
         //결재하기
         //1. 결재테이블에서 결재할 문서가 있는지 가져오기, 없으면 bad request
-        ApprovalResDTO approvalResDTO =  approveDAO.selectApprovalByApprovalId(userId,approvalDocId);
+        ApprovalResDTO approvalResDTO =  approveDAO.selectApprovalByApprovalId(orgUserId,approvalDocId);
         if(approvalResDTO.getApprovalId() ==0 || approvalResDTO.getApprovalStatus() !='P') {
             throw  new RuntimeException();
         }else {
@@ -106,7 +105,7 @@ public class ApproveService {
         if(isApprovalDocEnd) {
             approvalDocResDTO.setDocStatus(ApprovalStatus.APPROVAL.getCode());
             approvalDocResDTO.setEndAt(LocalDateTime.now());
-            String productNumber = sequenceService.createProductNum(approvalDocResDTO.getSeqCode(), approvalDocResDTO.getUserId());
+            String productNumber = sequenceService.createProductNum(approvalDocResDTO.getSeqCode(), approvalDocResDTO.getOrgUserId());
             approvalDocResDTO.setProductNum(productNumber);
 
             //수신참조 활성화 업데이트
@@ -117,7 +116,7 @@ public class ApproveService {
             //같지 않다면 '진행'으로 바꾸고 상신 상위자의 결재테이블 상태도 '진행'으로, 결재수신시간도 넣어주기
             approvalDocResDTO.setDocStatus(ApprovalStatus.PROGRESS.getCode());
             ApprovalResDTO upperApproverDTO = approveDAO.selectUpperApproverId(approvalResDTO);
-            upperApproverId = upperApproverDTO.getUserId();
+            upperApproverId = upperApproverDTO.getOrgUserId();
             upperApproverDTO.setApprovalStatus(ApprovalStatus.PROGRESS.getCode());
             upperApproverDTO.setReceiveDate(LocalDateTime.now());
             int affectedCount = approveDAO.updateUpperApproverId(upperApproverDTO);
@@ -133,7 +132,7 @@ public class ApproveService {
         //4. 알림보내기(결재승인알람 및 결재문서가 종결이라면 종결알람)
         if(isApprovalDocEnd) {
             //종결일 경우는 상신자와 수신참조자에게 알림
-            alarmService.createNewAlarm(approvalDocId, approvalDocResDTO.getUserId(),AlarmStatus.APPROVE.getCode());
+            alarmService.createNewAlarm(approvalDocId, approvalDocResDTO.getOrgUserId(),AlarmStatus.APPROVE.getCode());
             List<Integer> receivedRefUserIdList = approveDAO.selectRecievedRefUserId(approvalDocId);
             for(int receiveUser: receivedRefUserIdList) {
                 alarmService.createNewAlarm(approvalDocId, receiveUser, AlarmStatus.RECEIVEDREF.getCode());
@@ -189,9 +188,9 @@ public class ApproveService {
     }
 
     @Transactional
-    public void updateApprovalDoc(int userId, int approvalDocId, ApprovalDocReqDTO approvalDocReqDTO) {
+    public void updateApprovalDoc(int orgUserId, int approvalDocId, ApprovalDocReqDTO approvalDocReqDTO) {
         //1. 결재라인에서 수정자 아이디가 존재하는지 확인
-        ApprovalOrderResDTO approvalOrderResDTO = approveDAO.selectUserCountByApprovalDoc(userId,approvalDocId);
+        ApprovalOrderResDTO approvalOrderResDTO = approveDAO.selectUserCountByApprovalDoc(orgUserId,approvalDocId);
         if(approvalOrderResDTO.getCount() !=1) {
             throw  new RuntimeException(); //권한이 없음
         } else {

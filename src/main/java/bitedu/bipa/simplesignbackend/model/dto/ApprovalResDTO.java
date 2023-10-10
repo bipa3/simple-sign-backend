@@ -13,6 +13,5 @@ public class ApprovalResDTO {
     private LocalDateTime approvalDate;
     private int approvalOrder;
     private char approvalStatus;
-    private int userId;
-    private int deptId;
+    private int orgUserId;
 }

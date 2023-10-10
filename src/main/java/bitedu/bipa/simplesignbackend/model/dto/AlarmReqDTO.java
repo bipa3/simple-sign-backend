@@ -8,8 +8,7 @@ import java.time.LocalDateTime;
 public class AlarmReqDTO {
     private LocalDateTime alarmDate;
     private String alarmCode;
-    private int userId;
-    private int deptId;
+    private int orgUserId;
     private int approvalDocId;
     private String positionName;
     private String gradeName;

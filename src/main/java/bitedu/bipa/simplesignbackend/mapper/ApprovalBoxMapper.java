@@ -14,11 +14,15 @@ public interface ApprovalBoxMapper {
             @Param("itemsPerPage") int itemsPerPage,
             @Param("offset") int offset,
             @Param("deptId") int deptId,
+            @Param("estId") int estId,
+            @Param("compId") int compId,
             @Param("viewItems") List<String> viewItems
     );
 
     ArrayList<DocumentListDTO> getDocCountByViewItems(@Param("userId") int userId,
                                                       @Param("deptId") int deptId,
+                                                      @Param("estId") int estId,
+                                                      @Param("compId") int compId,
                                                       @Param("viewItems") List<String> viewItems);
 
     ArrayList<DocumentListDTO> getSearchDocumentsByViewItems(@Param("userId") int userId,

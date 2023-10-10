@@ -11,8 +11,7 @@ import java.util.List;
 public class ApprovalDocReqDTO {
     //상신시에는 모든 값이 null 값이면 안됨
     private int approvalDocId;
-    private int userId;
-    private int deptId;
+    private int orgUserId;
     private String gradeName;
     private String positionName;
     private int formCode;

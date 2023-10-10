@@ -12,6 +12,6 @@ public class ApprovalDocResDTO {
     private char docStatus;
     private String productNum;
     private int seqCode;
-    private int userId;
+    private int orgUserId;
     private LocalDateTime endAt;
 }

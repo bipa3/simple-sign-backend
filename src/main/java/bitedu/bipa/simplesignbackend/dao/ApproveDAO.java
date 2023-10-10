@@ -25,8 +25,7 @@ public class ApproveDAO {
         PositionAndGradeDTO positionAndGradeDTO = commonMapper.getPositionAndGrade(userId);
         approvalDocReqDTO.setPositionName(positionAndGradeDTO.getPositionName());
         approvalDocReqDTO.setGradeName(positionAndGradeDTO.getGradeName());
-        approvalDocReqDTO.setDeptId(positionAndGradeDTO.getDeptId());
-        approvalDocReqDTO.setUserId(userId);
+        approvalDocReqDTO.setOrgUserId(userId);
 
         int affectedCount =  approveMapper.insertApprovalDoc(approvalDocReqDTO);
         if(affectedCount ==0) {
@@ -52,9 +51,9 @@ public class ApproveDAO {
         return approveMapper.insertProductNumber(map);
     }
 
-    public ApprovalResDTO selectApprovalByApprovalId(int userId, int approvalDocId) {
+    public ApprovalResDTO selectApprovalByApprovalId(int orgUserId, int approvalDocId) {
         Map<String, Integer> map = new HashMap<>();
-        map.put("userId", userId);
+        map.put("orgUserId", orgUserId);
         map.put("approvalDocId",approvalDocId);
         return approveMapper.selectApprovalByApprovalId(map);
     }
@@ -109,9 +108,9 @@ public class ApproveDAO {
         return approveMapper.selectRecievedRefUserId(approvalDocId);
     }
 
-    public ApprovalOrderResDTO selectUserCountByApprovalDoc(int userId, int approvalDocId) {
+    public ApprovalOrderResDTO selectUserCountByApprovalDoc(int orgUserId, int approvalDocId) {
         Map<String, Integer> map = new HashMap<>();
-        map.put("userId", userId);
+        map.put("orgUserId", orgUserId);
         map.put("approvalDocId", approvalDocId);
         return approveMapper.selectUserCountByApprovalDoc(map);
 
