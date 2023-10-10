@@ -7,4 +7,5 @@ public class ReceivedRefListDTO {
 
     private int orgUserId;
     private String userName;
+    private String category;
 }
