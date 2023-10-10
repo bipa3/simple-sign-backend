@@ -27,19 +27,21 @@ public class SeqManageDAO {
     }
 
     public SeqDetailDTO selectSeqDetail(int code) {
-        SeqDetailDTO seqDetail = seqManageMapper.getSeqDetail(code);
-        List<SeqScopeDTO> deptScopeList = seqManageMapper.getSeqDeptScope(code);
-        List<SeqScopeDTO> formScopeList = seqManageMapper.getSeqFormScope(code);
-        seqDetail.setDeptScope(deptScopeList);
-        seqDetail.setFormScope(formScopeList);
-        List<String> seqItems = List.of(seqDetail.getSeqString().split(","));
+        return seqManageMapper.getSeqDetail(code);
+    }
+    public List<SeqScopeDTO> selectDeptScope(int code) {
+        return seqManageMapper.getSeqDeptScope(code);
+    }
+    public List<SeqScopeDTO> selectFormScope(int code) {
+        return seqManageMapper.getSeqFormScope(code);
+    }
 
+    public String selectSeqItems (List<String> seqItems) {
         Map<String, Object> map = new HashMap<>();
         map.put("seqItems", seqItems);
-        String seqList = seqManageMapper.selectSeqItems(map);
-        seqDetail.setSeqList(seqList);
-        return seqDetail;
+        return seqManageMapper.selectSeqItems(map);
     }
+
 
     public Boolean deleteSeq(int code) {
         seqManageMapper.deleteSeq(code);
@@ -50,20 +52,20 @@ public class SeqManageDAO {
     public Boolean insertSeqDetail(SeqDetailDTO seqDetail) {
         seqManageMapper.createSeqDetail(seqDetail);
         int seqCode = commonMapper.getLastInsertId();
-
+        System.out.println("seqCode:" + seqCode);
         List<SeqScopeDTO> deptScopeList = seqDetail.getDeptScope();
         List<SeqScopeDTO> formScopeList = seqDetail.getFormScope();
         for(SeqScopeDTO deptScope : deptScopeList){
             Map<String, Object> map = new HashMap<>();
             map.put("category", deptScope.getCategory());
-            map.put("seqCode", seqDetail.getCode());
+            map.put("seqCode", seqCode);
             map.put("useId", deptScope.getUseId());
             seqManageMapper.createSeqDeptScope(map);
         }
 
         for(SeqScopeDTO formScope : formScopeList){
             Map<String, Object> map = new HashMap<>();
-            map.put("seqCode", seqDetail.getCode());
+            map.put("seqCode", seqCode);
             map.put("formCode", formScope.getUseId());
             seqManageMapper.createSeqFormScope(map);
         }
