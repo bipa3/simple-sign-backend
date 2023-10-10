@@ -18,14 +18,14 @@
 
     <select id="getFormDetailScope" resultType="bitedu.bipa.simplesignbackend.model.dto.FormDetailScopeDTO">
         SELECT A.category, A.form_code, A.use_id, comp.comp_id, comp.comp_name AS company, est.est_id, IFNULL(est.est_name, "") AS establishment, dept.dept_id, IFNULL(dept.dept_name, "") AS department, user.user_id, IFNULL(user.user_name, "") AS user, IFNULL(user.grade_name, "") AS grade, IFNULL(user.position_name, "") AS position
-        FROM (SELECT * FROM form_use_department WHERE form_code=1) A
+        FROM (SELECT * FROM form_use_department WHERE form_code=#{code}) A
         LEFT JOIN (SELECT user.user_id, user.user_name, ou.dept_id, g.grade_name, p.position_name FROM user
         INNER JOIN organization_user AS ou ON user.user_id=ou.org_user_id
         INNER JOIN grade AS g on ou.grade_code=g.grade_code
         INNER JOIN position AS p on ou.position_code=p.position_code) AS user ON A.category = 'U' AND A.use_id = user.user_id
-        LEFT JOIN department AS dept ON A.category IN ('U', 'D') AND (user.dept_id = dept.dept_id OR A.use_id= dept.dept_id)
-        LEFT JOIN establishment AS est ON A.category IN ('U', 'D', 'E') AND (dept.est_id = est.est_id OR A.use_id= est.est_id)
-        LEFT JOIN company AS comp ON A.category IN ('U', 'D', 'E', 'C') AND (est.comp_id = comp.comp_id OR A.use_id= comp.comp_id);
+        LEFT JOIN department AS dept ON A.category IN ('U', 'D') AND (A.use_id= dept.dept_id)
+        LEFT JOIN establishment AS est ON A.category IN ('U', 'D', 'E') AND (A.use_id= est.est_id)
+        LEFT JOIN company AS comp ON A.category IN ('U', 'D', 'E', 'C') AND (A.use_id= comp.comp_id);
     </select>
 
     <select id="selectFormListWithSearch" resultType="FormListDTO"
@@ -107,19 +107,19 @@
 
     <insert id="createDefaultApprovalLine" parameterType="map">
         insert into
-        default_approval_line(form_code, user_id, dept_id, line_order, comp_id)
-        values(#{formCode}, #{userId}, #{deptId}, #{lineOrder}, #{compId});
+        default_approval_line(form_code, org_user_id, line_order)
+        values(#{formCode}, #{userId}, #{lineOrder});
     </insert>
 
     <delete id="delDefaultLine" parameterType="map">
         DELETE FROM default_approval_line
-        WHERE form_code=#{formCode} AND user_id = #{userId} AND dept_id = #{deptId} AND comp_id=#{compId}
+        WHERE form_code=#{formCode} AND org_user_id = #{userId};
     </delete>
 
     <insert id="insertIgnoreDefaultLine" parameterType="map">
         INSERT IGNORE INTO
-        default_approval_line(form_code, user_id, dept_id, line_order, comp_id)
-        VALUES(#{formCode}, #{userId}, #{deptId}, #{lineOrder}, #{compId});
+        default_approval_line(form_code, org_user_id, line_order)
+        VALUES(#{formCode}, #{userId}, #{lineOrder});
     </insert>
 
 
