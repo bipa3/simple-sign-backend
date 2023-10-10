@@ -3,7 +3,7 @@ package bitedu.bipa.simplesignbackend.dao;
 import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
 import bitedu.bipa.simplesignbackend.mapper.FormManageMapper;
 import bitedu.bipa.simplesignbackend.model.dto.*;
-import bitedu.bipa.simplesignbackend.model.vo.FormDetailScopeVO;
+import bitedu.bipa.simplesignbackend.model.dto.FormDetailScopeDTO;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +29,7 @@ public class FormManageDAO {
 //    @Transactional
     public FormDetailResDTO selectFormDetail(int code) {
         FormDetailResDTO formDetail = formManageMapper.getFormDetail(code);
-        ArrayList<FormDetailScopeVO> formDetailScopeList = (ArrayList) formManageMapper.getFormDetailScope(code);
+        ArrayList<FormDetailScopeDTO> formDetailScopeList = (ArrayList) formManageMapper.getFormDetailScope(code);
         formDetail.setScope(formDetailScopeList);
         return formDetail;
     }
@@ -57,8 +57,8 @@ public class FormManageDAO {
         int formCode = commonMapper.getLastInsertId();
 
         // 공개범위
-        ArrayList<FormDetailScopeVO> scopeList = formDetail.getScope();
-        for(FormDetailScopeVO scope : scopeList){
+        ArrayList<FormDetailScopeDTO> scopeList = formDetail.getScope();
+        for(FormDetailScopeDTO scope : scopeList){
             Map<String, Object> map = new HashMap<>();
             map.put("category", scope.getCategory());
             map.put("formCode", formCode);
@@ -87,17 +87,17 @@ public class FormManageDAO {
 
         //공개 범위
         int formCode = formDetail.getCode();
-        ArrayList<FormDetailScopeVO> updateScopeList = formDetail.getScope();
-        ArrayList<FormDetailScopeVO> defaultScopeList = (ArrayList) formManageMapper.getFormDetailScope(formCode);
-        ArrayList<FormDetailScopeVO> missingDataList = new ArrayList<>();
+        ArrayList<FormDetailScopeDTO> updateScopeList = formDetail.getScope();
+        ArrayList<FormDetailScopeDTO> defaultScopeList = (ArrayList) formManageMapper.getFormDetailScope(formCode);
+        ArrayList<FormDetailScopeDTO> missingDataList = new ArrayList<>();
 
-        for (FormDetailScopeVO defaultScope : defaultScopeList) {
+        for (FormDetailScopeDTO defaultScope : defaultScopeList) {
             if (!updateScopeList.contains(defaultScope)) {
                 missingDataList.add(defaultScope);
             }
         }
 
-        for (FormDetailScopeVO delScope : missingDataList) {
+        for (FormDetailScopeDTO delScope : missingDataList) {
             Map<String, Object> map = new HashMap<>();
             map.put("category", delScope.getCategory());
             map.put("formCode", formCode);
@@ -105,7 +105,7 @@ public class FormManageDAO {
             formManageMapper.delFormScope(map);
         }
 
-        for (FormDetailScopeVO insertScope : updateScopeList) {
+        for (FormDetailScopeDTO insertScope : updateScopeList) {
             Map<String, Object> map = new HashMap<>();
             map.put("category", insertScope.getCategory());
             map.put("formCode", formCode);

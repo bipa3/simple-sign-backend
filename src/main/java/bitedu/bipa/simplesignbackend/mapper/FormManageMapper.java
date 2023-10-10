@@ -1,7 +1,7 @@
 package bitedu.bipa.simplesignbackend.mapper;
 
 import bitedu.bipa.simplesignbackend.model.dto.*;
-import bitedu.bipa.simplesignbackend.model.vo.FormDetailScopeVO;
+import bitedu.bipa.simplesignbackend.model.dto.FormDetailScopeDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.Map;
 public interface FormManageMapper {
     List<CompanyDTO> getFormAndCompList(FormAndCompDTO formAndCompDTO);
     FormDetailResDTO getFormDetail(int code);
-    ArrayList<FormDetailScopeVO> getFormDetailScope(int code);
+    ArrayList<FormDetailScopeDTO> getFormDetailScope(int code);
 
     List<FormListDTO> selectFormListWithSearch(BelongOrganizationDTO belong);
 
