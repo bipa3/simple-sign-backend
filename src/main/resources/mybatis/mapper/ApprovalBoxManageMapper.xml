@@ -45,6 +45,11 @@
         join user u on u.user_id = ou.user_id
         where u.user_id = #{userId}
     </select>
+    <select id="getUserEstId" resultType="int">
+        select e.est_id from establishment  e
+        join organization_user ou on e.est_name = ou.est_name
+        where ou.user_id =#{userId};
+    </select>
     <select id="getCustomBoxList" resultType="bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO">
         SELECT ab.approval_box_id, ab.approval_box_name
         FROM approval_box ab
@@ -54,7 +59,7 @@
         LEFT JOIN department d ON bud.use_id = d.dept_id AND bud.using_category = 'D'
         LEFT JOIN user u ON bud.use_id = u.user_id AND bud.using_category = 'U'
         WHERE ab.box_delete_status != 1
-        AND ab.approval_box_used_status = 0
+        AND ab.approval_box_used_status != 0
         AND (c.comp_id = #{company} OR d.dept_id=#{deptId} OR u.user_id = #{userId});
     </select>
     <select id="getCustomBoxViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.ViewItemDTO">
@@ -68,7 +73,7 @@
         LEFT JOIN department d ON bud.use_id = d.dept_id AND bud.using_category = 'D'
         LEFT JOIN user u ON bud.use_id = u.user_id AND bud.using_category = 'U'
         WHERE ab.box_delete_status != 1
-        AND ab.approval_box_used_status = 0
+        AND ab.approval_box_used_status != 0
         AND (c.comp_id = #{company} OR d.dept_id=#{deptId} OR u.user_id = #{userId});
 
     </select>

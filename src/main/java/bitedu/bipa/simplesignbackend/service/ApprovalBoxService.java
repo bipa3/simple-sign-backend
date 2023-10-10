@@ -14,9 +14,9 @@ public class ApprovalBoxService {
     @Autowired
     ApprovalBoxDAO approvalBoxDAO;
 
-    public Map<String, Object> selectDocuments(List<String> viewItems, int userId, int deptId, int itemsPerPage, int offset) {
-        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDocsList(viewItems,userId,deptId,itemsPerPage,offset);
-        ArrayList<DocumentListDTO> allDocList= approvalBoxDAO.selectDocsCount(viewItems,userId,deptId);
+    public Map<String, Object> selectDocuments(List<String> viewItems, int userId, int deptId,int estId, int compId, int itemsPerPage, int offset) {
+        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDocsList(viewItems,userId,deptId,estId,compId,itemsPerPage,offset);
+        ArrayList<DocumentListDTO> allDocList= approvalBoxDAO.selectDocsCount(viewItems,userId,deptId,estId,compId);
 
         int count = allDocList.size();
         Map<String, Object> result = new HashMap<>();
@@ -82,7 +82,7 @@ public class ApprovalBoxService {
         int approvalBoxId = criteria.getApprovalBoxId();
         int compId = criteria.getCompId();
         String approvalBoxName = criteria.getApprovalBoxName();
-        int approvalBoxUsedStatus = 0;
+        int approvalBoxUsedStatus =-1;
         if(criteria.getApprovalBoxUsedStatus() == "미사용") {
             approvalBoxUsedStatus = 0;
         }else{
