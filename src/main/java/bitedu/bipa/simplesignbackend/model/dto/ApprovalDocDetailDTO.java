@@ -1,5 +1,6 @@
 package bitedu.bipa.simplesignbackend.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -12,10 +13,12 @@ public class ApprovalDocDetailDTO {
     private int orgUserId;
     private String userName;
     private String deptName;
-    private LocalDateTime createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime approvalDate;
     private String approvalDocTitle;
     private String contents;
-    private LocalDate enforcementDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDateTime enforcementDate;
     private String productNum;
     private int formCode;
     private String defaultForm;

@@ -22,7 +22,7 @@ public class ApprovalDocReqDTO {
     private LocalDateTime approvalDate;
     private int approvalCount;
     private char docStatus;
-    private LocalDate enforcementDate;
+    private LocalDateTime enforcementDate;
     private int seqCode;
     private List<Integer> approverList = new ArrayList<>();
     private List<ReceivedRefDTO> receiveRefList = new ArrayList<>();
