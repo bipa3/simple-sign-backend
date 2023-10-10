@@ -3,6 +3,7 @@ package bitedu.bipa.simplesignbackend.service;
 import bitedu.bipa.simplesignbackend.dao.FormManageDAO;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,12 +36,33 @@ public class FormManageService {
         return formManageDAO.selectFormItemList();
     }
 
+    @Transactional
     public Boolean formDetailRegist(FormDetailResDTO formDetail) {
-        return formManageDAO.insertFormDetail(formDetail);
+        Boolean result = false;
+        try {
+            int formCode = formManageDAO.insertFormDetail(formDetail);
+            formManageDAO.insertScope(formDetail, formCode);
+            formManageDAO.insertDefaultApprovalLine(formDetail, formCode);
+            result = true;
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
+    @Transactional
     public Boolean formDetailChange(FormDetailResDTO formDetail) {
-        return formManageDAO.updateFormDetail(formDetail);
+        Boolean result = false;
+        try {
+            formManageDAO.updateFormDetail(formDetail);
+            formManageDAO.updateScope(formDetail);
+            formManageDAO.updateDefaultApprovalLine(formDetail);
+            result = true;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public Boolean removeForm(int code) {
