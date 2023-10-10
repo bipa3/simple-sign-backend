@@ -57,4 +57,28 @@ public class ApprovalBoxDAO {
     public ArrayList<ViewItemDTO> selectViewItems(int boxId) {
         return approvalBoxManageMapper.getViewItems(boxId);
     }
+    public int selectUserCompId( int userId){
+        return approvalBoxManageMapper.getUserCompId(userId);
+    }
+
+    public ArrayList<ApprovalBoxDTO> selectCustomBoxList(int company, int userId, int deptId) {
+        return approvalBoxManageMapper.getCustomBoxList(company,userId,deptId);
+    }
+
+    public ArrayList<ViewItemDTO> selectCustomBoxViewItems(int company, int userId, int deptId) {
+        return approvalBoxManageMapper.getCustomBoxViewItems(company,userId,deptId);
+    }
+
+    public void updateApprovalBox(int approvalBoxId, int compId, String approvalBoxName, ArrayList<String> viewItems, int approvalBoxUsedStatus, char menuUsingRange, int sortOrder) {
+        approvalBoxManageMapper.updateApprovalBox(approvalBoxId,compId,approvalBoxName,approvalBoxUsedStatus,menuUsingRange,sortOrder);
+        if (viewItems.size()>0){
+            approvalBoxManageMapper.deleteBoxViewItem(approvalBoxId);
+            for (String item : viewItems) {
+                approvalBoxManageMapper.insertBoxViewItem(approvalBoxId,item);
+            }
+
+
+        }
+
+    }
 }

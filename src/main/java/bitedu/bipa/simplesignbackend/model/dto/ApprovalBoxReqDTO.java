@@ -4,12 +4,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ViewItemDTO {
+public class ApprovalBoxReqDTO {
     private int approvalBoxId;
+    private int compId;
     private String approvalBoxName;
-    private String codeId;
-    private String codeValue;
+    private ArrayList<String> viewItems;
+    private String approvalBoxUsedStatus;
+    private char menuUsingRange;
+    private int sortOrder;
+
+
 }
