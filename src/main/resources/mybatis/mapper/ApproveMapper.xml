@@ -104,7 +104,7 @@
 
     <!--결재문서 상세조회-->
     <select id="selectApprovalDocById" parameterType="int" resultType="ApprovalDocDetailDTO">
-        select approval_doc_id, t1.org_user_id, t3.user_name, t5.dept_name, created_at, approval_doc_title,
+        select approval_doc_id, t1.org_user_id, t3.user_name, t5.dept_name, approval_date, approval_doc_title,
             contents, enforcement_date, product_num, t1.form_code, t4.default_form
         from approval_doc t1
             left join organization_user t2
@@ -115,7 +115,7 @@
             on t1.form_code = t4.form_code
             left join department t5
             on t2.dept_id = t5.dept_id
-        where approval_doc_id = 3 and doc_del_status = 0;
+        where approval_doc_id = #{approvalDocId} and doc_del_status = 0;
 
     </select>
 
@@ -130,7 +130,7 @@
     </select>
 
     <select id="selectReceivedRefList" parameterType="int" resultType="ReceivedRefListDTO">
-        select t2.org_user_id, user_name
+        select t2.org_user_id, user_name, category
         from received_ref t1
             left join
             organization_user t2 on t1.use_id = t2.user_id
