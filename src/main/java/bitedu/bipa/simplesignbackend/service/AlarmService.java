@@ -19,13 +19,12 @@ public class AlarmService {
         this.commonDAO = commonDAO;
     }
 
-    public void createNewAlarm(int approvalDocId, int userId, String alarmCode) {
-        PositionAndGradeDTO positionAndGradeDTO = commonDAO.getPositionAndGrade(userId);
+    public void createNewAlarm(int approvalDocId, int orgUserId, String alarmCode) {
+        PositionAndGradeDTO positionAndGradeDTO = commonDAO.getPositionAndGrade(orgUserId);
         AlarmReqDTO alarmReqDTO = new AlarmReqDTO();
         alarmReqDTO.setAlarmCode(alarmCode);
         alarmReqDTO.setAlarmDate(LocalDateTime.now());
-        alarmReqDTO.setUserId(userId);
-        alarmReqDTO.setDeptId(positionAndGradeDTO.getDeptId());
+        alarmReqDTO.setOrgUserId(orgUserId);
         alarmReqDTO.setGradeName(positionAndGradeDTO.getGradeName());
         alarmReqDTO.setPositionName(positionAndGradeDTO.getPositionName());
         alarmReqDTO.setApprovalDocId(approvalDocId);

@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class ApprovalLineListDTO {
 
-    private int userId;
+    private int orgUserId;
     private String userName;
     private int approvalOrder;
 }

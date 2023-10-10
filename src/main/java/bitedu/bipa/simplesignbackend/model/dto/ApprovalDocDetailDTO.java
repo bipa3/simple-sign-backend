@@ -9,8 +9,7 @@ import java.util.List;
 @Data
 public class ApprovalDocDetailDTO {
     private int approvalDocId;
-    private int userId;
-    private int deptId;
+    private int orgUserId;
     private String userName;
     private String deptName;
     private LocalDateTime createdAt;
