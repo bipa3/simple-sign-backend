@@ -32,13 +32,15 @@ public class ApprovalBoxController {
     ) {
         int userId = Integer.parseInt(userIdStr);
         int deptId = commonDAO.selectDeptId(userId);
+        int estId = approvalBoxDAO.selectEstId(userId);
+        int compId = approvalBoxDAO.selectUserCompId(userId);
 
         Map<String, Object> result = new HashMap<>();
 
         if (!searchInput.equals("")) {
             result=approvalBoxService.selectSearchDocuments(viewItems, userId, deptId, itemsPerPage, offset, searchInput);
         }else{
-            result = approvalBoxService.selectDocuments(viewItems, userId, deptId, itemsPerPage, offset);
+            result = approvalBoxService.selectDocuments(viewItems, userId, deptId,estId,compId, itemsPerPage, offset);
         }
 
         return result;
