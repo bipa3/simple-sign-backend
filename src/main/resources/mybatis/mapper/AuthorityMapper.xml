@@ -6,9 +6,9 @@
 <mapper namespace="bitedu.bipa.simplesignbackend.mapper.AuthorityMapper">
 
     <select id="findAuthority" resultType="bitedu.bipa.simplesignbackend.model.dto.AuthorityDTO">
-        SELECT A.authority_name FROM USER_ROLE UR
-        JOIN AUTHORITY A ON UR.authority_code = A.authority_code
-        WHERE UR.user_id = #{userId}
+        select a.authority_name from user_role ur
+        join authority a on ur.authority_code = a.authority_code
+        where ur.org_user_id = #{userId}
     </select>
 
 </mapper>
