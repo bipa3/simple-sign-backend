@@ -51,12 +51,13 @@ public class FormManageDAO {
         return formManageMapper.getFormItemList();
     }
 
-    @Transactional
-    public Boolean insertFormDetail(FormDetailResDTO formDetail) {
+    public int insertFormDetail(FormDetailResDTO formDetail) {
         formManageMapper.createFormDetail(formDetail);
         int formCode = commonMapper.getLastInsertId();
+        return formCode;
+    }
 
-        // 공개범위
+    public Boolean insertScope(FormDetailResDTO formDetail, int formCode) {
         ArrayList<FormDetailScopeDTO> scopeList = formDetail.getScope();
         for(FormDetailScopeDTO scope : scopeList){
             Map<String, Object> map = new HashMap<>();
@@ -65,27 +66,28 @@ public class FormManageDAO {
             map.put("useId", scope.getUseId());
             formManageMapper.createFormScope(map);
         }
+        return true;
+    }
 
-        //결재 라인
+    public Boolean insertDefaultApprovalLine(FormDetailResDTO formDetail, int formCode) {
         List<DefaultApprovalLineDTO> lineList = formDetail.getApprovalLine();
 
         for(DefaultApprovalLineDTO line : lineList) {
             Map<String, Object> map = new HashMap<>();
             map.put("formCode", formCode);
             map.put("userId", line.getUserId());
-            map.put("deptId", line.getDeptId());
             map.put("lineOrder", line.getLineOrder());
-            map.put("compId", line.getCompId());
             formManageMapper.createDefaultApprovalLine(map);
         }
         return true;
     }
 
-    @Transactional
     public Boolean updateFormDetail(FormDetailResDTO formDetail) {
         formManageMapper.updateFormDetail(formDetail);
+        return true;
+    }
 
-        //공개 범위
+    public Boolean updateScope(FormDetailResDTO formDetail) {
         int formCode = formDetail.getCode();
         ArrayList<FormDetailScopeDTO> updateScopeList = formDetail.getScope();
         ArrayList<FormDetailScopeDTO> defaultScopeList = (ArrayList) formManageMapper.getFormDetailScope(formCode);
@@ -112,8 +114,11 @@ public class FormManageDAO {
             map.put("useId", insertScope.getUseId());
             formManageMapper.insertIgnoreFormScope(map);
         }
+        return true;
+    }
 
-        //결재 라인
+    public Boolean updateDefaultApprovalLine(FormDetailResDTO formDetail) {
+        int formCode = formDetail.getCode();
         List<DefaultApprovalLineDTO> updateLineList = formDetail.getApprovalLine();
         List<DefaultApprovalLineDTO> defaultLineList = searchDefaultApprovalLineAll(formCode);
         List<DefaultApprovalLineDTO> missingLineList = new ArrayList<>();
@@ -128,8 +133,6 @@ public class FormManageDAO {
             Map<String, Object> map = new HashMap<>();
             map.put("formCode", formCode);
             map.put("userId", delLine.getUserId());
-            map.put("deptId", delLine.getDeptId());
-            map.put("compId", delLine.getCompId());
             formManageMapper.delDefaultLine(map);
         }
 
@@ -137,12 +140,9 @@ public class FormManageDAO {
             Map<String, Object> map = new HashMap<>();
             map.put("formCode", formCode);
             map.put("userId", insertLine.getUserId());
-            map.put("deptId", insertLine.getDeptId());
             map.put("lineOrder", insertLine.getLineOrder());
-            map.put("compId", insertLine.getCompId());
             formManageMapper.insertIgnoreDefaultLine(map);
         }
-
         return true;
     }
 
