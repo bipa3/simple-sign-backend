@@ -8,17 +8,17 @@
 
     <!--결재문서삽입-->
    <insert id="insertApprovalDoc" parameterType="ApprovalDocReqDTO">
-        insert into approval_doc (user_id, dept_id, grade_name, position_name, form_code, approval_doc_title, contents,
+        insert into approval_doc (org_user_id, grade_name, position_name, form_code, approval_doc_title, contents,
             created_at, approval_count, doc_status, enforcement_date, doc_del_status, seq_code, approval_date)
-        values (#{userId}, #{deptId}, #{gradeName}, #{positionName}, #{formCode}, #{approvalDocTitle}, #{contents},
+        values (#{orgUserId}, #{gradeName}, #{positionName}, #{formCode}, #{approvalDocTitle}, #{contents},
             #{createdAt}, #{approvalCount}, #{docStatus}, #{enforcementDate}, 0, #{seqCode}, #{approvalDate});
    </insert>
 
     <!--결재라인 삽입-->
     <insert id="insertApprovalLine" parameterType="ApprovalLineDTO">
         insert into approval
-            (approval_doc_id, approval_order, approval_status, user_id, dept_id, grade_name, position_name, receive_date, approval_date)
-        values(#{approvalDocId}, #{approvalOrder}, #{approvalStatus}, #{userId}, #{deptId}, #{gradeName}, #{positionName}, #{receiveDate}, #{approvalDate});
+            (approval_doc_id, approval_order, approval_status, org_user_id, grade_name, position_name, receive_date, approval_date)
+        values(#{approvalDocId}, #{approvalOrder}, #{approvalStatus}, #{orgUserId}, #{gradeName}, #{positionName}, #{receiveDate}, #{approvalDate});
     </insert>
 
     <!--가장 최근 insert된 id 값 가져오기-->
@@ -43,22 +43,22 @@
     <!--결재 가져오기-->
     <select id="selectApprovalByApprovalId" resultType="ApprovalResDTO" parameterType="Map">
         select approval_id, approval_doc_id, receive_date, approval_date, approval_order, approval_status,
-                user_id, dept_id
+                org_user_id
         from approval
-        where approval_doc_id = #{approvalDocId} and user_id = #{userId};
+        where approval_doc_id = #{approvalDocId} and org_user_id = #{orgUserId};
     </select>
 
     <!--결재 승인하기-->
     <update id="updateCurrentApproval" parameterType="ApprovalResDTO">
         update approval
         set approval_status = #{approvalStatus}, approval_date = #{approvalDate}
-        where approval_id = #{approvalId} and user_id = #{userId};
+        where approval_id = #{approvalId} and org_user_id = #{orgUserId};
     </update>
 
 
     <!--결재문서의 총 결재개수 가져오기-->
     <select id="selectApprovalCount" parameterType="int" resultType="ApprovalDocResDTO">
-        select approval_doc_id, approval_count, doc_status, seq_code, user_id
+        select approval_doc_id, approval_count, doc_status, seq_code, org_user_id
         from approval_doc
         where approval_doc_id = #{approvalDocId};
     </select>
@@ -72,7 +72,7 @@
 
     <!--상신 상위자 아이디 가져오기-->
     <select id="selectUpperApproverId" parameterType="ApprovalResDTO" resultType="ApprovalResDTO">
-        select approval_id, user_id from approval
+        select approval_id, org_user_id from approval
         where approval_doc_id = #{approvalDocId} and approval_order = #{approvalOrder}+1;
     </select>
 
@@ -85,7 +85,7 @@
 
     <!--결재문서 상신자 아이디 가져오기-->
     <select id="selectRecipientId" parameterType="int" resultType="int">
-        select user_id from approval_doc where approval_doc_id = #{approvalDocId};
+        select org_user_id from approval_doc where approval_doc_id = #{approvalDocId};
     </select>
 
     <!--수신참조 활성화 업데이트-->
@@ -98,34 +98,39 @@
 
     <select id="selectLowerApproverId" parameterType="Map" resultType="int">
         <![CDATA[
-            select user_id from approval where approval_doc_id = #{approvalDocId} and approval_order < #{approvalOrder};
+            select org_user_id from approval where approval_doc_id = #{approvalDocId} and approval_order < #{approvalOrder};
         ]]>
     </select>
 
     <!--결재문서 상세조회-->
     <select id="selectApprovalDocById" parameterType="int" resultType="ApprovalDocDetailDTO">
-        select approval_doc_id, t1.user_id, t1.dept_id, t3.user_name, t2.dept_name, created_at, approval_doc_title,
-                contents, enforcement_date, product_num, t1.form_code, t4.default_form
+        select approval_doc_id, t1.org_user_id, t3.user_name, t5.dept_name, created_at, approval_doc_title,
+            contents, enforcement_date, product_num, t1.form_code, t4.default_form
         from approval_doc t1
-            left join department t2
-            on t1.dept_id = t2.dept_id
+            left join organization_user t2
+            on t1.org_user_id = t2.org_user_id
             left join user t3
-            on t1.user_id = t3.user_id
+            on t2.user_id = t3.user_id
             left join form t4
             on t1.form_code = t4.form_code
-        where approval_doc_id = #{approvalDocId} and doc_del_status = 0;
+            left join department t5
+            on t2.dept_id = t5.dept_id
+        where approval_doc_id = 3 and doc_del_status = 0;
+
     </select>
 
     <select id="selectApprovalLineByApprovalDocId" parameterType="int" resultType="ApprovalLineListDTO">
-        select t1.user_id, user_name, approval_order
+        select t1.org_user_id, user_name, approval_order
         from approval t1
             left join
-            user t2 on t1.user_id = t2.user_id
+            organization_user t2 on t1.org_user_id = t2.org_user_id
+            left join
+            user t3 on t2.user_id = t3.user_id
         where approval_doc_id = #{approvalDocId};
     </select>
 
     <select id="selectReceivedRefList" parameterType="int" resultType="ReceivedRefListDTO">
-        select t3.user_id, user_name
+        select t2.org_user_id, user_name
         from received_ref t1
             left join
             organization_user t2 on t1.use_id = t2.user_id
@@ -135,13 +140,13 @@
 
     <!--수신참조자 조회-->
     <select id="selectRecievedRefUserId" parameterType="int" resultType="int">
-        select user_id from received_ref where approval_doc_id = #{approvalDocId} and active_state = 1;
+        select org_user_id from received_ref where approval_doc_id = #{approvalDocId} and active_state = 1;
     </select>
 
     <!--결재자 여부 확인-->
     <select id="selectUserCountByApprovalDoc" parameterType="Map" resultType="ApprovalOrderResDTO">
         select count(*) as count, approval_order from approval
-        where approval_doc_id = #{approvalDocId} and user_id = #{userId};
+        where approval_doc_id = #{approvalDocId} and org_user_id = #{orgUserId};
     </select>
 
     <!--결재문서 수정이 가능한지 확인-->
@@ -167,7 +172,7 @@
 
     <!--문서수정 알람수신자 가져오기-->
     <select id="selectUpdateAlarmRecipient" parameterType="int" resultType="int">
-        select user_id from approval
+        select org_user_id from approval
         where approval_doc_id = #{approvalDocId}
         and (approval_status = 'P' or approval_status = 'A');
     </select>
@@ -180,7 +185,7 @@
 
     <!--삭제할 결재문서의 작성자 확인-->
     <select id="selectUserIdByApprovalDoc" parameterType="int" resultType="int">
-        select user_id from approval_doc
+        select org_user_id from approval_doc
         where approval_doc_id = #{approvalDocId};
     </select>
 
