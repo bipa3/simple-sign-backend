@@ -16,22 +16,16 @@
         FROM form WHERE form_code=#{code};
     </select>
 
-    <select id="getFormDetailScope" resultType="bitedu.bipa.simplesignbackend.model.vo.FormDetailScopeVO">
-        SELECT t1.category, t1.use_id as useId, CASE
-            WHEN t1.category = 'C' THEN t2.comp_name
-            WHEN t1.category = 'E' THEN t3.est_name
-            WHEN t1.category = 'D' THEN t4.dept_name
-            WHEN t1.category = 'U' THEN t5.user_name
-        END AS name
-        FROM (Select * FROM form_use_department WHERE form_code=#{code}) t1
-            LEFT JOIN
-            company t2 ON t1.use_id = t2.comp_id
-            LEFT JOIN
-            establishment t3 ON t1.use_id = t3.est_id
-            LEFT JOIN
-            department t4 ON t1.use_id = t4.dept_id
-            LEFT JOIN
-            user t5 ON t1.use_id = t5.user_id;
+    <select id="getFormDetailScope" resultType="bitedu.bipa.simplesignbackend.model.dto.FormDetailScopeDTO">
+        SELECT A.category, A.form_code, A.use_id, comp.comp_id, comp.comp_name AS company, est.est_id, IFNULL(est.est_name, "") AS establishment, dept.dept_id, IFNULL(dept.dept_name, "") AS department, user.user_id, IFNULL(user.user_name, "") AS user, IFNULL(user.grade_name, "") AS grade, IFNULL(user.position_name, "") AS position
+        FROM (SELECT * FROM form_use_department WHERE form_code=1) A
+        LEFT JOIN (SELECT user.user_id, user.user_name, ou.dept_id, g.grade_name, p.position_name FROM user
+        INNER JOIN organization_user AS ou ON user.user_id=ou.org_user_id
+        INNER JOIN grade AS g on ou.grade_code=g.grade_code
+        INNER JOIN position AS p on ou.position_code=p.position_code) AS user ON A.category = 'U' AND A.use_id = user.user_id
+        LEFT JOIN department AS dept ON A.category IN ('U', 'D') AND (user.dept_id = dept.dept_id OR A.use_id= dept.dept_id)
+        LEFT JOIN establishment AS est ON A.category IN ('U', 'D', 'E') AND (dept.est_id = est.est_id OR A.use_id= est.est_id)
+        LEFT JOIN company AS comp ON A.category IN ('U', 'D', 'E', 'C') AND (est.comp_id = comp.comp_id OR A.use_id= comp.comp_id);
     </select>
 
     <select id="selectFormListWithSearch" resultType="FormListDTO"
@@ -103,12 +97,12 @@
     </select>
 
     <select id="selectDefaultApprovalLine">
-        SELECT c.comp_id, c.comp_name, d.dept_id, d.dept_name, u.user_id, u.user_name, line_order
-        FROM default_approval_line AS dl
-        INNER JOIN company AS c ON dl.comp_id=c.comp_id
-        INNER JOIN department AS d ON dl.dept_id=d.dept_id
-        INNER JOIN user AS u ON dl.user_id=u.user_id
-        WHERE form_code=#{code} ORDER BY line_order;
+        SELECT dl.line_order, dl.org_user_id, ou.comp_name, ou.est_name, ou.user_id, ou.dept_id, dept.dept_name, u.user_name
+        FROM (SELECT * FROM default_approval_line WHERE form_code=#{code}) AS dl
+        INNER JOIN organization_user AS ou ON dl.org_user_id=ou.org_user_id
+        INNER JOIN department AS dept ON ou.dept_id=dept.dept_id
+        INNER JOIN user AS u ON u.user_id=ou.user_id
+        ORDER BY dl.line_order;
     </select>
 
     <insert id="createDefaultApprovalLine" parameterType="map">
