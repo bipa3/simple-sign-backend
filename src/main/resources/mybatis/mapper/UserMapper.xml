@@ -9,4 +9,21 @@
         select * from user where login_id=#{loginId} and password=#{password};
     </select>
 
+    <select id="loginSalt" resultType="String">
+        select salt from user where login_id = #{loginId}
+    </select>
+
+    <select id="selectSalt" parameterType="int" resultType="String">
+        select salt from user where user_id = #{userId}
+    </select>
+
+    <!-- 비밀번호 확인 -->
+    <select id="passwordClick" parameterType="int" resultType="String">
+        select password from user where user_id = #{userId};
+    </select>
+
+    <!-- 비밀번호 변경 -->
+    <update id="updatePassword" parameterType="UserPasswordDTO">
+        update user set password = #{newPassword}, salt = #{salt} where user_id = #{userId};
+    </update>
 </mapper>
