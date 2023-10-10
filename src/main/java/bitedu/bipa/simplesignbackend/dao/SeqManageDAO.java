@@ -2,7 +2,6 @@ package bitedu.bipa.simplesignbackend.dao;
 import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
 import bitedu.bipa.simplesignbackend.mapper.SeqManageMapper;
 import bitedu.bipa.simplesignbackend.model.dto.*;
-import bitedu.bipa.simplesignbackend.model.vo.FormDetailScopeVO;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 

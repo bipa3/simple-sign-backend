@@ -1,9 +1,7 @@
 package bitedu.bipa.simplesignbackend.service;
 
-import bitedu.bipa.simplesignbackend.dao.CommonDAO;
 import bitedu.bipa.simplesignbackend.dao.FormManageDAO;
 import bitedu.bipa.simplesignbackend.model.dto.*;
-import bitedu.bipa.simplesignbackend.model.vo.FormDetailScopeVO;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
