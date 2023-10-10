@@ -17,8 +17,8 @@ public class ApprovalBoxDAO {
     @Autowired
     ApprovalBoxManageMapper approvalBoxManageMapper;
 
-    public ArrayList<DocumentListDTO> selectDocsList(List<String> viewItems, int userId, int deptId, int itemsPerPage, int offset) {
-        return approvalBoxMapper.getDocumentsByViewItems(userId,itemsPerPage,offset,deptId,viewItems);
+    public ArrayList<DocumentListDTO> selectDocsList(List<String> viewItems, int userId, int deptId, int estId, int compId, int itemsPerPage, int offset) {
+        return approvalBoxMapper.getDocumentsByViewItems(userId,itemsPerPage,offset,deptId, estId, compId, viewItems);
     }
 
 
@@ -30,8 +30,8 @@ public class ApprovalBoxDAO {
         return approvalBoxMapper.getSearchDocCountByViewItems(userId,deptId,viewItems,searchInput);
     }
 
-    public  ArrayList<DocumentListDTO> selectDocsCount(List<String> viewItems, int userId, int deptId) {
-        return approvalBoxMapper.getDocCountByViewItems(userId,deptId,viewItems);
+    public  ArrayList<DocumentListDTO> selectDocsCount(List<String> viewItems, int userId, int deptId, int estId, int compId) {
+        return approvalBoxMapper.getDocCountByViewItems(userId,deptId,estId,compId,viewItems);
     }
 
     public ArrayList<DocumentListDTO> selectDetailSearchDocsList(List<String> viewItems, int userId, int deptId, int itemsPerPage, int offset, SearchRequestDTO criteria) {
@@ -80,5 +80,9 @@ public class ApprovalBoxDAO {
 
         }
 
+    }
+
+    public int selectEstId(int userId) {
+        return approvalBoxManageMapper.getUserEstId(userId);
     }
 }
