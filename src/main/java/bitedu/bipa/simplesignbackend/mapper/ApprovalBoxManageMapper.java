@@ -30,4 +30,9 @@ public interface ApprovalBoxManageMapper {
     void insertBoxViewItem(@Param("approvalBoxId")int approvalBoxId, @Param("item") String item);
 
     int getUserEstId(@Param("userId")int userId);
+
+    void insertApprovalBox( @Param("approvalBoxName")String approvalBoxName, @Param("approvalBoxUsedStatus")int approvalBoxUsedStatus, @Param("menuUsingRange")char menuUsingRange, @Param("sortOrder")int sortOrder);
+
+    int getLastInsertId();
+    void insertBoxUseCompany(@Param("approvalBoxId")int approvalBoxId, @Param("compId")int compId);
 }
