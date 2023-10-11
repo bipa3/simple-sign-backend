@@ -19,7 +19,7 @@ if [ $? -eq 0 ]; then
 
   # Spring Boot 애플리케이션 JAR 파일 실행 (필요에 따라 수정)
   echo "Spring Boot 애플리케이션을 실행합니다..."
-  java -jar build/libs/$JAR_NAME
+#  java -jar build/libs/$JAR_NAME
 else
   echo "Gradle 빌드에 실패했습니다. 빌드 스크립트를 확인하세요."
   exit 1
