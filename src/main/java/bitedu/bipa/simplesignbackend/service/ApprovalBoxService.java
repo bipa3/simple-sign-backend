@@ -92,4 +92,19 @@ public class ApprovalBoxService {
         int sortOrder = criteria.getSortOrder();
         approvalBoxDAO.updateApprovalBox(approvalBoxId, compId, approvalBoxName, viewItems,approvalBoxUsedStatus,menuUsingRange,sortOrder);
     }
+
+    public void createApprovalBox(ApprovalBoxReqDTO criteria) {
+        ArrayList<String> viewItems = criteria.getViewItems();
+        int compId = criteria.getCompId();
+        String approvalBoxName = criteria.getApprovalBoxName();
+        int approvalBoxUsedStatus =-1;
+        if(criteria.getApprovalBoxUsedStatus() == "미사용") {
+            approvalBoxUsedStatus = 0;
+        }else{
+            approvalBoxUsedStatus = 1;
+        }
+        char menuUsingRange = criteria.getMenuUsingRange();
+        int sortOrder = criteria.getSortOrder();
+        approvalBoxDAO.createApprovalBox( compId, approvalBoxName, viewItems,approvalBoxUsedStatus,menuUsingRange,sortOrder);
+    }
 }
