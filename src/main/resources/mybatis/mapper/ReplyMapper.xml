@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.ReplyMapper">
+
+    <!--댓글조회-->
+    <select id="selectAllReplyList" parameterType="int" resultType="ReplyResDTO">
+        select * from reply where approval_doc_id = #{approvalDocId};
+    </select>
+
+    <!--댓글 작성-->
+    <insert id="insertReply" parameterType="ReplyReqDTO"  useGeneratedKeys="true" keyProperty="replyId">
+        insert into reply (reply_content, approval_doc_id, reg_date, depth, org_user_id)
+            values(#{replyContent}, #{approvalDocId}, #{regDate}, 1, #{orgUserId});
+    </insert>
+
+    <!--댓글 마지막 순서 가져오기-->
+    <select id="selectGroupOrd" resultType="int" parameterType="map">
+        SELECT IFNULL(MAX(group_ord)+1, 1) FROM reply WHERE depth = #{depth} and approval_doc_id= #{approvalDocId};
+    </select>
+
+    <!--groupNo 업데이트-->
+    <update id="updateGroupNoAndOrder" parameterType="map">
+        update reply set group_no = #{replyId}, group_ord = #{groupOrd} where reply_id = #{replyId};
+    </update>
+
+    <!--대댓글 삽입하기-->
+    <insert id="insertLowerReply" parameterType="ReplyReqDTO"  useGeneratedKeys="true" keyProperty="replyId">
+        insert into reply (reply_content, approval_doc_id, reg_date, depth, group_no, org_user_id, upper_reply_id)
+            values( #{replyContent}, #{approvalDocId}, #{regDate}, 2, #{groupNo}, #{orgUserId}, #{upperReplyId});
+    </insert>
+
+    <update id="updateGroupOrder" parameterType="map">
+        update reply set group_ord = #{groupOrd} where reply_id = #{replyId};
+    </update>
+
+
+
+</mapper>
