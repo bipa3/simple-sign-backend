@@ -28,11 +28,7 @@ public class UserController {
             SessionUtils.addAttribute("userId", userId);
             SessionUtils.addAttribute("userName", userName);
 
-            Map<String, Object> responseMap = new HashMap<>();
-            responseMap.put("userId", userId);
-            responseMap.put("userName", userName);
-
-            return ResponseEntity.ok(responseMap);
+            return new ResponseEntity(HttpStatus.OK);
         } else {
           return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
