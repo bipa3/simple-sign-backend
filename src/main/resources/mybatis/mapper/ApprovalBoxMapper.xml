@@ -7,7 +7,8 @@
     <select id="getDocumentsByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
         SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
         FROM approval_doc ad
-        JOIN user u ON ad.org_user_id = u.user_id
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+        JOIN user u ON (ad.org_user_id = u.user_id and u.user_id=#{userId})
         JOIN organization_user ou ON ou.user_id = #{userId}
         JOIN department d ON d.dept_id = ou.dept_id
         LEFT JOIN form f ON ad.form_code = f.form_code
@@ -27,7 +28,7 @@
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.use_id = #{userId} and r.category = "U") OR (r.use_id =#{deptId} and r.category="D") OR (r.use_id = #{estId} and r.category="E") OR (r.use_id = #{compId} and r.category="C")))
+                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =1 and r.category = 'U') OR (r.use_id =1 and r.category='D') OR (r.use_id = 1 and r.category='E') OR (r.use_id = 1 and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
@@ -50,7 +51,8 @@
     <select id="getDocCountByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
         SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
         FROM approval_doc ad
-        JOIN user u ON ad.org_user_id = u.user_id
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+        JOIN user u ON (ad.org_user_id = u.user_id and u.user_id=#{userId})
         JOIN organization_user ou ON ou.user_id = #{userId}
         JOIN department d ON d.dept_id = ou.dept_id
         LEFT JOIN form f ON ad.form_code = f.form_code
@@ -70,7 +72,7 @@
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.use_id = #{userId} and r.category = "U") OR (r.use_id =#{deptId} and r.category="D") OR (r.use_id = #{estId} and r.category="E") OR (r.use_id = #{compId} and r.category="C")))
+                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =1 and r.category = 'U') OR (r.use_id =1 and r.category='D') OR (r.use_id = 1 and r.category='E') OR (r.use_id = 1 and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
@@ -90,7 +92,8 @@
     <select id="getSearchDocumentsByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
         SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
         FROM approval_doc ad
-        JOIN user u ON ad.org_user_id = u.user_id
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+        JOIN user u ON (ad.org_user_id = u.user_id and u.user_id=#{userId})
         JOIN organization_user ou ON ou.user_id = #{userId}
         JOIN department d ON d.dept_id = ou.dept_id
         LEFT JOIN form f ON ad.form_code = f.form_code
@@ -110,7 +113,7 @@
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.use_id = #{userId} and r.category = "U") OR (r.use_id =#{deptId} and r.category="D") OR (r.use_id = #{estId} and r.category="E") OR (r.use_id = #{compId} and r.category="C")))
+                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =1 and r.category = 'U') OR (r.use_id =1 and r.category='D') OR (r.use_id = 1 and r.category='E') OR (r.use_id = 1 and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
@@ -137,7 +140,8 @@
     <select id="getSearchDocCountByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
         SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
         FROM approval_doc ad
-        JOIN user u ON ad.org_user_id = u.user_id
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+        JOIN user u ON (ad.org_user_id = u.user_id and u.user_id=#{userId})
         JOIN organization_user ou ON ou.user_id = #{userId}
         JOIN department d ON d.dept_id = ou.dept_id
         LEFT JOIN form f ON ad.form_code = f.form_code
@@ -157,7 +161,7 @@
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.use_id = #{userId} and r.category = "U") OR (r.use_id =#{deptId} and r.category="D") OR (r.use_id = #{estId} and r.category="E") OR (r.use_id = #{compId} and r.category="C")))
+                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =1 and r.category = 'U') OR (r.use_id =1 and r.category='D') OR (r.use_id = 1 and r.category='E') OR (r.use_id = 1 and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
@@ -238,8 +242,8 @@
     <select id="getDetailSearchDocsList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
         SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
         FROM approval_doc ad
-        JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-        JOIN user u ON ad.org_user_id = u.user_id
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+        JOIN user u ON (ad.org_user_id = u.user_id and u.user_id=#{userId})
         JOIN organization_user ou ON ou.user_id = #{userId}
         JOIN department d ON d.dept_id = ou.dept_id
         LEFT JOIN form f ON ad.form_code = f.form_code
@@ -259,7 +263,7 @@
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.use_id = #{userId} and r.category = "U") OR (r.use_id =#{deptId} and r.category="D") OR (r.use_id = #{estId} and r.category="E") OR (r.use_id = #{compId} and r.category="C")))
+                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =1 and r.category = 'U') OR (r.use_id =1 and r.category='D') OR (r.use_id = 1 and r.category='E') OR (r.use_id = 1 and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
@@ -280,8 +284,8 @@
     <select id="getDetailSearchDocsCount" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
         SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.created_at, ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name
         FROM approval_doc ad
-        JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
-        JOIN user u ON ad.org_user_id = u.user_id
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
+        JOIN user u ON (ad.org_user_id = u.user_id and u.user_id=#{userId})
         JOIN organization_user ou ON ou.user_id = #{userId}
         JOIN department d ON d.dept_id = ou.dept_id
         LEFT JOIN form f ON ad.form_code = f.form_code
@@ -301,7 +305,7 @@
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.use_id = #{userId} and r.category = "U") OR (r.use_id =#{deptId} and r.category="D") OR (r.use_id = #{estId} and r.category="E") OR (r.use_id = #{compId} and r.category="C")))
+                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =1 and r.category = 'U') OR (r.use_id =1 and r.category='D') OR (r.use_id = 1 and r.category='E') OR (r.use_id = 1 and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))

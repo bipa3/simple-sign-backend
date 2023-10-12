@@ -24,13 +24,12 @@ public class ApprovalBoxController {
 
     @GetMapping("/view")
     public Map<String, Object> viewDocList(
-            @SessionAttribute(name = "userId") String userIdStr,
+            @SessionAttribute(name = "userId") int userId,
             @RequestParam(name = "viewItems") List<String> viewItems,
             @RequestParam(name = "itemsPerPage") int itemsPerPage,
             @RequestParam(name = "offset") int offset,
             @RequestParam(name = "searchInput") String searchInput
     ) {
-        int userId = Integer.parseInt(userIdStr);
         int deptId = commonDAO.selectDeptId(userId);
         int estId = approvalBoxDAO.selectEstId(userId);
         int compId = approvalBoxDAO.selectUserCompId(userId);
@@ -47,8 +46,7 @@ public class ApprovalBoxController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<Map<String, Object>> searchDocuments(@SessionAttribute(name = "userId") String userIdStr, @RequestBody SearchRequestDTO criteria) {
-        int userId = Integer.parseInt(userIdStr);
+    public ResponseEntity<Map<String, Object>> searchDocuments(@SessionAttribute(name = "userId") int userId, @RequestBody SearchRequestDTO criteria) {
         int deptId = commonDAO.selectDeptId(userId);
 
         Map<String, Object> result = approvalBoxService.searchDocuments( userId,deptId,criteria);
@@ -82,8 +80,7 @@ public class ApprovalBoxController {
     }
 
     @GetMapping("/boxlist")
-    public Map<String, Object> viewApprovalBoxList(@SessionAttribute(name = "userId") String userIdStr){
-        int userId = Integer.parseInt(userIdStr);
+    public Map<String, Object> viewApprovalBoxList(@SessionAttribute(name = "userId") int userId){
         int deptId = commonDAO.selectDeptId(userId);
         int company = approvalBoxDAO.selectUserCompId(userId);
 
@@ -100,6 +97,12 @@ public class ApprovalBoxController {
     @PutMapping("/update")
     public ResponseEntity<Void> modifyApprovalBox(@RequestBody ApprovalBoxReqDTO criteria) {
         approvalBoxService.updateApprovalBox(criteria);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/insert")
+    public ResponseEntity<Void> createApprovalBox(@RequestBody ApprovalBoxReqDTO criteria) {
+        approvalBoxService.createApprovalBox(criteria);
         return ResponseEntity.ok().build();
     }
 

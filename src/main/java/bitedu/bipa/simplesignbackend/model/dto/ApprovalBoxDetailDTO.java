@@ -8,13 +8,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApprovalBoxDetailDTO {
+    private int compId;
+    private String compName;
     private int approvalBoxId;
     private String approvalBoxName;
     private int sortOrder;
     private int approvalBoxUsedStatus;
     private char menuUsingRange;
     private int boxDeleteStatus;
-    private int compId;
-    private String compName;
+
 
 }

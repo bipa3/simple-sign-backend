@@ -15,7 +15,7 @@ public class DocumentListDTO {
     private String approvalDocTitle;
     private char docStatus;
     private Date createdAt;
-    private int userId;
+    private int orgUserId;
     private String userName;
     private int deptId;
     private String deptName;

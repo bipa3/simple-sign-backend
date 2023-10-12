@@ -76,13 +76,22 @@ public class ApprovalBoxDAO {
             for (String item : viewItems) {
                 approvalBoxManageMapper.insertBoxViewItem(approvalBoxId,item);
             }
-
-
         }
-
     }
 
     public int selectEstId(int userId) {
         return approvalBoxManageMapper.getUserEstId(userId);
+    }
+
+    public void createApprovalBox(int compId, String approvalBoxName, ArrayList<String> viewItems, int approvalBoxUsedStatus, char menuUsingRange, int sortOrder) {
+        approvalBoxManageMapper.insertApprovalBox(approvalBoxName,approvalBoxUsedStatus,menuUsingRange,sortOrder);
+        int approvalBoxId = approvalBoxManageMapper.getLastInsertId();
+
+        approvalBoxManageMapper.insertBoxUseCompany(approvalBoxId,compId);
+        if (viewItems.size()>0){
+            for (String item : viewItems) {
+                approvalBoxManageMapper.insertBoxViewItem(approvalBoxId,item);
+            }
+        }
     }
 }

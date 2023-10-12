@@ -100,8 +100,17 @@
         WHERE ab.approval_box_id = #{approvalBoxId}
         AND c.comp_id = #{compId};
     </update>
+    <insert id="insertApprovalBox">
+        insert into approval_box (approval_box_name,approval_box_used_status, sort_order, menu_using_range,box_delete_status)
+        values(#{approvalBoxName},#{approvalBoxUsedStatus},#{sortOrder},#{menuUsingRange},0);
+    </insert>
 
+    <select id="getLastInsertId" resultType="int">
+        select last_insert_id();
+    </select>
 
-
+    <insert id="insertBoxUseCompany">
+        insert into box_use_department(approval_box_id,using_category,use_id) values (#{approvalBoxId},'C',#{compId});
+    </insert>
 
 </mapper>
