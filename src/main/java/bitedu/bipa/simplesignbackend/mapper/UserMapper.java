@@ -17,4 +17,11 @@ public interface UserMapper {
 
     // 비밀번호 수정
     boolean updatePassword(@Param("userId") int userId, @Param("newPassword") String newPassword, @Param("salt") String salt);
+
+    // 개인정보 조회
+    UserDTO selectUser(int userId);
+
+    // 수정
+    boolean updateUser(UserDTO userDTO);
+
 }

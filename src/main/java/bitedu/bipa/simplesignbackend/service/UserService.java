@@ -50,4 +50,14 @@ public class UserService {
 
         return true;
     }
+
+    // 개인정보 조회
+    public UserDTO detailUser(int userId) {
+        return userDAO.detailUser(userId);
+    }
+
+    // 개인정보 수정
+    public boolean updateUser(UserDTO userDTO) {
+        return userDAO.updateUser(userDTO);
+    }
 }
