@@ -22,8 +22,7 @@ public class SeqManageDAO {
     }
 
     public List<SeqAndCompDTO> selectSeqAndComp(SeqAndCompDTO seqAndCompDTO) {
-        List<SeqAndCompDTO> seqAndCompList = seqManageMapper.getSeqAndCompList(seqAndCompDTO);
-        return seqAndCompList;
+        return seqManageMapper.getSeqAndCompList(seqAndCompDTO);
     }
 
     public SeqDetailDTO selectSeqDetail(int code) {
@@ -36,99 +35,56 @@ public class SeqManageDAO {
         return seqManageMapper.getSeqFormScope(code);
     }
 
-    public String selectSeqItems (List<String> seqItems) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("seqItems", seqItems);
+    public String selectSeqItems (Map<String, Object> map) {
         return seqManageMapper.selectSeqItems(map);
     }
 
 
-    public Boolean deleteSeq(int code) {
+    public void deleteSeq(int code) {
         seqManageMapper.deleteSeq(code);
-        return true;
     }
 
-    @Transactional
-    public Boolean insertSeqDetail(SeqDetailDTO seqDetail) {
+    public int getSeqDetailId() {
+        return commonMapper.getLastInsertId();
+    }
+
+    public void insertSeqDetail(SeqDetailDTO seqDetail) {
         seqManageMapper.createSeqDetail(seqDetail);
-        int seqCode = commonMapper.getLastInsertId();
-        System.out.println("seqCode:" + seqCode);
-        List<SeqScopeDTO> deptScopeList = seqDetail.getDeptScope();
-        List<SeqScopeDTO> formScopeList = seqDetail.getFormScope();
-        for(SeqScopeDTO deptScope : deptScopeList){
-            Map<String, Object> map = new HashMap<>();
-            map.put("category", deptScope.getCategory());
-            map.put("seqCode", seqCode);
-            map.put("useId", deptScope.getUseId());
-            seqManageMapper.createSeqDeptScope(map);
-        }
-
-        for(SeqScopeDTO formScope : formScopeList){
-            Map<String, Object> map = new HashMap<>();
-            map.put("seqCode", seqCode);
-            map.put("formCode", formScope.getUseId());
-            seqManageMapper.createSeqFormScope(map);
-        }
-        return true;
     }
 
-    @Transactional
-    public Boolean updateSeqDetail(SeqDetailDTO seqDetailDTO) {
+    public void insertSeqDept(Map<String, Object> map) {
+        seqManageMapper.createSeqDeptScope(map);
+    }
+
+    public void insertSeqForm(Map<String, Object> map) {
+        seqManageMapper.createSeqFormScope(map);
+    }
+
+    public void updateSeqDetail(SeqDetailDTO seqDetailDTO) {
         seqManageMapper.updateSeqDetail(seqDetailDTO);
-        int seqCode = Integer.parseInt(seqDetailDTO.getCode());
-        List<SeqScopeDTO> deptScopeList = seqDetailDTO.getDeptScope();
-        List<SeqScopeDTO> formScopeList = seqDetailDTO.getFormScope();
+    }
 
-        List<SeqScopeDTO> defaultDeptScopeList = seqManageMapper.getSeqDeptScope(seqCode);;
-        List<SeqScopeDTO> defaultFormScopeList = seqManageMapper.getSeqFormScope(seqCode);
+    public List<SeqScopeDTO> getSeqDeptScope(int seqCode) {
+        return seqManageMapper.getSeqDeptScope(seqCode);
+    }
 
-        List<SeqScopeDTO> missingDeptDataList = new ArrayList<>();
-        List<SeqScopeDTO> missingFormDataList = new ArrayList<>();
+    public void delDeptScope(Map<String, Object> map) {
+        seqManageMapper.delDeptScope(map);
+    }
 
-        // 회사 scope
-        for (SeqScopeDTO defaultDept : defaultDeptScopeList) {
-            if (!deptScopeList.contains(defaultDept)) {
-                missingDeptDataList.add(defaultDept);
-            }
-        }
+    public void insertIgnoreDeptScope(Map<String, Object> map) {
+        seqManageMapper.insertIgnoreDeptScope(map);
+    }
 
-        for (SeqScopeDTO delDept : missingDeptDataList) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("category", delDept.getCategory());
-            map.put("seqCode", seqCode);
-            map.put("useId", delDept.getUseId());
-            seqManageMapper.delDeptScope(map);
-        }
+    public List<SeqScopeDTO> getSeqFormScope(int seqCode) {
+        return seqManageMapper.getSeqFormScope(seqCode);
+    }
 
-        for (SeqScopeDTO insertDept : deptScopeList) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("category", insertDept.getCategory());
-            map.put("seqCode", seqCode);
-            map.put("useId", insertDept.getUseId());
-            seqManageMapper.insertIgnoreDeptScope(map);
-        }
+    public void delFormScope(Map<String, Object> map) {
+        seqManageMapper.delFormScope(map);
+    }
 
-        // 양식 scope
-        for (SeqScopeDTO defaultForm : defaultFormScopeList) {
-            if (!formScopeList.contains(defaultForm)) {
-                missingFormDataList.add(defaultForm);
-            }
-        }
-
-        for (SeqScopeDTO delForm : missingFormDataList) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("seqCode", seqCode);
-            map.put("formCode", delForm.getUseId());
-            seqManageMapper.delFormScope(map);
-        }
-
-        for (SeqScopeDTO insertForm : formScopeList) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("seqCode", seqCode);
-            map.put("formCode", insertForm.getUseId());
-            seqManageMapper.insertIgnoreFormScope(map);
-        }
-
-        return true;
+    public void insertIgnoreFormScope(Map<String, Object> map) {
+        seqManageMapper.insertIgnoreFormScope(map);
     }
 }
