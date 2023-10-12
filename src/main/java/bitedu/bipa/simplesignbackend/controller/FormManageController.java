@@ -22,8 +22,8 @@ public class FormManageController {
     }
 
     @PostMapping("/list")
-    public ResponseEntity<ArrayList<FormAndCompDTO>> formAndCompListSearch(@RequestBody FormAndCompDTO formAndCompDTO) {
-        ArrayList<FormAndCompDTO> formAndCompList = formManageService.selectFormAndCompList(formAndCompDTO);
+    public ResponseEntity<List<FormAndCompDTO>> formAndCompListSearch(@RequestBody FormAndCompDTO formAndCompDTO) {
+        List<FormAndCompDTO> formAndCompList = formManageService.selectFormAndCompList(formAndCompDTO);
 
         if (formAndCompList != null && !formAndCompList.isEmpty()) {
             return new ResponseEntity<>(formAndCompList, HttpStatus.OK);
