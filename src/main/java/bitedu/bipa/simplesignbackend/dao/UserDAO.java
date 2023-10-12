@@ -32,4 +32,15 @@ public class UserDAO {
     public boolean passwordUpdate(int userId, String newPassword, String salt){
         return userMapper.updatePassword(userId, newPassword, salt);
     }
+
+    // 개인정보 조회
+    public UserDTO detailUser(int userId){
+        return userMapper.selectUser(userId);
+    }
+
+    //개인정보 수정
+    public boolean updateUser(UserDTO userDTO){
+        return userMapper.updateUser(userDTO);
+    }
+
 }
