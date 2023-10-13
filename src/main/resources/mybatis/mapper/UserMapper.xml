@@ -32,10 +32,10 @@
         select u.employee_number, u.user_name, u.login_id, u.email, u.phone, u.birth, u.gender, u.address,
         o.comp_name, o.est_name, d.dept_string, p.position_name, g.grade_name, u.employment_status, u.start_date
         from user u
-        join organization_user o on u.user_id = o.user_id
-        join department d on o.dept_id = d.dept_id
-        join position p on o.position_code = p.position_code
-        join grade g on o.grade_code = g.grade_code
+        left join organization_user o on u.user_id = o.user_id
+        left join department d on o.dept_id = d.dept_id
+        left join position p on o.position_code = p.position_code
+        left join grade g on o.grade_code = g.grade_code
         WHERE u.user_id = #{user_id};
     </select>
 
