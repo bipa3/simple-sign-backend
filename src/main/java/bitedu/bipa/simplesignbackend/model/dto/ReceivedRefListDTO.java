@@ -6,6 +6,6 @@ import lombok.Data;
 public class ReceivedRefListDTO {
 
     private int orgUserId;
-    private String userName;
+    private String user;
     private String category;
 }

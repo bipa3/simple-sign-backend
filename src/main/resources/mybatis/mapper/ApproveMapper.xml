@@ -130,12 +130,14 @@
     </select>
 
     <select id="selectReceivedRefList" parameterType="int" resultType="ReceivedRefListDTO">
-        select t2.org_user_id, user_name, category
-        from received_ref t1
-            left join
-            organization_user t2 on t1.use_id = t2.user_id
-            left join user t3 on t2.user_id = t3.user_id
-        where approval_doc_id = #{approvalDocId};
+        select t1.category , t2.comp_id as org_user_id ,comp_name as user from received_ref t1 inner join  company t2
+        on t1.use_id = t2.comp_id where approval_doc_id = #{approvalDocId} and category = 'C' union
+        select t1.category , t2.est_id as org_user_id ,est_name as user from received_ref t1 inner join  establishment t2
+        on t1.use_id = t2.est_id where approval_doc_id = #{approvalDocId} and category = 'E' union
+        select t1.category , t2.dept_id as org_user_id ,dept_name as user from received_ref t1 inner join  department t2
+        on t1.use_id = t2.dept_id where approval_doc_id = #{approvalDocId} and category = 'D' union
+        select t1.category ,t2.user_id as org_user_id , user_name as user from received_ref t1 inner join  organization_user t2
+        on t1.use_id = t2.user_id inner join user t3 on t2.user_id = t3.user_id where approval_doc_id = #{approvalDocId} and category = 'U';
     </select>
 
     <!--수신참조자 조회-->
