@@ -197,4 +197,10 @@
         where approval_doc_id = #{approvalDocId};
     </update>
 
+    <!--결재라인리스트 조회하기-->
+    <select id="selectApprovalUserIdByApprovalDocId" parameterType="int" resultType="int">
+        select org_user_id from approval
+        where approval_doc_id = #{approvalDocId};
+    </select>
+
 </mapper>

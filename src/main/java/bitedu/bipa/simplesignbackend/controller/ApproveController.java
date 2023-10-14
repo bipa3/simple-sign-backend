@@ -6,6 +6,9 @@ import bitedu.bipa.simplesignbackend.service.ApproveService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/approve")
 public class ApproveController {
@@ -58,6 +61,12 @@ public class ApproveController {
         int userId = 1;
         approveService.removeApprovalDoc(userId, approvalDocId);
         return ResponseEntity.ok("ok");
+    }
+
+    @GetMapping("/PermissionList/{num}")
+    public ResponseEntity<List<Integer>> getPermissionList(@PathVariable("num") int approvalDocId) {
+        List<Integer> permissionList = approveService.getPermissionList(approvalDocId);
+        return ResponseEntity.ok(permissionList);
     }
 
 }
