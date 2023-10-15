@@ -2,12 +2,13 @@ package bitedu.bipa.simplesignbackend.model.dto;
 
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
-public class ApprovalLineListDTO {
+public class ApprovalPermissionResDTO {
 
     private int orgUserId;
-    private String userName;
-    private int approvalOrder;
     private char approvalStatus;
-
+    private int approvalOrder;
 }

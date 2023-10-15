@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class ApproveDAO {
@@ -153,7 +154,27 @@ public class ApproveDAO {
         return approveMapper.deleteApprovalDoc(approvalDocId);
     }
 
-    public List<Integer> selectApprovalUserIdByApprovalDocId(int approvalDocId) {
-        return approveMapper.selectApprovalUserIdByApprovalDocId(approvalDocId);
+    public List<ApprovalPermissionResDTO> selectApprovalUserIdByApprovalDocId(int approvalDocId) {
+        List<ApprovalPermissionResDTO> list = approveMapper.selectApprovalUserIdByApprovalDocId(approvalDocId);
+        return list;
+    }
+
+    public int updateApprovalDocToCancel(ApprovalCancelReqDTO approvalCancelReqDTO) {
+        return approveMapper.updateApprovalDocToCancel(approvalCancelReqDTO);
+    }
+
+    public int updateApprovalToCancel(ApprovalCancelReqDTO approvalCancelReqDTO) {
+        return approveMapper.updateApprovalToCancel(approvalCancelReqDTO);
+    }
+
+    public int updateApprovalNextLine(int approvalDocId, int approvalOrder) {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("approvalDocId", approvalDocId);
+        map.put("approvalOrder", approvalOrder);
+        Integer nextLine = approveMapper.selectApprovalNextLine(map);
+        if (nextLine == null) {
+            return 1;
+        }
+        return approveMapper.updateApprovalNextLine(map);
     }
 }
