@@ -32,4 +32,18 @@ public class ReplyService {
         }
 
     }
+
+    public void updateReply(ReplyReqDTO replyReqDTO) {
+        int affectedCount = replyDAO.updateReply(replyReqDTO);
+        if(affectedCount ==0) {
+            throw new RuntimeException(); //댓글 수정 안됨
+        }
+    }
+
+    public void removeReply(int replyId) {
+        int affectedCount = replyDAO.deleteReply(replyId);
+        if(affectedCount ==0) {
+            throw new RuntimeException(); //댓글 삭제 실패
+        }
+    }
 }

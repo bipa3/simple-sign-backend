@@ -7,7 +7,7 @@
 
     <!--댓글조회-->
     <select id="selectAllReplyList" parameterType="int" resultType="ReplyResDTO">
-        select * from reply where approval_doc_id = #{approvalDocId};
+        select * from reply where approval_doc_id = #{approvalDocId} and reply_del_status = 0;
     </select>
 
     <!--댓글 작성-->
@@ -36,6 +36,15 @@
         update reply set group_ord = #{groupOrd} where reply_id = #{replyId};
     </update>
 
+    <update id="updateReply" parameterType="ReplyReqDTO">
+        update reply set reply_content = #{replyContent} , update_date = #{updateDate}
+            where reply_id = #{replyId};
+    </update>
+
+    <update id="deleteReply" parameterType="int">
+        update reply set reply_del_status = 1
+        where reply_id = #{replyId};
+    </update>
 
 
 </mapper>

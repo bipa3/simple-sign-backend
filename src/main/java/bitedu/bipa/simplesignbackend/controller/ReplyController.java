@@ -29,8 +29,21 @@ public class ReplyController {
     @PostMapping("/insertLowerReply")
     public ResponseEntity<String> insertLowerReply(@RequestBody ReplyReqDTO replyReqDTO) {
         int userId= 1;
-        System.out.println(replyReqDTO);
+        //System.out.println(replyReqDTO);
         replyService.registerReply(replyReqDTO, userId);
+        return ResponseEntity.ok("ok");
+    }
+
+    @PatchMapping("/{num}")
+    public ResponseEntity<String> updateReply(@PathVariable("num") int replyId, @RequestBody ReplyReqDTO replyReqDTO) {
+        replyReqDTO.setReplyId(replyId);
+        replyService.updateReply(replyReqDTO);
+        return ResponseEntity.ok("ok");
+    }
+
+    @DeleteMapping("/{num}")
+    public ResponseEntity<String> removeReply(@PathVariable("num") int replyId) {
+        replyService.removeReply(replyId);
         return ResponseEntity.ok("ok");
     }
 
