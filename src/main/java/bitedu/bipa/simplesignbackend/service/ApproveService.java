@@ -242,4 +242,8 @@ public class ApproveService {
         }
 
     }
+
+    public List<Integer> getPermissionList(int approvalDocId) {
+        return approveDAO.selectApprovalUserIdByApprovalDocId(approvalDocId);
+    }
 }

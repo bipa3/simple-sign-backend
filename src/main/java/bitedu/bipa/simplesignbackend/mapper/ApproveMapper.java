@@ -63,4 +63,6 @@ public interface ApproveMapper {
     int selectUserIdByApprovalDoc(int approvalDocId);
 
     int deleteApprovalDoc(int approvalDocId);
+
+    List<Integer> selectApprovalUserIdByApprovalDocId(int approvalDocId);
 }

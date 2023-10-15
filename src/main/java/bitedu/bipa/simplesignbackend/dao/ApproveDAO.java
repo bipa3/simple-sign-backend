@@ -152,4 +152,8 @@ public class ApproveDAO {
     public int deleteApprovalDoc(int approvalDocId) {
         return approveMapper.deleteApprovalDoc(approvalDocId);
     }
+
+    public List<Integer> selectApprovalUserIdByApprovalDocId(int approvalDocId) {
+        return approveMapper.selectApprovalUserIdByApprovalDocId(approvalDocId);
+    }
 }
