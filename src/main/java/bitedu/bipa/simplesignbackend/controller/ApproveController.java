@@ -2,6 +2,7 @@ package bitedu.bipa.simplesignbackend.controller;
 
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalDocDetailDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalDocReqDTO;
+import bitedu.bipa.simplesignbackend.model.dto.ApprovalPermissionResDTO;
 import bitedu.bipa.simplesignbackend.service.ApproveService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +14,7 @@ import java.util.List;
 @RequestMapping("/approve")
 public class ApproveController {
 
-    ApproveService approveService;
+    private final ApproveService approveService;
 
     public ApproveController(ApproveService approveService) {
         this.approveService = approveService;
@@ -21,22 +22,19 @@ public class ApproveController {
 
     @PostMapping("/register")
     public ResponseEntity<String> approveRegister(@RequestBody ApprovalDocReqDTO approvalDocReqDTO) {
-        int userId = 1;
-        approveService.registerApprovalDoc(approvalDocReqDTO,userId);
+        approveService.registerApprovalDoc(approvalDocReqDTO);
         return ResponseEntity.ok("ok");
     }
 
     @PostMapping("/approval/{num}")
     public ResponseEntity<String> approveApprovalDoc(@PathVariable("num") int approvalDocId) {
-        int userId = 2;
-        approveService.approveApprovalDoc(userId,approvalDocId);
+        approveService.approveApprovalDoc(approvalDocId);
         return ResponseEntity.ok("ok");
     }
 
     @PostMapping("/return/{num}")
     public ResponseEntity<String> returnApprovalDoc(@PathVariable("num") int approvalDocId) {
-        int userId = 1;
-        approveService.returnApprovalDoc(userId, approvalDocId);
+        approveService.returnApprovalDoc(approvalDocId);
         return ResponseEntity.ok("ok");
     }
 
@@ -49,24 +47,31 @@ public class ApproveController {
 
     @PatchMapping("/{num}")
     public ResponseEntity<String>  updateApporvalDoc(@PathVariable("num") int approvalDocId, @RequestBody ApprovalDocReqDTO approvalDocReqDTO) {
-        int userId = 1;
-        //System.out.println(approvalDocId);
-        //System.out.println(approvalDocReqDTO);
-        approveService.updateApprovalDoc(userId, approvalDocId, approvalDocReqDTO);
+        approveService.updateApprovalDoc(approvalDocId, approvalDocReqDTO);
         return ResponseEntity.ok("ok");
     }
 
     @DeleteMapping("/{num}")
     public ResponseEntity<String> removeApprovalDoc(@PathVariable("num") int approvalDocId) {
-        int userId = 1;
-        approveService.removeApprovalDoc(userId, approvalDocId);
+        approveService.removeApprovalDoc(approvalDocId);
         return ResponseEntity.ok("ok");
     }
 
     @GetMapping("/PermissionList/{num}")
-    public ResponseEntity<List<Integer>> getPermissionList(@PathVariable("num") int approvalDocId) {
-        List<Integer> permissionList = approveService.getPermissionList(approvalDocId);
-        return ResponseEntity.ok(permissionList);
+    public ResponseEntity<Boolean> getPermissionList(@PathVariable("num") int approvalDocId){
+        boolean hasPermission =  approveService.hasPermission(approvalDocId);
+        return ResponseEntity.ok(hasPermission);
+    }
+
+    @GetMapping("/hasApproval/{num}")
+    public ResponseEntity<Boolean> getHasApproval(@PathVariable("num") int approvalDocId){
+        boolean hasApproval = approveService.getHasApproval(approvalDocId);
+        return ResponseEntity.ok(hasApproval);
+    }
+    @PostMapping("/cancel/{num}")
+    public ResponseEntity<String> cancelApproval(@PathVariable("num") int approvalDocId) {
+        approveService.cancelApproval(approvalDocId);
+        return ResponseEntity.ok("ok");
     }
 
 }

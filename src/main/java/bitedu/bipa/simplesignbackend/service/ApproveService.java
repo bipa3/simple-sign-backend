@@ -5,6 +5,7 @@ import bitedu.bipa.simplesignbackend.dao.CommonDAO;
 import bitedu.bipa.simplesignbackend.enums.AlarmStatus;
 import bitedu.bipa.simplesignbackend.enums.ApprovalStatus;
 import bitedu.bipa.simplesignbackend.model.dto.*;
+import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,13 +29,14 @@ public class ApproveService {
     }
 
     @Transactional
-    public void  registerApprovalDoc(ApprovalDocReqDTO approvalDocReqDTO, int userId) {
+    public void  registerApprovalDoc(ApprovalDocReqDTO approvalDocReqDTO) {
+        int orgUserId = (int) SessionUtils.getAttribute("userId");
         List<Integer> approverList = approvalDocReqDTO.getApproverList();
         int approvalCount = approverList.size();
 
         approvalDocReqDTO.setApprovalCount(approvalCount);
         approvalDocReqDTO.setCreatedAt(LocalDateTime.now());
-        int approvalDocId =approveDAO.insertApprovalDoc(approvalDocReqDTO, userId);
+        int approvalDocId =approveDAO.insertApprovalDoc(approvalDocReqDTO, orgUserId);
 
 
         //docStatus 가 상신인지 임시저장인지 확인
@@ -82,9 +84,10 @@ public class ApproveService {
     }
 
     @Transactional
-    public void approveApprovalDoc(int orgUserId, int approvalDocId) {
+    public void approveApprovalDoc(int approvalDocId) {
         //결재하기
         //1. 결재테이블에서 결재할 문서가 있는지 가져오기, 없으면 bad request
+        int orgUserId = (int)SessionUtils.getAttribute("userId");
         ApprovalResDTO approvalResDTO =  approveDAO.selectApprovalByApprovalId(orgUserId,approvalDocId);
         if(approvalResDTO.getApprovalId() ==0 || approvalResDTO.getApprovalStatus() !='P') {
             throw  new RuntimeException();
@@ -134,8 +137,10 @@ public class ApproveService {
             //종결일 경우는 상신자와 수신참조자에게 알림
             alarmService.createNewAlarm(approvalDocId, approvalDocResDTO.getOrgUserId(),AlarmStatus.APPROVE.getCode());
             List<Integer> receivedRefUserIdList = approveDAO.selectRecievedRefUserId(approvalDocId);
-            for(int receiveUser: receivedRefUserIdList) {
-                alarmService.createNewAlarm(approvalDocId, receiveUser, AlarmStatus.RECEIVEDREF.getCode());
+            if(receivedRefUserIdList.size() !=0) {
+                for (int receiveUser : receivedRefUserIdList) {
+                    alarmService.createNewAlarm(approvalDocId, receiveUser, AlarmStatus.RECEIVEDREF.getCode());
+                }
             }
         }else {
             //미종결일 경우는 상위자에게 알림
@@ -144,10 +149,11 @@ public class ApproveService {
     }
 
     @Transactional
-    public void returnApprovalDoc(int userId, int approvalDocId) {
+    public void returnApprovalDoc( int approvalDocId) {
         //1. 결재테이블에서 결재할 문서가 있는지 가져오기, 없으면 bad request
         //결재하기
-        ApprovalResDTO approvalResDTO =  approveDAO.selectApprovalByApprovalId(userId,approvalDocId);
+        int orgUserId = (int)SessionUtils.getAttribute("userId");
+        ApprovalResDTO approvalResDTO =  approveDAO.selectApprovalByApprovalId(orgUserId,approvalDocId);
         if(approvalResDTO.getApprovalId() ==0 || approvalResDTO.getApprovalStatus() !='P') {
             throw  new RuntimeException();
         }else {
@@ -188,8 +194,9 @@ public class ApproveService {
     }
 
     @Transactional
-    public void updateApprovalDoc(int orgUserId, int approvalDocId, ApprovalDocReqDTO approvalDocReqDTO) {
+    public void updateApprovalDoc(int approvalDocId, ApprovalDocReqDTO approvalDocReqDTO) {
         //1. 결재라인에서 수정자 아이디가 존재하는지 확인
+        int orgUserId = (int)SessionUtils.getAttribute("userId");
         ApprovalOrderResDTO approvalOrderResDTO = approveDAO.selectUserCountByApprovalDoc(orgUserId,approvalDocId);
         if(approvalOrderResDTO.getCount() !=1) {
             throw  new RuntimeException(); //권한이 없음
@@ -228,12 +235,13 @@ public class ApproveService {
     }
 
     @Transactional
-    public void removeApprovalDoc(int userId, int approvalDocId) {
+    public void removeApprovalDoc(int approvalDocId) {
         //삭제하고 싶은 결재문서의 작성자 확인
+        int orgUserId = (int) SessionUtils.getAttribute("userId");
         int approvalDocRegisterId = approveDAO.selectUserIdByApprovalDoc(approvalDocId);
 
         //권한에 따른 삭제 -> 본인이거나, 부서관리자거나 시스템관리자거나?
-        if(approvalDocRegisterId == userId) {
+        if(approvalDocRegisterId == orgUserId) {
             //있으면 del_status 업데이트 하기
             int affectedCount = approveDAO.deleteApprovalDoc(approvalDocId);
             if(affectedCount ==0) {
@@ -243,7 +251,91 @@ public class ApproveService {
 
     }
 
-    public List<Integer> getPermissionList(int approvalDocId) {
-        return approveDAO.selectApprovalUserIdByApprovalDocId(approvalDocId);
+    public boolean hasPermission(int approvalDocId) {
+        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        List<ApprovalPermissionResDTO> list =  approveDAO.selectApprovalUserIdByApprovalDocId(approvalDocId);
+        for(ApprovalPermissionResDTO dto: list) {
+            if(dto.getOrgUserId() == orgUserId && dto.getApprovalStatus() =='P') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Transactional
+    public void cancelApproval(int approvalDocId) {
+        //1.결재문서에서 결재라인에 해당 사용자가 있는지 확인
+        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        List<ApprovalLineListDTO> approvalLineLists = approveDAO.selectApprovalLineByApprovalDocId(approvalDocId);
+        boolean hasApprovalLine = approvalLineLists.stream().anyMatch(approvalLineListDTO ->
+            approvalLineListDTO.getOrgUserId() == orgUserId
+        );
+        if(!hasApprovalLine) {
+            throw  new RuntimeException();// 해당 사용자는 결재 취소할 권한 없음
+        }
+        //2.있으면 해당 사용자 다음 결재자가 결재하지는 않았는지 확인
+        ApprovalLineListDTO currentApprover = null;
+        for(ApprovalLineListDTO dto: approvalLineLists) {
+            if(dto.getOrgUserId() ==orgUserId) {
+                currentApprover = dto;
+            }
+        }
+        //본인이 아직 결재 안했어도 false
+        if(currentApprover.getApprovalStatus() =='W' || currentApprover.getApprovalStatus() =='P') {
+            throw  new RuntimeException();
+        }
+        //3.다음 결재자가 결재했으면 예외
+        for(ApprovalLineListDTO dto: approvalLineLists) {
+            if(dto.getApprovalOrder() > currentApprover.getApprovalOrder()
+                    && (dto.getApprovalStatus() == ApprovalStatus.APPROVAL.getCode() || dto.getApprovalStatus() == ApprovalStatus.RETURN.getCode())) {
+                throw new RuntimeException(); //이미 다음 결재자가 결재했음
+            }
+        }
+        //4.이전결재자가 있으면 문서상태는 진행중, 아니면 상신중으로 바꿔야 함
+        char approvalDocStatus = 'P';
+        if(currentApprover.getApprovalOrder() ==1) {
+            approvalDocStatus ='W';
+        }
+        //결재라인, 결재문서, 품의번호(있으면) 되돌리기
+        ApprovalCancelReqDTO approvalCancelReqDTO = new ApprovalCancelReqDTO(orgUserId, approvalDocId,approvalDocStatus);
+        int affectedCount = approveDAO.updateApprovalDocToCancel(approvalCancelReqDTO);
+        int affecteeCount2 = approveDAO.updateApprovalToCancel(approvalCancelReqDTO);
+        //다음사람 결재라인 되돌리기
+        int affectedCount3 = approveDAO.updateApprovalNextLine(approvalDocId, currentApprover.getApprovalOrder());
+
+        if(affectedCount ==0 || affecteeCount2 ==0 || affectedCount3 ==0) {
+            throw new RuntimeException(); //업데이트 실패
+        }
+    }
+
+    public boolean getHasApproval(int approvalDocId) {
+        //1.결재문서에서 결재라인에 해당 사용자가 있는지 확인
+        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        List<ApprovalLineListDTO> approvalLineLists = approveDAO.selectApprovalLineByApprovalDocId(approvalDocId);
+        boolean hasApprovalLine = approvalLineLists.stream().anyMatch(approvalLineListDTO ->
+                approvalLineListDTO.getOrgUserId() == orgUserId
+        );
+        if(!hasApprovalLine) {
+            return false;
+        }
+        //2.있으면 해당 사용자 다음 결재자가 결재하지는 않았는지 확인
+        ApprovalLineListDTO currentApprover = null;
+        for(ApprovalLineListDTO dto: approvalLineLists) {
+            if(dto.getOrgUserId() ==orgUserId) {
+                currentApprover = dto;
+            }
+        }
+        //본인이 아직 결재 안했어도 false
+        if(currentApprover.getApprovalStatus() =='W' || currentApprover.getApprovalStatus() =='P') {
+            return false;
+        }
+        //3.다음 결재자가 결재했으면 예외
+        for(ApprovalLineListDTO dto: approvalLineLists) {
+            if(dto.getApprovalOrder() > currentApprover.getApprovalOrder()
+                    && (dto.getApprovalStatus() == ApprovalStatus.APPROVAL.getCode() || dto.getApprovalStatus() == ApprovalStatus.RETURN.getCode())) {
+                return false;
+            }
+        }
+        return true;
     }
 }

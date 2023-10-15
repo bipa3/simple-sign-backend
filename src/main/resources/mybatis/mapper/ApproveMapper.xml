@@ -120,7 +120,7 @@
     </select>
 
     <select id="selectApprovalLineByApprovalDocId" parameterType="int" resultType="ApprovalLineListDTO">
-        select t1.org_user_id, user_name, approval_order
+        select t1.org_user_id, user_name, approval_order, approval_status
         from approval t1
             left join
             organization_user t2 on t1.org_user_id = t2.org_user_id
@@ -142,7 +142,28 @@
 
     <!--수신참조자 조회-->
     <select id="selectRecievedRefUserId" parameterType="int" resultType="int">
-        select org_user_id from received_ref where approval_doc_id = #{approvalDocId} and active_state = 1;
+        select org_user_id from received_ref t1
+            join organization_user t2
+            on t1.use_id = t2.org_user_id
+            where approval_doc_id = #{approvalDocId} and category = 'U' and active_state = 1
+        union
+            select distinct org_user_id
+            from organization_user
+            where dept_id = (select dept_id from received_ref t1
+                            join
+                            department t2 on t1.use_id = t2.dept_id
+                            where approval_doc_id = #{approvalDocId} and category = 'D' and active_state = 1)
+            or comp_name = (
+                            select comp_name from received_ref t1
+                            join
+                            company t2 on t1.use_id = t2.comp_id
+                            where approval_doc_id = #{approvalDocId} and category = 'C' and active_state = 1)
+            or est_name = (
+                            select est_name from received_ref t1
+                            join
+                            establishment t2 on t1.use_id = t2.est_id
+                            where approval_doc_id = #{approvalDocId} and category = 'E' and active_state = 1) ;
+
     </select>
 
     <!--결재자 여부 확인-->
@@ -198,9 +219,33 @@
     </update>
 
     <!--결재라인리스트 조회하기-->
-    <select id="selectApprovalUserIdByApprovalDocId" parameterType="int" resultType="int">
-        select org_user_id from approval
+    <select id="selectApprovalUserIdByApprovalDocId" parameterType="int" resultType="ApprovalPermissionResDTO">
+        select org_user_id, approval_status, approval_order from approval
         where approval_doc_id = #{approvalDocId};
     </select>
+
+    <!--결재취소하기-->
+    <update id="updateApprovalDocToCancel" parameterType="ApprovalCancelReqDTO">
+        update approval_doc
+        set doc_status = #{docStatus}, end_at = #{endAt}, product_num = null
+        where approval_doc_id = #{approvalDocId};
+    </update>
+
+    <update id="updateApprovalToCancel" parameterType="ApprovalCancelReqDTO">
+        update approval
+        set approval_status = #{approvalStatus}, approval_date = #{approvalDate}
+        where approval_doc_id = #{approvalDocId} and org_user_id = #{orgUserId};
+    </update>
+
+    <select id="selectApprovalNextLine" parameterType="map" resultType="java.lang.Integer">
+        select org_user_id from approval
+        where approval_doc_id = #{approvalDocId} and approval_order = #{approvalOrder} + 1;
+    </select>
+
+    <update id="updateApprovalNextLine" parameterType="map">
+        update approval
+        set approval_status = 'W', receive_date = null
+        where approval_doc_id = #{approvalDocId} and approval_order = #{approvalOrder} +1;
+    </update>
 
 </mapper>
