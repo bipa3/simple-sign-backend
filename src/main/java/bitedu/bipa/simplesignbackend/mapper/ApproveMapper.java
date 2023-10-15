@@ -63,4 +63,16 @@ public interface ApproveMapper {
     int selectUserIdByApprovalDoc(int approvalDocId);
 
     int deleteApprovalDoc(int approvalDocId);
+
+    List<ApprovalPermissionResDTO> selectApprovalUserIdByApprovalDocId(int approvalDocId);
+
+    int updateApprovalDocToCancel(ApprovalCancelReqDTO approvalCancelReqDTO);
+
+    int updateApprovalToCancel(ApprovalCancelReqDTO approvalCancelReqDTO);
+
+    Integer selectApprovalNextLine(Map<String, Integer> map);
+
+    int updateApprovalNextLine(Map map);
+
+
 }

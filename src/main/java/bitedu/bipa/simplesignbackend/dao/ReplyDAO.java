@@ -73,4 +73,12 @@ public class ReplyDAO {
 
 
     }
+
+    public int updateReply(ReplyReqDTO replyReqDTO) {
+        return replyMapper.updateReply(replyReqDTO);
+    }
+
+    public int deleteReply(int replyId) {
+        return replyMapper.deleteReply(replyId);
+    }
 }

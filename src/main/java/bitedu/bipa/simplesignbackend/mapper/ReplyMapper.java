@@ -21,4 +21,8 @@ public interface ReplyMapper {
     int insertLowerReply(ReplyReqDTO replyReqDTO);
 
     int updateGroupOrder(Map map);
+
+    int updateReply(ReplyReqDTO replyReqDTO);
+
+    int deleteReply(int replyId);
 }

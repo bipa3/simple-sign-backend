@@ -19,7 +19,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity userLogin(@RequestBody UserDTO userDTO){
+    public ResponseEntity<Integer> userLogin(@RequestBody UserDTO userDTO){
         UserDTO userDTO2 = userService.loginUser(userDTO.getLoginId(),userDTO.getPassword());
         if(userDTO2 != null){
 
@@ -28,7 +28,7 @@ public class UserController {
             SessionUtils.addAttribute("userId", userId);
             SessionUtils.addAttribute("userName", userName);
 
-            return new ResponseEntity(HttpStatus.OK);
+            return ResponseEntity.ok(userId);
         } else {
           return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
