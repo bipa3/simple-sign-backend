@@ -177,4 +177,12 @@ public class ApproveDAO {
         }
         return approveMapper.updateApprovalNextLine(map);
     }
+
+    public int selectOrgUserIdFromApprovalDoc(int approvalDocId) {
+        return approveMapper.selectOrgUserIdFromApprovalDoc(approvalDocId);
+    }
+
+    public char selectApprovalDocStatus(int approvalDocId) {
+        return approveMapper.selectFirstApprovalStatus(approvalDocId);
+    }
 }

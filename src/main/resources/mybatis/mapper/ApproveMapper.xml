@@ -248,4 +248,15 @@
         where approval_doc_id = #{approvalDocId} and approval_order = #{approvalOrder} +1;
     </update>
 
+    <select id="selectOrgUserIdFromApprovalDoc" parameterType="int" resultType="int">
+        select org_user_id from approval_doc
+        where approval_doc_id = #{approvalDocId};
+    </select>
+
+    <!--결재라인 첫 사람 문서상태 가져오기-->
+    <select id="selectFirstApprovalStatus" parameterType="int">
+        select approval_status from approval
+        where approval_doc_id = #{approvalDocId} and approval_order = 1;
+    </select>
+
 </mapper>

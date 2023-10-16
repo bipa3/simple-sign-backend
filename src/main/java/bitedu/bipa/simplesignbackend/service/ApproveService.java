@@ -338,4 +338,62 @@ public class ApproveService {
         }
         return true;
     }
+
+    public boolean getHasUpdate(int approvalDocId) {
+        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        //1.본인이 상신자인지 확인
+        int approverId = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
+        boolean sameApprover = false;
+        if(approverId == orgUserId) {
+            sameApprover = true;
+        }
+        //2.결재문서에서 결재라인에 해당 사용자가 있는지 확인
+        List<ApprovalLineListDTO> approvalLineLists = approveDAO.selectApprovalLineByApprovalDocId(approvalDocId);
+        boolean hasApprovalLine = approvalLineLists.stream().anyMatch(approvalLineListDTO ->
+                approvalLineListDTO.getOrgUserId() == orgUserId
+        );
+        if(!hasApprovalLine && !sameApprover) {
+            return false;
+        }
+        //3.있으면 해당 사용자 다음 결재자가 결재하지는 않았는지 확인
+        ApprovalLineListDTO currentApprover = null;
+        for(ApprovalLineListDTO dto: approvalLineLists) {
+            if(dto.getOrgUserId() ==orgUserId) {
+                currentApprover = dto;
+            }
+            if(sameApprover) {
+                if(dto.getApprovalOrder()==1) {
+                    currentApprover = dto;
+                }
+            }
+        }
+        //4.다음 결재자가 결재했으면 예외
+        for(ApprovalLineListDTO dto: approvalLineLists) {
+            if(dto.getApprovalOrder() > currentApprover.getApprovalOrder()
+                    && (dto.getApprovalStatus() == ApprovalStatus.APPROVAL.getCode() || dto.getApprovalStatus() == ApprovalStatus.RETURN.getCode())) {
+                return false;
+            }
+        }
+        //5.문서가 종결됐으면 안됨
+        char docStatus = approveDAO.selectApprovalDocStatus(approvalDocId);
+        if(docStatus == ApprovalStatus.APPROVAL.getCode() || docStatus == ApprovalStatus.RETURN.getCode()) {
+            return false;
+        }
+        return true;
+
+    }
+
+    public boolean getHasDelete(int approvalDocId) {
+        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        //해당 사용자가 문서작성자이면서 결재라인에 있는 첫 결재자가 결재하지 않았을 때에만 삭제가능
+        int approver = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
+        if(approver !=orgUserId) {
+            return false;
+        }
+        char firstApprovalStatus = approveDAO.selectApprovalDocStatus(approvalDocId);
+        if(firstApprovalStatus ==ApprovalStatus.APPROVAL.getCode() || firstApprovalStatus == ApprovalStatus.RETURN.getCode()) {
+            return false;
+        }
+        return true;
+    }
 }
