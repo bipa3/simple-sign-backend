@@ -68,6 +68,19 @@ public class ApproveController {
         boolean hasApproval = approveService.getHasApproval(approvalDocId);
         return ResponseEntity.ok(hasApproval);
     }
+
+    @GetMapping("/hasUpdate/{num}")
+    public ResponseEntity<Boolean> getHasUpdate(@PathVariable("num") int approvalDocId){
+        boolean hasUpdate = approveService.getHasUpdate(approvalDocId);
+        return ResponseEntity.ok(hasUpdate);
+    }
+
+    @GetMapping("/hasDelete/{num}")
+    public ResponseEntity<Boolean> getHasDelete(@PathVariable("num") int approvalDocId){
+        boolean hasDelete = approveService.getHasDelete(approvalDocId);
+        return ResponseEntity.ok(hasDelete);
+    }
+
     @PostMapping("/cancel/{num}")
     public ResponseEntity<String> cancelApproval(@PathVariable("num") int approvalDocId) {
         approveService.cancelApproval(approvalDocId);
