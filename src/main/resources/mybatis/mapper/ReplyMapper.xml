@@ -46,5 +46,10 @@
         where reply_id = #{replyId};
     </update>
 
+    <select id="selectReplierId" parameterType="int" resultType="int">
+        select org_user_id from reply
+        where reply_id = #{replyId};
+    </select>
+
 
 </mapper>
