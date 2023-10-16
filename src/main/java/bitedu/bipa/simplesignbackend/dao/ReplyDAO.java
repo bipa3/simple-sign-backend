@@ -81,4 +81,8 @@ public class ReplyDAO {
     public int deleteReply(int replyId) {
         return replyMapper.deleteReply(replyId);
     }
+
+    public int selectReplierId(int replyId) {
+        return replyMapper.selectReplierId(replyId);
+    }
 }

@@ -28,9 +28,7 @@ public class ReplyController {
 
     @PostMapping("/insertLowerReply")
     public ResponseEntity<String> insertLowerReply(@RequestBody ReplyReqDTO replyReqDTO) {
-        int userId= 1;
-        //System.out.println(replyReqDTO);
-        replyService.registerReply(replyReqDTO, userId);
+        replyService.registerReply(replyReqDTO);
         return ResponseEntity.ok("ok");
     }
 
