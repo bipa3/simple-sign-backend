@@ -35,6 +35,7 @@ public class ReplyService {
 
     }
 
+    @Transactional
     public void updateReply(ReplyReqDTO replyReqDTO) {
         int orgUserId = (int) SessionUtils.getAttribute("userId");
         //댓글이 본인이 작성한 것인지 확인
@@ -48,6 +49,7 @@ public class ReplyService {
         }
     }
 
+    @Transactional
     public void removeReply(int replyId) {
         int orgUserId = (int) SessionUtils.getAttribute("userId");
         //댓글이 본인이 작성한 것인지 확인
@@ -56,5 +58,14 @@ public class ReplyService {
         if(affectedCount ==0) {
             throw new RuntimeException(); //댓글 삭제 실패
         }
+    }
+
+    public boolean showIsEditable(int replyId) {
+        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        int replier = replyDAO.selectReplierId(replyId);
+        if(orgUserId ==replier) {
+            return true;
+        }
+        return false;
     }
 }

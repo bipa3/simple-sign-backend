@@ -22,7 +22,6 @@ public class ReplyController {
     @GetMapping("/{num}")
     public ResponseEntity<List<ReplyResDTO>> showReplyList(@PathVariable("num") int approvalDocId) {
         List<ReplyResDTO> replyList =  replyService.showReplyList(approvalDocId);
-
         return ResponseEntity.ok(replyList);
     }
 
@@ -43,6 +42,12 @@ public class ReplyController {
     public ResponseEntity<String> removeReply(@PathVariable("num") int replyId) {
         replyService.removeReply(replyId);
         return ResponseEntity.ok("ok");
+    }
+
+    @GetMapping("/isEdit/{num}")
+    public ResponseEntity<Boolean> isEditable(@PathVariable("num") int replyId) {
+        boolean isEditable = replyService.showIsEditable(replyId);
+        return ResponseEntity.ok(isEditable);
     }
 
 }
