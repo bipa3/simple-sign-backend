@@ -97,11 +97,15 @@ public class ApproveDAO {
         return approveMapper.selectApprovalDocById(approvalDocId);
     }
 
+    public List<ApprovalLineDetailListDTO> selectApprovalDetailLineByApprovalDocId(int approvalDocId) {
+        return approveMapper.selectApprovalDetailLineByApprovalDocId(approvalDocId);
+    }
+
     public List<ApprovalLineListDTO> selectApprovalLineByApprovalDocId(int approvalDocId) {
         return approveMapper.selectApprovalLineByApprovalDocId(approvalDocId);
     }
 
-    public List<ReceivedRefListDTO> selectReceivedRefList(int approvalDocId) {
+    public List<ApprovalLineDetailListDTO> selectReceivedRefList(int approvalDocId) {
         return approveMapper.selectReceivedRefList(approvalDocId);
     }
 

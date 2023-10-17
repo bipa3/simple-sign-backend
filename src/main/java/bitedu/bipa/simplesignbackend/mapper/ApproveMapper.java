@@ -42,9 +42,10 @@ public interface ApproveMapper {
 
     ApprovalDocDetailDTO selectApprovalDocById(int approvalDocId);
 
+    List<ApprovalLineDetailListDTO> selectApprovalDetailLineByApprovalDocId(int approvalDocId);
     List<ApprovalLineListDTO> selectApprovalLineByApprovalDocId(int approvalDocId);
 
-    List<ReceivedRefListDTO> selectReceivedRefList(int approvalDocId);
+    List<ApprovalLineDetailListDTO> selectReceivedRefList(int approvalDocId);
 
     List<Integer> selectRecievedRefUserId(int approvalDocId);
 

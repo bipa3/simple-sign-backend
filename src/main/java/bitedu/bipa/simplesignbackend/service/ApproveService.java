@@ -187,23 +187,39 @@ public class ApproveService {
     }
 
     public ApprovalDocDetailDTO showDetailApprovalDoc(int approvalDocId) {
+        int orgUserId = (int)SessionUtils.getAttribute("userId");
+        //해당 아이디가 결재라인에도 없고 상신자에도 없고 수신참조문서에 없으면 권한이 없음
+        //1.본인이 상신자인지 확인
+        int approverId = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
+        boolean sameApprover = false;
+        if(approverId == orgUserId) {
+            sameApprover = true;
+        }
+        //2.결재문서에서 결재라인에 해당 사용자가 있는지 확인 + 해당 사용자 전 결재자들이 전부 결재했는지 확인???
+        List<ApprovalLineListDTO> approvalLineLists = approveDAO.selectApprovalLineByApprovalDocId(approvalDocId);
+        boolean hasApprovalLine = approvalLineLists.stream().anyMatch(approvalLineListDTO ->
+                approvalLineListDTO.getOrgUserId() == orgUserId
+        );
+        //3.수신참조자 조회
+        List<Integer> receivedRefList = approveDAO.selectRecievedRefUserId(approvalDocId);
+        boolean hasReceivedRef = receivedRefList.stream().anyMatch(receiveUser ->
+              receiveUser == orgUserId
+        );
+        if(!hasApprovalLine && !sameApprover && !hasReceivedRef) {
+            throw  new RuntimeException(); //권한 없음
+        }
         ApprovalDocDetailDTO approvalDocDetailDTO =  approveDAO.selectApprovalDocById(approvalDocId);
-        approvalDocDetailDTO.setApprovalLineList(approveDAO.selectApprovalLineByApprovalDocId(approvalDocId));
+        approvalDocDetailDTO.setApprovalLineList(approveDAO.selectApprovalDetailLineByApprovalDocId(approvalDocId));
         approvalDocDetailDTO.setReceivedRefList(approveDAO.selectReceivedRefList(approvalDocId));
+        //System.out.println(approveDAO.selectReceivedRefList(approvalDocId));
         return approvalDocDetailDTO;
     }
 
     @Transactional
     public void updateApprovalDoc(int approvalDocId, ApprovalDocReqDTO approvalDocReqDTO) {
-        //1. 결재라인에서 수정자 아이디가 존재하는지 확인
-        int orgUserId = (int)SessionUtils.getAttribute("userId");
-        ApprovalOrderResDTO approvalOrderResDTO = approveDAO.selectUserCountByApprovalDoc(orgUserId,approvalDocId);
-        if(approvalOrderResDTO.getCount() !=1) {
-            throw  new RuntimeException(); //권한이 없음
-        } else {
-            //2. 결재라인에서 수정자 아이디 이후 결재자는 결재를 안했는지 확인
-            int approvalOrder = approvalOrderResDTO.getApprovalOrder();
-            approveDAO.isUpdatePossible(approvalDocId, approvalOrder);
+        boolean hasApproval = this.getHasUpdate(approvalDocId);
+        if(!hasApproval) {
+            throw new RuntimeException(); //권한이 없습니다.
         }
         //3. 결재문서 수정
         approvalDocReqDTO.setApprovalDocId(approvalDocId);

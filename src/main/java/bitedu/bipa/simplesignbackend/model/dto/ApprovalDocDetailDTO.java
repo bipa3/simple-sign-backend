@@ -22,6 +22,6 @@ public class ApprovalDocDetailDTO {
     private String productNum;
     private int formCode;
     private String defaultForm;
-    private List<ApprovalLineListDTO> approvalLineList;
-    private List<ReceivedRefListDTO> receivedRefList;
+    private List<ApprovalLineDetailListDTO> approvalLineList;
+    private List<ApprovalLineDetailListDTO> receivedRefList;
 }
