@@ -44,4 +44,36 @@
         update user set address = #{address}, phone = #{phone} where user_id = #{userId};
     </update>
 
+    <!-- 프로필 조회 -->
+    <select id="selectProfile" parameterType="int" resultType="String">
+        select approval_file_path from attatchment_file where use_id = #{userId} and file_code = 01;
+    </select>
+
+    <!-- 프로필수정 -->
+    <update id="updateProfile" parameterType="UserDTO">
+        update attatchment_file set approval_file_path = #{approvalFilePath} where use_id = #{userId} and file_code = 01;
+    </update>
+
+    <!-- 사인 이미지 조회 -->
+    <select id="selectSignState" parameterType="int" resultType="boolean">
+        select sign_state from user where user_id = #{userId}
+    </select>
+
+    <select id="selectSignImage" parameterType="int" resultType="String">
+        select approval_file_path from attatchment_file where use_id = #{userId} and file_code = 02;
+    </select>
+
+    <select id="selectSign" parameterType="int" resultType="String">
+        select approval_file_path from attatchment_file where use_id = #{userId} and file_code = 02;
+    </select>
+
+    <!-- 서명수정 -->
+    <update id="updateSignState" parameterType="UserDTO">
+        update user set sign_state = #{signState} where user_id = #{userId};
+    </update>
+
+    <update id="updateSign" parameterType="UserDTO">
+        update attatchment_file set approval_file_path = #{approvalFilePath} where use_id = #{userId} and file_code = 02;
+    </update>
+
 </mapper>

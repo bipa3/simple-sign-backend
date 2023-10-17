@@ -43,4 +43,32 @@ public class UserDAO {
         return userMapper.updateUser(userDTO);
     }
 
+    // 프로필 조회
+    public String getUserProfile(int userId){
+        return userMapper.selectProfile(userId);
+    }
+
+    // 프로필 수정
+    public boolean updateProfile(int userId, String approvalFilePath){
+        return userMapper.updateProfile(userId, approvalFilePath);
+    }
+
+    // 사인 조회
+    public boolean getSignstate(int userId){
+        return userMapper.selectSignState(userId);
+    }
+    public String getSignImage(int userId){
+        return userMapper.selectSignImage(userId);
+    }
+    public String getSign(int userId){
+        return userMapper.selectSign(userId);
+    }
+
+    // 사인 수정
+    public boolean updateSignState(int userId, boolean signState){
+        return userMapper.updateSignState(userId,signState);
+    }
+    public boolean updateSign(int userId, String approvalFilePath){
+        return userMapper.updateSign(userId, approvalFilePath);
+    }
 }

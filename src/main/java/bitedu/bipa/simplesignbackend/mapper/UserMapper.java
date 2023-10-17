@@ -21,7 +21,21 @@ public interface UserMapper {
     // 개인정보 조회
     UserDTO selectUser(int userId);
 
-    // 수정
+    // 개인정보 수정
     boolean updateUser(UserDTO userDTO);
+
+    // 프로필 조회
+    String selectProfile(int userId);
+    // 프로필 수정
+    boolean updateProfile(@Param("userId") int userId, @Param("approvalFilePath") String approvalFilePath);
+
+    // 사인 조회
+    boolean selectSignState(int userId);
+    String selectSignImage(int userId);
+    String selectSign(int userId);
+
+    // 사인 이미지 수정
+    boolean updateSignState(@Param("userId") int userId, @Param("signState") boolean signState);
+    boolean updateSign(@Param("userId") int userId, @Param("approvalFilePath") String approvalFilePath);
 
 }
