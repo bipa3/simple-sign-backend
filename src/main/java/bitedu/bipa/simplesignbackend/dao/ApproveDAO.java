@@ -59,6 +59,10 @@ public class ApproveDAO {
         return approveMapper.selectApprovalByApprovalId(map);
     }
 
+    public List<ApprovalResDTO> selectAllApproval(int approvalDocId) {
+        return approveMapper.selectAllApproval(approvalDocId);
+    }
+
     public int updateCurrentApproval(ApprovalResDTO approvalResDTO) {
         return approveMapper.updateCurrentApproval(approvalResDTO);
     }
@@ -97,11 +101,15 @@ public class ApproveDAO {
         return approveMapper.selectApprovalDocById(approvalDocId);
     }
 
+    public List<ApprovalLineDetailListDTO> selectApprovalDetailLineByApprovalDocId(int approvalDocId) {
+        return approveMapper.selectApprovalDetailLineByApprovalDocId(approvalDocId);
+    }
+
     public List<ApprovalLineListDTO> selectApprovalLineByApprovalDocId(int approvalDocId) {
         return approveMapper.selectApprovalLineByApprovalDocId(approvalDocId);
     }
 
-    public List<ReceivedRefListDTO> selectReceivedRefList(int approvalDocId) {
+    public List<ApprovalLineDetailListDTO> selectReceivedRefList(int approvalDocId) {
         return approveMapper.selectReceivedRefList(approvalDocId);
     }
 
@@ -184,5 +192,12 @@ public class ApproveDAO {
 
     public char selectApprovalDocStatus(int approvalDocId) {
         return approveMapper.selectFirstApprovalStatus(approvalDocId);
+    }
+
+    public int deleteApprovalLine(int approvalDocId, int isUpdateOrder) {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("approvalDocId", approvalDocId);
+        map.put("isUpdateOrder",isUpdateOrder);
+        return approveMapper.deleteApprovalLine(map);
     }
 }
