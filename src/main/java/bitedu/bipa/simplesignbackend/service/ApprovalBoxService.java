@@ -27,9 +27,9 @@ public class ApprovalBoxService {
         return result;
     }
 
-    public Map<String, Object> selectSearchDocuments(List<String> viewItems, int userId, int deptId, int itemsPerPage, int offset, String searchInput) {
-        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectSearchDocsList(viewItems,userId,deptId,itemsPerPage,offset,searchInput);
-        ArrayList<DocumentListDTO> allDocList=approvalBoxDAO.selectSearchDocsCount(viewItems,userId,deptId,searchInput);
+    public Map<String, Object> selectSearchDocuments(List<String> viewItems, int userId, int deptId, int estId, int compId, int itemsPerPage, int offset, String searchInput) {
+        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectSearchDocsList(viewItems,userId,deptId, estId, compId, itemsPerPage,offset,searchInput);
+        ArrayList<DocumentListDTO> allDocList=approvalBoxDAO.selectSearchDocsCount(viewItems,userId,deptId, estId, compId, searchInput);
         int count = allDocList.size();
 
         Map<String, Object> result = new HashMap<>();
@@ -40,13 +40,13 @@ public class ApprovalBoxService {
     }
 
 
-    public Map<String, Object> searchDocuments( int userId, int deptId, SearchRequestDTO criteria) {
+    public Map<String, Object> searchDocuments( int userId, int deptId, int estId, int compId, SearchRequestDTO criteria) {
         List<String> viewItems = criteria.getViewItems();
         int itemsPerPage = criteria.getItemsPerPage();
         int offset=criteria.getOffset();
 
-        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDetailSearchDocsList(viewItems,userId,deptId, itemsPerPage,offset, criteria);
-        ArrayList<DocumentListDTO> allDocList=approvalBoxDAO.selectDetailSearchDocsCount(viewItems,userId,deptId,criteria);
+        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDetailSearchDocsList(viewItems, userId, deptId, estId, compId, itemsPerPage,offset, criteria);
+        ArrayList<DocumentListDTO> allDocList=approvalBoxDAO.selectDetailSearchDocsCount(viewItems, userId, deptId, estId, compId, criteria);
 
 
         int count = allDocList.size();
@@ -107,4 +107,27 @@ public class ApprovalBoxService {
         int sortOrder = criteria.getSortOrder();
         approvalBoxDAO.createApprovalBox( compId, approvalBoxName, viewItems,approvalBoxUsedStatus,menuUsingRange,sortOrder);
     }
+
+    public int selectDocumentsCount(int userId, int deptId, int estId, int compId, String boxName) {
+        int count = 0;
+        if (boxName.equals("상신문서")){
+            count = approvalBoxDAO.getSendCount(userId);
+        }else if(boxName.equals("미결문서")) {
+            count = approvalBoxDAO.getPendCount(userId);
+        }else if (boxName.equals("기결문서")) {
+            count = approvalBoxDAO.getConcludedCount(userId);
+        }else if (boxName.equals("수신참조문서")){
+            count = approvalBoxDAO.getReferenceCount(userId,deptId,estId,compId);
+        }
+        return count;
+    }
+
+    public void insertReadDoc(int userId, int docId) {
+        approvalBoxDAO.insertDocView(userId, docId);
+    }
+
+    public ArrayList<Integer> selectReadDoc(int userId) {
+        return approvalBoxDAO.selectReadDoc(userId);
+    }
+
 }

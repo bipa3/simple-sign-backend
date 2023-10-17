@@ -22,24 +22,24 @@ public class ApprovalBoxDAO {
     }
 
 
-    public ArrayList<DocumentListDTO> selectSearchDocsList(List<String> viewItems, int userId, int deptId, int itemsPerPage, int offset, String searchInput) {
-        return approvalBoxMapper.getSearchDocumentsByViewItems(userId,itemsPerPage,offset,deptId,viewItems,searchInput);
+    public ArrayList<DocumentListDTO> selectSearchDocsList(List<String> viewItems, int userId, int deptId, int estId, int compId, int itemsPerPage, int offset, String searchInput) {
+        return approvalBoxMapper.getSearchDocumentsByViewItems(userId, itemsPerPage, offset, deptId, estId, compId, viewItems, searchInput);
     }
 
-    public ArrayList<DocumentListDTO> selectSearchDocsCount(List<String> viewItems, int userId, int deptId, String searchInput) {
-        return approvalBoxMapper.getSearchDocCountByViewItems(userId,deptId,viewItems,searchInput);
+    public ArrayList<DocumentListDTO> selectSearchDocsCount(List<String> viewItems, int userId, int deptId, int estId, int compId, String searchInput) {
+        return approvalBoxMapper.getSearchDocCountByViewItems(userId, deptId, estId, compId, viewItems, searchInput);
     }
 
     public  ArrayList<DocumentListDTO> selectDocsCount(List<String> viewItems, int userId, int deptId, int estId, int compId) {
         return approvalBoxMapper.getDocCountByViewItems(userId,deptId,estId,compId,viewItems);
     }
 
-    public ArrayList<DocumentListDTO> selectDetailSearchDocsList(List<String> viewItems, int userId, int deptId, int itemsPerPage, int offset, SearchRequestDTO criteria) {
-        return approvalBoxMapper.getDetailSearchDocsList(userId,deptId,viewItems,itemsPerPage,offset,criteria);
+    public ArrayList<DocumentListDTO> selectDetailSearchDocsList(List<String> viewItems, int userId, int deptId, int estId, int compId, int itemsPerPage, int offset, SearchRequestDTO criteria) {
+        return approvalBoxMapper.getDetailSearchDocsList(userId, deptId, estId, compId, viewItems, itemsPerPage, offset, criteria);
     }
 
-    public ArrayList<DocumentListDTO> selectDetailSearchDocsCount(List<String> viewItems, int userId, int deptId, SearchRequestDTO criteria) {
-        return approvalBoxMapper.getDetailSearchDocsCount(userId,deptId,viewItems,criteria);
+    public ArrayList<DocumentListDTO> selectDetailSearchDocsCount(List<String> viewItems, int userId, int deptId, int estId, int compId, SearchRequestDTO criteria) {
+        return approvalBoxMapper.getDetailSearchDocsCount(userId, deptId, estId, compId, viewItems, criteria);
     }
 
     public ArrayList<ApprovalBoxDTO> selectBoxList(int company) {
@@ -94,4 +94,29 @@ public class ApprovalBoxDAO {
             }
         }
     }
+
+    public int getSendCount(int userId) {
+        return approvalBoxMapper.selectSendCount(userId);
+    }
+
+    public int getPendCount(int userId) {
+        return approvalBoxMapper.selectPendCount(userId);
+    }
+
+    public int getConcludedCount(int userId) {
+        return approvalBoxMapper.selectConcludedCount(userId);
+    }
+
+    public int getReferenceCount(int userId, int deptId, int estId, int compId) {
+        return approvalBoxMapper.selectReferenceCount(userId,deptId,estId,compId);
+    }
+
+    public void insertDocView(int userId, int docId) {
+        approvalBoxMapper.insertDocView(userId,docId);
+    }
+
+    public ArrayList<Integer> selectReadDoc(int userId) {
+        return approvalBoxMapper.selectDocView(userId);
+    }
+
 }

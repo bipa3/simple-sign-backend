@@ -13,9 +13,9 @@
         JOIN department d ON d.dept_id = ou.dept_id
         LEFT JOIN form f ON ad.form_code = f.form_code
         <foreach collection="viewItems" item="viewItem" separator="OR">
-        <if test="viewItem == 'reference'">
-            join received_ref r on (r.active_state =1 and r.approval_doc_id = ad.approval_doc_id)
-        </if>
+            <if test="viewItem == 'reference'">
+                join received_ref r on (r.active_state =1 and r.approval_doc_id = ad.approval_doc_id)
+            </if>
         </foreach>
         WHERE ad.doc_del_status = 0
         AND (
@@ -32,7 +32,7 @@
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =1 and r.category = 'U') OR (r.use_id =1 and r.category='D') OR (r.use_id = 1 and r.category='E') OR (r.use_id = 1 and r.category='C'))) )
+                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{userId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
@@ -80,7 +80,7 @@
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =1 and r.category = 'U') OR (r.use_id =1 and r.category='D') OR (r.use_id = 1 and r.category='E') OR (r.use_id = 1 and r.category='C'))) )
+                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{userId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
@@ -125,7 +125,7 @@
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =1 and r.category = 'U') OR (r.use_id =1 and r.category='D') OR (r.use_id = 1 and r.category='E') OR (r.use_id = 1 and r.category='C'))) )
+                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{userId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
@@ -177,7 +177,7 @@
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =1 and r.category = 'U') OR (r.use_id =1 and r.category='D') OR (r.use_id = 1 and r.category='E') OR (r.use_id = 1 and r.category='C'))) )
+                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{userId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
@@ -278,12 +278,13 @@
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'T')
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = #{userId} AND a.approval_status = 'P')</if>
+                (a.org_user_id = #{userId} AND a.approval_status = 'P')
+            </if>
             <if test="viewItem == 'concluded'">
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =1 and r.category = 'U') OR (r.use_id =1 and r.category='D') OR (r.use_id = 1 and r.category='E') OR (r.use_id = 1 and r.category='C'))) )
+                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{userId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
@@ -329,7 +330,7 @@
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =1 and r.category = 'U') OR (r.use_id =1 and r.category='D') OR (r.use_id = 1 and r.category='E') OR (r.use_id = 1 and r.category='C'))) )
+                (ad.doc_status != 'T' and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{userId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
@@ -344,5 +345,44 @@
         )
         <include refid="commonIfConditions"/>;
     </select>
+
+    <select id="selectSendCount" resultType="int">
+        select count(*) from approval_doc where org_user_id = #{userId} and doc_status = 'P' and doc_del_status = 0
+    </select>
+    <select id="selectPendCount" resultType="int">
+        select count(*) from approval_doc ad
+        join approval a on a.approval_doc_id = ad. approval_doc_id
+        where a.org_user_id = #{userId} and a.approval_status = 'P' and doc_del_status = 0
+    </select>
+    <select id="selectConcludedCount" resultType="int">
+        select count(*) from approval_doc ad
+        join approval a on a.approval_doc_id = ad. approval_doc_id
+        where a.org_user_id = #{userId} and (a.approval_status = 'A' or a.approval_status = 'R') and doc_del_status = 0
+        and ad.doc_status = 'P'
+    </select>
+    <select id="selectReferenceCount" resultType="int">
+        SELECT COUNT(*) FROM (
+        SELECT DISTINCT ad.approval_doc_id
+        FROM approval_doc ad
+        JOIN received_ref r ON (r.active_state =1 AND r.approval_doc_id = ad.approval_doc_id)
+        LEFT JOIN doc_view dv ON (dv.approval_doc_id = ad.approval_doc_id)
+        WHERE (ad.doc_status != 'T' AND (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.use_id = #{userId} AND r.category = 'U') OR (r.use_id =#{deptId} AND r.category='D') OR (r.use_id = #{estId} AND r.category='E') OR (r.use_id = #{compId} AND r.category='C'))))
+        AND doc_del_status = 0
+        AND (dv.org_user_id IS NULL OR dv.org_user_id != #{userId})
+        ) as subquery;
+    </select>
+    <insert id="insertDocView">
+        INSERT INTO doc_view(approval_doc_id, org_user_id)
+        SELECT #{docId}, #{userId}
+        WHERE NOT EXISTS (
+        SELECT 1
+        FROM doc_view
+        WHERE approval_doc_id = #{docId} AND org_user_id = #{userId}
+        )
+    </insert>
+    <select id="selectDocView"  resultType="java.lang.Integer">
+        select approval_doc_id from doc_view where org_user_id = #{userId}
+    </select>
+
 </mapper>
 

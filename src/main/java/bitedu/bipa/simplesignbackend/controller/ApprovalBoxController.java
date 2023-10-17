@@ -5,8 +5,10 @@ import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.service.ApprovalBoxService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.UsesSunHttpServer;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +39,7 @@ public class ApprovalBoxController {
         Map<String, Object> result = new HashMap<>();
 
         if (!searchInput.equals("")) {
-            result=approvalBoxService.selectSearchDocuments(viewItems, userId, deptId, itemsPerPage, offset, searchInput);
+            result=approvalBoxService.selectSearchDocuments(viewItems, userId, deptId, estId, compId, itemsPerPage, offset, searchInput);
         }else{
             result = approvalBoxService.selectDocuments(viewItems, userId, deptId,estId,compId, itemsPerPage, offset);
         }
@@ -48,8 +50,10 @@ public class ApprovalBoxController {
     @PostMapping("/search")
     public ResponseEntity<Map<String, Object>> searchDocuments(@SessionAttribute(name = "userId") int userId, @RequestBody SearchRequestDTO criteria) {
         int deptId = commonDAO.selectDeptId(userId);
+        int estId = approvalBoxDAO.selectEstId(userId);
+        int compId = approvalBoxDAO.selectUserCompId(userId);
 
-        Map<String, Object> result = approvalBoxService.searchDocuments( userId,deptId,criteria);
+        Map<String, Object> result = approvalBoxService.searchDocuments( userId,deptId,estId,compId,criteria);
         return ResponseEntity.ok(result);
     }
 
@@ -105,6 +109,27 @@ public class ApprovalBoxController {
         approvalBoxService.createApprovalBox(criteria);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/doc/count")
+    public int viewDocumentsCount (@SessionAttribute(name = "userId") int userId, @RequestParam String boxName){
+        int deptId = commonDAO.selectDeptId(userId);
+        int estId = approvalBoxDAO.selectEstId(userId);
+        int compId = approvalBoxDAO.selectUserCompId(userId);
+
+        int count = approvalBoxService.selectDocumentsCount(userId,deptId,estId,compId,boxName);
+        return count;
+    }
+
+    @PostMapping("/doc/read")
+    public void checkReadDoc (@SessionAttribute(name = "userId") int userId, @RequestParam int docId){
+        approvalBoxService.insertReadDoc(userId, docId);
+    }
+
+    @GetMapping("/doc/getread")
+    public ArrayList<Integer> getReadDoc (@SessionAttribute(name = "userId") int userId){
+        return approvalBoxService.selectReadDoc(userId);
+    }
+
 
 }
 
