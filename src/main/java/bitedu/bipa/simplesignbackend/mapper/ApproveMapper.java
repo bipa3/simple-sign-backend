@@ -23,6 +23,8 @@ public interface ApproveMapper {
 
     ApprovalResDTO selectApprovalByApprovalId(Map map);
 
+    List<ApprovalResDTO> selectAllApproval(int approvalDocId);
+
     int updateCurrentApproval(ApprovalResDTO approvalResDTO);
 
     ApprovalDocResDTO selectApprovalCount(int approvalDocId);
@@ -79,4 +81,6 @@ public interface ApproveMapper {
     int selectOrgUserIdFromApprovalDoc(int approvalDocId);
 
     char selectFirstApprovalStatus(int approvalDocId);
+
+    int deleteApprovalLine(Map map);
 }

@@ -14,4 +14,6 @@ public class ApprovalResDTO {
     private int approvalOrder;
     private char approvalStatus;
     private int orgUserId;
+    private String gradeName;
+    private String positionName;
 }

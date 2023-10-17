@@ -59,6 +59,10 @@ public class ApproveDAO {
         return approveMapper.selectApprovalByApprovalId(map);
     }
 
+    public List<ApprovalResDTO> selectAllApproval(int approvalDocId) {
+        return approveMapper.selectAllApproval(approvalDocId);
+    }
+
     public int updateCurrentApproval(ApprovalResDTO approvalResDTO) {
         return approveMapper.updateCurrentApproval(approvalResDTO);
     }
@@ -188,5 +192,12 @@ public class ApproveDAO {
 
     public char selectApprovalDocStatus(int approvalDocId) {
         return approveMapper.selectFirstApprovalStatus(approvalDocId);
+    }
+
+    public int deleteApprovalLine(int approvalDocId, int isUpdateOrder) {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("approvalDocId", approvalDocId);
+        map.put("isUpdateOrder",isUpdateOrder);
+        return approveMapper.deleteApprovalLine(map);
     }
 }
