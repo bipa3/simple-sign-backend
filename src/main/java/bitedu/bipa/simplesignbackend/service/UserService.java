@@ -4,6 +4,7 @@ import bitedu.bipa.simplesignbackend.dao.UserDAO;
 import bitedu.bipa.simplesignbackend.model.dto.UserDTO;
 import bitedu.bipa.simplesignbackend.model.dto.UserPasswordDTO;
 import bitedu.bipa.simplesignbackend.utils.PasswordUtil;
+import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,4 +61,41 @@ public class UserService {
     public boolean updateUser(UserDTO userDTO) {
         return userDAO.updateUser(userDTO);
     }
+
+    // 프로필 조회
+    public String getUserProfile(){
+        int userId = (int) SessionUtils.getAttribute("userId");
+        return userDAO.getUserProfile(userId);
+    }
+
+    // 프로필 수정
+    public boolean updateProfile(String approvalFilePath){
+        int userId = (int) SessionUtils.getAttribute("userId");
+        return userDAO.updateProfile(userId, approvalFilePath);
+    }
+
+    // 사인 조회
+    public boolean getSignState(){
+        int userId = (int) SessionUtils.getAttribute("userId");
+        return userDAO.getSignstate(userId);
+    }
+    public String getSignImage(){
+        int userId = (int) SessionUtils.getAttribute("userId");
+        return userDAO.getSignImage(userId);
+    }
+    public String getSign(){
+        int userId = (int) SessionUtils.getAttribute("userId");
+        return userDAO.getSign(userId);
+    }
+
+    // 사인 수정
+    public boolean updateSignState(boolean signState){
+        int userId = (int) SessionUtils.getAttribute("userId");
+        return userDAO.updateSignState(userId,signState);
+    }
+    public boolean updateSign(String approvalFilePath){
+        int userId = (int) SessionUtils.getAttribute("userId");
+        return userDAO.updateSign(userId,approvalFilePath);
+    }
+
 }
