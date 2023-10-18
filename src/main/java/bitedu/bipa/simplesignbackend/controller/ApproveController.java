@@ -6,6 +6,8 @@ import bitedu.bipa.simplesignbackend.model.dto.ApprovalPermissionResDTO;
 import bitedu.bipa.simplesignbackend.service.ApproveService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +59,7 @@ public class ApproveController {
         return ResponseEntity.ok("ok");
     }
 
-    @GetMapping("/PermissionList/{num}")
+    @GetMapping("/permissionList/{num}")
     public ResponseEntity<Boolean> getPermissionList(@PathVariable("num") int approvalDocId){
         boolean hasPermission =  approveService.hasPermission(approvalDocId);
         return ResponseEntity.ok(hasPermission);
