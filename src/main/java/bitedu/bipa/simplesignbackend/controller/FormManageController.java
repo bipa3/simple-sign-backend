@@ -77,10 +77,10 @@ public class FormManageController {
     }
 
     @GetMapping("/formTitleList")
-    public ResponseEntity<List<FormListDTO>> formTitleList(){
-        int userId = 1;
-        List<FormListDTO> dto = formManageService.showFormList(userId);
-        return ResponseEntity.ok(formManageService.showFormList(userId));
+    public ResponseEntity<List<FormListDTO>> formTitleList(@RequestParam(required = false) String searchContent){
+        searchContent =  searchContent==null?"":searchContent;
+        List<FormListDTO> dto = formManageService.showFormList(searchContent);
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/seqTitleList")

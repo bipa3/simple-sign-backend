@@ -14,7 +14,7 @@ public interface FormManageMapper {
     FormDetailResDTO getFormDetail(int code);
     ArrayList<FormDetailScopeDTO> getFormDetailScope(int code);
 
-    List<FormListDTO> selectFormListWithSearch(BelongOrganizationDTO belong);
+    List<FormListDTO> selectFormListWithSearch(Map map);
 
     List<SequenceListDTO> selectSequence(Map map);
 
