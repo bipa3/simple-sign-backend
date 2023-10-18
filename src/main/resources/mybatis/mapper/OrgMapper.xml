@@ -55,14 +55,14 @@
         select c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name,
         NULL as position_code, NULL as position_name,
         NULL as grade_code, NULL as grade_name,
-        NULL as user_id, NULL as user_name
+        NULL as org_user_id, NULL as user_name
         from company c
         left join establishment e on c.comp_id = e.comp_id
         left join department d on e.est_id = d.est_id
         where d.dept_id = #{deptId}
         UNION ALL
         select c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name,
-        p.position_code, p.position_name, g.grade_code, g.grade_name, u.user_id, u.user_name
+        p.position_code, p.position_name, g.grade_code, g.grade_name, o.org_user_id, u.user_name
         from organization_user o
         left join user u on o.user_id = u.user_id
         left join department d on o.dept_id = d.dept_id
@@ -100,13 +100,13 @@
         null as dept_id, null as dept_name,
         NULL as position_code, NULL as position_name,
         NULL as grade_code, NULL as grade_name,
-        NULL as user_id, NULL as user_name
+        NULL as org_user_id, NULL as user_name
         from company where comp_id = #{compId}
         union
         select c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name,
         NULL as position_code, NULL as position_name,
         NULL as grade_code, NULL as grade_name,
-        NULL as user_id, NULL as user_name
+        NULL as org_user_id, NULL as user_name
         from company c
         left join establishment e on c.comp_id = e.comp_id
         left join department d on e.est_id = d.est_id
@@ -114,7 +114,7 @@
         union
         select
         c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name,
-        p.position_code, p.position_name, g.grade_code, g.grade_name, u.user_id, u.user_name
+        p.position_code, p.position_name, g.grade_code, g.grade_name, o.org_user_id, u.user_name
         from organization_user o
         left join user u on o.user_id = u.user_id
         left join department d on o.dept_id = d.dept_id
@@ -123,7 +123,7 @@
         left join establishment e on d.est_id = e.est_id
         left join company c on e.comp_id = c.comp_id
         where c.comp_id = #{compId}
-        order by comp_id, est_id, dept_id, user_id;
+        order by comp_id, est_id, dept_id, org_user_id;
     </select>
 
     <select id="selectBottomDeptEst" parameterType="int" resultType="OrgRespDTO">
@@ -145,7 +145,7 @@
         select c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name,
         NULL as position_code, NULL as position_name,
         NULL as grade_code, NULL as grade_name,
-        NULL as user_id, NULL as user_name
+        NULL as org_user_id, NULL as user_name
         from establishment e
         left join company c on e.comp_id = c.comp_id
         left join department d on e.est_id = d.est_id
@@ -153,7 +153,7 @@
         union
         select
         c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name,
-        p.position_code, p.position_name, g.grade_code, g.grade_name, u.user_id, u.user_name
+        p.position_code, p.position_name, g.grade_code, g.grade_name, o.org_user_id, u.user_name
         from organization_user o
         left join user u on o.user_id = u.user_id
         left join department d on o.dept_id = d.dept_id
@@ -186,7 +186,7 @@
         SELECT c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name,
         NULL as position_code, NULL as position_name,
         NULL as grade_code, NULL as grade_name,
-        NULL as user_id, NULL as user_name
+        NULL as org_user_id, NULL as user_name
         FROM department d
         left join establishment e on d.est_id = e.est_id
         left join company c on e.comp_id = c.comp_id
@@ -195,7 +195,7 @@
         SELECT c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name,
         NULL as position_code, NULL as position_name,
         NULL as grade_code, NULL as grade_name,
-        NULL as user_id, NULL as user_name
+        NULL as org_user_id, NULL as user_name
         FROM department d
         JOIN RecursiveDept rd ON d.upper_dept_id = rd.dept_id
         left join establishment e on d.est_id = e.est_id
@@ -204,7 +204,7 @@
         SELECT * FROM RecursiveDept
         union
         select c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name,
-        p.position_code, p.position_name, g.grade_code, g.grade_name, u.user_id, u.user_name
+        p.position_code, p.position_name, g.grade_code, g.grade_name, o.org_user_id, u.user_name
         from organization_user o
         join user u on o.user_id = u.user_id
         join department d on o.dept_id = d.dept_id
@@ -237,7 +237,7 @@
 
     <select id="searchUser" parameterType="String" resultType="OrgRespDTO">
         select c.comp_id, c.comp_name, e.est_id, e.est_name, d.dept_id, d.dept_name,
-        p.position_code, p.position_name, g.grade_code, g.grade_name, u.user_id, u.user_name
+        p.position_code, p.position_name, g.grade_code, g.grade_name, o.org_user_id, u.user_name
         from user u
         join organization_user o on u.user_id = o.user_id
         join department d on o.dept_id = d.dept_id
