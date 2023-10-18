@@ -16,7 +16,7 @@ public class OrgRespDTO {
     private String deptName;
     private int positionCode;
     private int gradeCode;
-    private int userId;
+    private int orgUserId;
     private String positionName;
     private String gradeName;
     private String userName;
