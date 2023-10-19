@@ -54,6 +54,9 @@ public class ReplyService {
         int orgUserId = (int) SessionUtils.getAttribute("userId");
         //댓글이 본인이 작성한 것인지 확인
         int replierId = replyDAO.selectReplierId(replyId);
+        if(replierId !=orgUserId) {
+            throw new RuntimeException(); //권한이 없습니다.
+        }
         int affectedCount = replyDAO.deleteReply(replyId);
         if(affectedCount ==0) {
             throw new RuntimeException(); //댓글 삭제 실패

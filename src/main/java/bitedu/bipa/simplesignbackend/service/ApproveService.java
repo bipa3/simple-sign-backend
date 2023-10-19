@@ -48,7 +48,7 @@ public class ApproveService {
 
             //결재라인 삽입
             int count = this.insertApprovalList(approvalDocId,approverList,0);
-            if(count !=approvalCount) {
+            if(count-1 !=approvalCount) {
                 throw new RuntimeException(); //결재라인 전부 삽입 안됨
             }
         }
