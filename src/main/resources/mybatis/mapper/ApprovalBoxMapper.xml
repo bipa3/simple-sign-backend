@@ -44,7 +44,7 @@
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'T')
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = 1 AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
+                (a.org_user_id = #{userId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
             <if test="viewItem == 'concluded'">
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
@@ -109,7 +109,7 @@
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'T')
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = 1 AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
+                (a.org_user_id = #{userId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
             <if test="viewItem == 'concluded'">
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
@@ -171,7 +171,7 @@
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'T')
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = 1 AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
+                (a.org_user_id = #{userId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
             <if test="viewItem == 'concluded'">
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
@@ -242,7 +242,7 @@
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'T')
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = 1 AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
+                (a.org_user_id = #{userId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
             <if test="viewItem == 'concluded'">
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
@@ -368,7 +368,7 @@
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'T')
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = 1 AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
+                (a.org_user_id = #{userId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
             <if test="viewItem == 'concluded'">
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
@@ -431,7 +431,7 @@
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'T')
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = 1 AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
+                (a.org_user_id = #{userId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
             <if test="viewItem == 'concluded'">
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>

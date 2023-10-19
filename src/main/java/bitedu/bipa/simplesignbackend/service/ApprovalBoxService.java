@@ -129,8 +129,4 @@ public class ApprovalBoxService {
     public ArrayList<Integer> selectReadDoc(int userId) {
         return approvalBoxDAO.selectReadDoc(userId);
     }
-
-    public ArrayList<DateRecordDTO> selectEndDate(int docId) {
-        return approvalBoxDAO.selectEndDate(docId);
-    }
 }
