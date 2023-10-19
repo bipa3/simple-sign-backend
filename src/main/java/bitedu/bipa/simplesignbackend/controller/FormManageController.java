@@ -43,7 +43,7 @@ public class FormManageController {
         }
     }
 
-    @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
+    @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN, Authority.Role.USER})
     @GetMapping("/detail/{code}")
     public ResponseEntity<FormDetailResDTO> formDetailSearch(@PathVariable int code) {
         FormDetailResDTO formDetail = formManageService.searchFormDetail(code);
