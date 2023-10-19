@@ -171,6 +171,8 @@ public class ApproveService {
 
     public ApprovalDocDetailDTO showDetailApprovalDoc(int approvalDocId) {
         int orgUserId = (int)SessionUtils.getAttribute("userId");
+        ApprovalDocDetailDTO approvalDocDetailDTO =  approveDAO.selectApprovalDocById(approvalDocId);
+        //System.out.println(approvalDocDetailDTO);
         //해당 아이디가 결재라인에도 없고 상신자에도 없고 수신참조문서에 없으면 권한이 없음
         //1.본인이 상신자인지 확인
         int approverId = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
@@ -191,7 +193,7 @@ public class ApproveService {
         if(!hasApprovalLine && !sameApprover && !hasReceivedRef) {
             throw  new RuntimeException(); //권한 없음
         }
-        ApprovalDocDetailDTO approvalDocDetailDTO =  approveDAO.selectApprovalDocById(approvalDocId);
+
         approvalDocDetailDTO.setApprovalLineList(approveDAO.selectApprovalDetailLineByApprovalDocId(approvalDocId));
         approvalDocDetailDTO.setReceivedRefList(approveDAO.selectReceivedRefList(approvalDocId));
         //System.out.println(approveDAO.selectReceivedRefList(approvalDocId));

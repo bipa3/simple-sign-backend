@@ -1,5 +1,6 @@
 package bitedu.bipa.simplesignbackend.controller;
 
+import bitedu.bipa.simplesignbackend.interceptor.Authority;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.service.CommonService;
 import bitedu.bipa.simplesignbackend.service.FormManageService;
@@ -42,6 +43,7 @@ public class FormManageController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
 
     @GetMapping("/detail/{code}")
     public ResponseEntity<FormDetailResDTO> formDetailSearch(@PathVariable int code) {
