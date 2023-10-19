@@ -23,6 +23,8 @@ public interface ApproveMapper {
 
     ApprovalResDTO selectApprovalByApprovalId(Map map);
 
+    List<ApprovalResDTO> selectAllApproval(int approvalDocId);
+
     int updateCurrentApproval(ApprovalResDTO approvalResDTO);
 
     ApprovalDocResDTO selectApprovalCount(int approvalDocId);
@@ -42,9 +44,10 @@ public interface ApproveMapper {
 
     ApprovalDocDetailDTO selectApprovalDocById(int approvalDocId);
 
+    List<ApprovalLineDetailListDTO> selectApprovalDetailLineByApprovalDocId(int approvalDocId);
     List<ApprovalLineListDTO> selectApprovalLineByApprovalDocId(int approvalDocId);
 
-    List<ReceivedRefListDTO> selectReceivedRefList(int approvalDocId);
+    List<ApprovalLineDetailListDTO> selectReceivedRefList(int approvalDocId);
 
     List<Integer> selectRecievedRefUserId(int approvalDocId);
 
@@ -75,4 +78,9 @@ public interface ApproveMapper {
     int updateApprovalNextLine(Map map);
 
 
+    int selectOrgUserIdFromApprovalDoc(int approvalDocId);
+
+    char selectFirstApprovalStatus(int approvalDocId);
+
+    int deleteApprovalLine(Map map);
 }

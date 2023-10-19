@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class FormDetailResDTO {
     private int code;
-    private String compId;
+    private int compId;
     private String formName;
     private ArrayList<FormDetailScopeDTO> scope;
     private String defaultForm;

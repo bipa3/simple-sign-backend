@@ -35,4 +35,8 @@ public class UserDTO {
     private String deptString;
     private String positionName;
     private String gradeName;
+
+    // 프로필, 서명 이미지 조회 및 수정 + 업로드
+    private String approvalFilePath;
+    private boolean signState;
 }
