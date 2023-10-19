@@ -101,4 +101,11 @@ public class ApproveController {
         return ResponseEntity.ok("ok");
     }
 
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @PatchMapping("/temp/{num}")
+    public ResponseEntity<String>  updateTemporalApprovalDoc(@PathVariable("num") int approvalDocId, @RequestBody ApprovalDocReqDTO approvalDocReqDTO) {
+        approveService.updateTemporalApprovalDoc(approvalDocId, approvalDocReqDTO);
+        return ResponseEntity.ok("ok");
+    }
+
 }

@@ -303,4 +303,12 @@
         ]]>
     </delete>
 
+    <!--임시저장문서 수정하기-->
+    <update id="updateTemporalApprovalDoc" parameterType="ApprovalDocReqDTO">
+        update approval_doc
+        set #{approvalDocTitle}, contents = #{contents}, enforcement_date = #{enforcementDate},
+            seq_code #{seqCode}, search_contents =#{searchContents}, approval_date = #{approvalDate}, org_user_id = #{orgUserId}
+        where approval_doc_id = #{approvalDocId};
+    </update>
+
 </mapper>

@@ -44,13 +44,14 @@ public class ApproveService {
             //임시저장이면 첨부파일 insert
 
         }else if(approvalDocReqDTO.getDocStatus() == ApprovalStatus.WAIT.getCode()) {
-            //상신이면 approval, alarm, 첨부파일 insert
+            //상신이면 alarm, 첨부파일 insert
 
-            //결재라인 삽입
-            int count = this.insertApprovalList(approvalDocId,approverList,0);
+        }
+
+        //결재라인 삽입
+        int count = this.insertApprovalList(approvalDocId,approverList,0);
             if(count-1 !=approvalCount) {
-                throw new RuntimeException(); //결재라인 전부 삽입 안됨
-            }
+            throw new RuntimeException(); //결재라인 전부 삽입 안됨
         }
 
         //수신참조 insert ---> 활성화 여부를 넣고 활성화 된 것만 불러와서 보여주게하기
@@ -449,8 +450,10 @@ public class ApproveService {
             }
         }
         //5.문서가 종결됐으면 안됨
-        char docStatus = approveDAO.selectApprovalDocStatus(approvalDocId);
-        if(docStatus == ApprovalStatus.APPROVAL.getCode() || docStatus == ApprovalStatus.RETURN.getCode()) {
+        Character docStatus = approveDAO.selectApprovalDocStatus(approvalDocId);
+        if(docStatus ==null) {
+            return true;
+        }  else if(docStatus == ApprovalStatus.APPROVAL.getCode() || docStatus == ApprovalStatus.RETURN.getCode()) {
             return false;
         }
         return true;
@@ -464,10 +467,33 @@ public class ApproveService {
         if(approver !=orgUserId) {
             return false;
         }
-        char firstApprovalStatus = approveDAO.selectApprovalDocStatus(approvalDocId);
-        if(firstApprovalStatus ==ApprovalStatus.APPROVAL.getCode() || firstApprovalStatus == ApprovalStatus.RETURN.getCode()) {
+        Character firstApprovalStatus = approveDAO.selectApprovalDocStatus(approvalDocId);
+        if(firstApprovalStatus ==null) {
+            return true;
+        }  else if(firstApprovalStatus ==ApprovalStatus.APPROVAL.getCode() || firstApprovalStatus == ApprovalStatus.RETURN.getCode()) {
             return false;
         }
         return true;
+    }
+
+    @Transactional
+    public void updateTemporalApprovalDoc(int approvalDocId, ApprovalDocReqDTO approvalDocReqDTO) {
+        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        List<Integer> approverList = approvalDocReqDTO.getApproverList();
+        int approvalCount = approverList.size();
+
+        approvalDocReqDTO.setApprovalDocId(approvalDocId);
+        approvalDocReqDTO.setOrgUserId(orgUserId);
+        int affectedCount = approveDAO.updateTemporalApprovalDoc(approvalDocReqDTO);
+        if(affectedCount ==0) {
+            throw new RuntimeException(); //문서수정 안됨
+        }
+
+        //결재라인 삽입
+        int count = this.insertApprovalList(approvalDocId,approverList,0);
+        if(count-1 !=approvalCount) {
+            throw new RuntimeException(); //결재라인 전부 삽입 안됨
+        }
+
     }
 }

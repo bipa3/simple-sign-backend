@@ -190,7 +190,7 @@ public class ApproveDAO {
         return approveMapper.selectOrgUserIdFromApprovalDoc(approvalDocId);
     }
 
-    public char selectApprovalDocStatus(int approvalDocId) {
+    public Character selectApprovalDocStatus(int approvalDocId) {
         return approveMapper.selectFirstApprovalStatus(approvalDocId);
     }
 
@@ -199,5 +199,9 @@ public class ApproveDAO {
         map.put("approvalDocId", approvalDocId);
         map.put("isUpdateOrder",isUpdateOrder);
         return approveMapper.deleteApprovalLine(map);
+    }
+
+    public int updateTemporalApprovalDoc(ApprovalDocReqDTO approvalDocReqDTO) {
+        return approveMapper.updateTemporalApprovalDoc(approvalDocReqDTO);
     }
 }

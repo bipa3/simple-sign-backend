@@ -80,7 +80,9 @@ public interface ApproveMapper {
 
     int selectOrgUserIdFromApprovalDoc(int approvalDocId);
 
-    char selectFirstApprovalStatus(int approvalDocId);
+    Character selectFirstApprovalStatus(int approvalDocId);
 
     int deleteApprovalLine(Map map);
+
+    int updateTemporalApprovalDoc(ApprovalDocReqDTO approvalDocReqDTO);
 }
