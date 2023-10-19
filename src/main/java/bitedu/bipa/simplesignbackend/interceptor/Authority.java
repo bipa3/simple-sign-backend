@@ -12,5 +12,5 @@ public @interface Authority {
     //DB에 저장되어 있는 값에 따라 달라져야함
     public enum Role {MASTER_ADMIN, DEPT_ADMIN, USER}
 
-    public Role role() default Role.USER;
+    public Role[] role() default Role.USER;
 }

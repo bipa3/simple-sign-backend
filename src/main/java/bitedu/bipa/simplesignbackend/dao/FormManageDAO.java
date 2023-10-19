@@ -4,6 +4,7 @@ import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
 import bitedu.bipa.simplesignbackend.mapper.FormManageMapper;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.model.dto.FormDetailScopeDTO;
+import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,9 +34,13 @@ public class FormManageDAO {
         return formManageMapper.getFormDetailScope(code);
     }
 
-    public List<FormListDTO> selectFormList(int userId) {
-        BelongOrganizationDTO belong = commonMapper.getBelongs(userId);
-        return formManageMapper.selectFormListWithSearch(belong);
+    public List<FormListDTO> selectFormList(String searchContent) {
+        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        BelongOrganizationDTO belong = commonMapper.getBelongs(orgUserId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("belong", belong);
+        map.put("searchContent", searchContent);
+        return formManageMapper.selectFormListWithSearch(map);
     }
 
     public List<SequenceListDTO> selectSeqList(int userId, int formCode) {

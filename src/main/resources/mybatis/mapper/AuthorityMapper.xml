@@ -5,10 +5,14 @@
 
 <mapper namespace="bitedu.bipa.simplesignbackend.mapper.AuthorityMapper">
 
-    <select id="findAuthority" resultType="bitedu.bipa.simplesignbackend.model.dto.AuthorityDTO">
-        select a.authority_name from user_role ur
-        join authority a on ur.authority_code = a.authority_code
-        where ur.org_user_id = #{userId}
+    <select id="findAuthority" resultType="int">
+        select count(*) from user_role
+        where org_user_id = #{orgUserId} and authority_code = #{authorityCode};
+    </select>
+
+    <select id="getAuthorityName" resultType="String" parameterType="int">
+        select authority_name from authority
+        where authority_code = #{authorityCode}
     </select>
 
 </mapper>
