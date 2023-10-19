@@ -1,4 +1,5 @@
 package bitedu.bipa.simplesignbackend.mapper;
+import bitedu.bipa.simplesignbackend.model.dto.DateRecordDTO;
 import bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SearchRequestDTO;
 import org.apache.ibatis.annotations.Mapper;
@@ -72,4 +73,5 @@ public interface ApprovalBoxMapper {
 
     ArrayList<Integer> selectDocView(@Param("userId") int userId);
 
+    ArrayList<DateRecordDTO> selectEndDate(@Param("docId") int docId);
 }

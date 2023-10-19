@@ -130,4 +130,7 @@ public class ApprovalBoxService {
         return approvalBoxDAO.selectReadDoc(userId);
     }
 
+    public ArrayList<DateRecordDTO> selectEndDate(int docId) {
+        return approvalBoxDAO.selectEndDate(docId);
+    }
 }

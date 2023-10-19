@@ -5,10 +5,9 @@ import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.service.ApprovalBoxService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.UsesSunHttpServer;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Array;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -128,6 +127,11 @@ public class ApprovalBoxController {
     @GetMapping("/doc/getread")
     public ArrayList<Integer> getReadDoc (@SessionAttribute(name = "userId") int userId){
         return approvalBoxService.selectReadDoc(userId);
+    }
+
+    @GetMapping("/doc/date")
+    public ArrayList<DateRecordDTO> getEndDate (@RequestParam(name = "docId") int docId){
+        return approvalBoxService.selectEndDate(docId);
     }
 
 

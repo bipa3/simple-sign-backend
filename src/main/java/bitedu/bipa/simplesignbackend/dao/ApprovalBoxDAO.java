@@ -119,4 +119,7 @@ public class ApprovalBoxDAO {
         return approvalBoxMapper.selectDocView(userId);
     }
 
+    public ArrayList<DateRecordDTO> selectEndDate(int docId) {
+        return approvalBoxMapper.selectEndDate(docId);
+    }
 }
