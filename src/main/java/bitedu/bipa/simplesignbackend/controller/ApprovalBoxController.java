@@ -128,13 +128,6 @@ public class ApprovalBoxController {
     public ArrayList<Integer> getReadDoc (@SessionAttribute(name = "userId") int userId){
         return approvalBoxService.selectReadDoc(userId);
     }
-
-    @GetMapping("/doc/date")
-    public ArrayList<DateRecordDTO> getEndDate (@RequestParam(name = "docId") int docId){
-        return approvalBoxService.selectEndDate(docId);
-    }
-
-
 }
 
 
