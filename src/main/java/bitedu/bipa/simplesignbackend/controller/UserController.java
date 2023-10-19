@@ -1,5 +1,6 @@
 package bitedu.bipa.simplesignbackend.controller;
 
+import bitedu.bipa.simplesignbackend.interceptor.Authority;
 import bitedu.bipa.simplesignbackend.model.dto.UserDTO;
 import bitedu.bipa.simplesignbackend.model.dto.UserPasswordDTO;
 import bitedu.bipa.simplesignbackend.service.S3Service;

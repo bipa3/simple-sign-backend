@@ -1,5 +1,6 @@
 package bitedu.bipa.simplesignbackend.controller;
 
+import bitedu.bipa.simplesignbackend.interceptor.Authority;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.service.CommonService;
 import bitedu.bipa.simplesignbackend.service.FormManageService;
@@ -43,6 +44,7 @@ public class FormManageController {
         }
     }
 
+
     @GetMapping("/detail/{code}")
     public ResponseEntity<FormDetailResDTO> formDetailSearch(@PathVariable int code) {
         FormDetailResDTO formDetail = formManageService.searchFormDetail(code);
@@ -77,10 +79,10 @@ public class FormManageController {
     }
 
     @GetMapping("/formTitleList")
-    public ResponseEntity<List<FormListDTO>> formTitleList(){
-        int userId = 1;
-        List<FormListDTO> dto = formManageService.showFormList(userId);
-        return ResponseEntity.ok(formManageService.showFormList(userId));
+    public ResponseEntity<List<FormListDTO>> formTitleList(@RequestParam(required = false) String searchContent){
+        searchContent =  searchContent==null?"":searchContent;
+        List<FormListDTO> dto = formManageService.showFormList(searchContent);
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/seqTitleList")
