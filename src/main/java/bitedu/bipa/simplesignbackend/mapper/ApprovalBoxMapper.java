@@ -1,4 +1,5 @@
 package bitedu.bipa.simplesignbackend.mapper;
+import bitedu.bipa.simplesignbackend.model.dto.DateRecordDTO;
 import bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SearchRequestDTO;
 import org.apache.ibatis.annotations.Mapper;
@@ -29,16 +30,22 @@ public interface ApprovalBoxMapper {
                                                              @Param("itemsPerPage") int itemsPerPage,
                                                              @Param("offset") int offset,
                                                              @Param("deptId") int deptId,
+                                                             @Param("estId") int estId,
+                                                             @Param("compId") int compId,
                                                              @Param("viewItems") List<String> viewItems,
                                                              @Param("searchInput") String searchInput);
 
     ArrayList<DocumentListDTO> getSearchDocCountByViewItems(@Param("userId") int userId,
                                                             @Param("deptId") int deptId,
+                                                            @Param("estId") int estId,
+                                                            @Param("compId") int compId,
                                                             @Param("viewItems") List<String> viewItems,
                                                             @Param("searchInput") String searchInput);
 
     ArrayList<DocumentListDTO> getDetailSearchDocsList(@Param("userId") int userId,
                                                         @Param("deptId") int deptId,
+                                                       @Param("estId") int estId,
+                                                       @Param("compId") int compId,
                                                         @Param("viewItems") List<String> viewItems,
                                                         @Param("itemsPerPage") int itemsPerPage,
                                                         @Param("offset") int offset,
@@ -46,7 +53,25 @@ public interface ApprovalBoxMapper {
 
     ArrayList<DocumentListDTO> getDetailSearchDocsCount(@Param("userId") int userId,
                                                         @Param("deptId") int deptId,
+                                                        @Param("estId") int estId,
+                                                        @Param("compId") int compId,
                                                         @Param("viewItems") List<String> viewItems,
                                                         @Param("criteria") SearchRequestDTO criteria);
 
+    int selectSendCount(@Param("userId") int userId);
+
+    int selectPendCount(@Param("userId") int userId);
+
+    int selectConcludedCount(@Param("userId") int userId);
+
+    int selectReferenceCount(@Param("userId") int userId,
+                             @Param("deptId") int deptId,
+                             @Param("estId") int estId,
+                             @Param("compId") int compId);
+
+    void insertDocView(@Param("userId") int userId, @Param("docId") int docId);
+
+    ArrayList<Integer> selectDocView(@Param("userId") int userId);
+
+    ArrayList<DateRecordDTO> selectEndDate(@Param("docId") int docId);
 }
