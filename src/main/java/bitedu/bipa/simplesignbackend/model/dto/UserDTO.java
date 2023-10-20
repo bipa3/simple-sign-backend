@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -39,4 +40,7 @@ public class UserDTO {
     // 프로필, 서명 이미지 조회 및 수정 + 업로드
     private String approvalFilePath;
     private boolean signState;
+
+    // 겸직 정보
+    private List<UserOrgDTO> userOrgList;
 }

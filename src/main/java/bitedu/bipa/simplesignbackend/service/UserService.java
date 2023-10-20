@@ -2,11 +2,14 @@ package bitedu.bipa.simplesignbackend.service;
 
 import bitedu.bipa.simplesignbackend.dao.UserDAO;
 import bitedu.bipa.simplesignbackend.model.dto.UserDTO;
+import bitedu.bipa.simplesignbackend.model.dto.UserOrgDTO;
 import bitedu.bipa.simplesignbackend.model.dto.UserPasswordDTO;
 import bitedu.bipa.simplesignbackend.utils.PasswordUtil;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -18,9 +21,8 @@ public class UserService {
         // 암호화된 비밀번호 확인
         String currentSalt = userDAO.getLoginSalt(loginId);
         String currentPwHash = PasswordUtil.getEncode(password, currentSalt);
-
         UserDTO userDTO = userDAO.loginUser(loginId, currentPwHash);
-        if (userDTO != null && userDTO.getLoginId().equals(loginId) && userDTO.getPassword().equals(currentPwHash)) {
+        if (userDTO != null) {
             return userDTO;
         }
         return null;
@@ -98,4 +100,7 @@ public class UserService {
         return userDAO.updateSign(userId,approvalFilePath);
     }
 
+    public List<UserOrgDTO> orgUser(int userId) {
+        return userDAO.getOrgList(userId);
+    }
 }

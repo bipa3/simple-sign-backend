@@ -1,8 +1,11 @@
 package bitedu.bipa.simplesignbackend.mapper;
 
 import bitedu.bipa.simplesignbackend.model.dto.UserDTO;
+import bitedu.bipa.simplesignbackend.model.dto.UserOrgDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface UserMapper {
@@ -37,5 +40,7 @@ public interface UserMapper {
     // 사인 이미지 수정
     boolean updateSignState(@Param("userId") int userId, @Param("signState") boolean signState);
     boolean updateSign(@Param("userId") int userId, @Param("approvalFilePath") String approvalFilePath);
+
+    List<UserOrgDTO> getOrgList(int userId);
 
 }

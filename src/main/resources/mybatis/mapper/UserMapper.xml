@@ -6,7 +6,7 @@
 <mapper namespace="bitedu.bipa.simplesignbackend.mapper.UserMapper">
 
     <select id="login" resultType="bitedu.bipa.simplesignbackend.model.dto.UserDTO">
-        select * from user where login_id=#{loginId} and password=#{password};
+        select user_id, user_name, start_date, birth from user where login_id=#{loginId} and password=#{password};
     </select>
 
     <select id="loginSalt" resultType="String">
@@ -76,4 +76,16 @@
         update attatchment_file set approval_file_path = #{approvalFilePath} where use_id = #{userId} and file_code = 02;
     </update>
 
+    <select id="getOrgList" parameterType="int" resultType="UserOrgDTO">
+<!--        SELECT org_user_id, dept.dept_id, dept.dept_name, dept_string FROM organization_user ou-->
+<!--        LEFT JOIN department dept on ou.dept_id=dept.dept_id WHERE user_id=#{userId};-->
+
+        SELECT ou.org_user_id, comp.comp_id, comp.comp_name, dept.dept_id, dept.dept_name, authority_code, authority_name FROM organization_user ou
+        LEFT JOIN department dept ON ou.dept_id=dept.dept_id
+        LEFT JOIN establishment est ON dept.est_id=est.est_id
+        LEFT JOIN company comp ON comp.comp_id=est.comp_id
+        LEFT JOIN (SELECT user_role.org_user_id, authority.authority_code, authority.authority_name FROM user_role INNER JOIN authority ON user_role.authority_code=authority.authority_code) AS role
+        ON ou.org_user_id=role.org_user_id
+        WHERE user_id=#{userId};
+    </select>
 </mapper>

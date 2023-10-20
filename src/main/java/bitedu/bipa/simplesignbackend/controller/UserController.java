@@ -1,6 +1,7 @@
 package bitedu.bipa.simplesignbackend.controller;
 
 import bitedu.bipa.simplesignbackend.model.dto.UserDTO;
+import bitedu.bipa.simplesignbackend.model.dto.UserOrgDTO;
 import bitedu.bipa.simplesignbackend.model.dto.UserPasswordDTO;
 import bitedu.bipa.simplesignbackend.service.S3Service;
 import bitedu.bipa.simplesignbackend.service.UserService;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,18 +28,26 @@ public class UserController {
     private final S3Service s3Service;
 
     @PostMapping("/login")
-    public ResponseEntity<Integer> userLogin(@RequestBody UserDTO userDTO, HttpServletResponse response){
+    public ResponseEntity<UserDTO> userLogin(@RequestBody UserDTO userDTO, HttpServletResponse response){
         UserDTO userDTO2 = userService.loginUser(userDTO.getLoginId(),userDTO.getPassword());
-        if(userDTO2 != null){
 
+        if(userDTO2 != null){
             int userId = userDTO2.getUserId();
             String userName = userDTO2.getUserName();
+
+            List<UserOrgDTO> userOrgDTO = userService.orgUser(userId);
+            System.out.println("size:" + userOrgDTO.size());
+            if(userOrgDTO.size() > 0){
+                userDTO2.setUserOrgList(userOrgDTO);
+                System.out.println(userOrgDTO.toString());
+            }
+
             SessionUtils.addAttribute("userId", userId);
             SessionUtils.addAttribute("userName", userName);
 
             response.addHeader("Set-Cookie", "JSESSIONID=" + RequestContextHolder.getRequestAttributes().getSessionId() + "; Path=/; Secure; HttpOnly; SameSite=None");
 
-            return ResponseEntity.ok(userId);
+            return ResponseEntity.ok(userDTO2);
         } else {
           return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
@@ -64,6 +74,7 @@ public class UserController {
     // 개인정보 조회
     @GetMapping("/userinfo")
     public UserDTO userDetail(){
+        System.out.println("개인정보 조회 " + RequestContextHolder.getRequestAttributes().getSessionId());
         int userId = (int) SessionUtils.getAttribute("userId");
         return userService.detailUser(userId);
     }
@@ -73,7 +84,6 @@ public class UserController {
     public ResponseEntity userUpdate(@RequestBody UserDTO userDTO){
         int userId = (int) SessionUtils.getAttribute("userId");
         userDTO.setUserId(userId);
-
         boolean flag = userService.updateUser(userDTO);
         if(flag){
             return new ResponseEntity(HttpStatus.OK);
