@@ -19,7 +19,7 @@ public interface ApprovalBoxMapper {
             @Param("viewItems") List<String> viewItems
     );
 
-    ArrayList<DocumentListDTO> getDocCountByViewItems(@Param("userId") int userId,
+    int getDocCountByViewItems(@Param("userId") int userId,
                                                       @Param("deptId") int deptId,
                                                       @Param("estId") int estId,
                                                       @Param("compId") int compId,

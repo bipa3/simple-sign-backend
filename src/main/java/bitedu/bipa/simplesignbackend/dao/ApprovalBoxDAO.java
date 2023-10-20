@@ -30,7 +30,7 @@ public class ApprovalBoxDAO {
         return approvalBoxMapper.getSearchDocCountByViewItems(userId, deptId, estId, compId, viewItems, searchInput);
     }
 
-    public  ArrayList<DocumentListDTO> selectDocsCount(List<String> viewItems, int userId, int deptId, int estId, int compId) {
+    public  int selectDocsCount(List<String> viewItems, int userId, int deptId, int estId, int compId) {
         return approvalBoxMapper.getDocCountByViewItems(userId,deptId,estId,compId,viewItems);
     }
 
@@ -59,6 +59,11 @@ public class ApprovalBoxDAO {
     }
     public int selectUserCompId( int userId){
         return approvalBoxManageMapper.getUserCompId(userId);
+    }
+    public ArrayList<CompanyDTO> selectUserCompany( int userId){
+        ArrayList<CompanyDTO> companyList = (ArrayList)approvalBoxManageMapper.getUserCompany(userId);
+        System.out.println("Dao : " +companyList);
+        return companyList;
     }
 
     public ArrayList<ApprovalBoxDTO> selectCustomBoxList(int company, int userId, int deptId) {
@@ -119,4 +124,7 @@ public class ApprovalBoxDAO {
         return approvalBoxMapper.selectDocView(userId);
     }
 
+    public String selectUserCompName(int compId) {
+        return approvalBoxManageMapper.selectCompName(compId);
+    }
 }

@@ -44,7 +44,8 @@
                 (ad.org_user_id = #{userId} AND ad.doc_status = 'T')
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = #{userId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
+                (a.org_user_id = #{userId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
+                'T'))</if>
             <if test="viewItem == 'concluded'">
                 (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
@@ -69,16 +70,8 @@
 
 
 
-    <select id="getDocCountByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate, ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name, ad.end_at as end_date, u2.user_name as end_user, u3.user_name as approver
-        <foreach collection="viewItems" item="viewItem" separator="OR">
-            <if test="viewItem == 'pend'">
-                , a.receive_date
-            </if>
-            <if test="viewItem == 'concluded' ">
-                , a.approval_date
-            </if>
-        </foreach>
+    <select id="getDocCountByViewItems" resultType="int">
+        SELECT COUNT(DISTINCT ad.approval_doc_id)
         FROM approval_doc ad
         LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
         <foreach collection="viewItems" item="viewItem" separator="OR">
@@ -457,7 +450,7 @@
     </select>
     <select id="selectPendCount" resultType="int">
         select count(*) from approval_doc ad
-        join approval a on a.approval_doc_id = ad. approval_doc_id
+        join approval a on a.approval_doc_id = ad.approval_doc_id
         where a.org_user_id = #{userId} and a.approval_status = 'P' and doc_del_status = 0 and (ad.doc_status != 'A' and ad.doc_status != 'R')
     </select>
     <select id="selectConcludedCount" resultType="int">
