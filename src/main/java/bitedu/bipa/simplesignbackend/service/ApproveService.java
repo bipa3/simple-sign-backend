@@ -176,7 +176,10 @@ public class ApproveService {
         //System.out.println(approvalDocDetailDTO);
         //해당 아이디가 결재라인에도 없고 상신자에도 없고 수신참조문서에 없으면 권한이 없음
         //1.본인이 상신자인지 확인
-        int approverId = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
+        Integer approverId = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
+        if(approverId ==null) {
+            throw new RuntimeException(); //해당 사용자가 없습니다.
+        }
         boolean sameApprover = false;
         if(approverId == orgUserId) {
             sameApprover = true;
@@ -417,7 +420,10 @@ public class ApproveService {
     public boolean getHasUpdate(int approvalDocId) {
         int orgUserId = (int) SessionUtils.getAttribute("userId");
         //1.본인이 상신자인지 확인
-        int approverId = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
+        Integer approverId = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
+        if(approverId ==null) {
+            throw new RuntimeException(); //해당 사용자가 없습니다.
+        }
         boolean sameApprover = false;
         if(approverId == orgUserId) {
             sameApprover = true;
@@ -463,7 +469,10 @@ public class ApproveService {
     public boolean getHasDelete(int approvalDocId) {
         int orgUserId = (int) SessionUtils.getAttribute("userId");
         //해당 사용자가 문서작성자이면서 결재라인에 있는 첫 결재자가 결재하지 않았을 때에만 삭제가능
-        int approver = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
+        Integer approver = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
+        if(approver ==null) {
+            throw new RuntimeException(); //해당 사용자가 없습니다.
+        }
         if(approver !=orgUserId) {
             return false;
         }
@@ -488,6 +497,9 @@ public class ApproveService {
         if(affectedCount ==0) {
             throw new RuntimeException(); //문서수정 안됨
         }
+
+        //결재라인 삭제
+        approveDAO.deleteApprovalLine(approvalDocId,0);
 
         //결재라인 삽입
         int count = this.insertApprovalList(approvalDocId,approverList,0);

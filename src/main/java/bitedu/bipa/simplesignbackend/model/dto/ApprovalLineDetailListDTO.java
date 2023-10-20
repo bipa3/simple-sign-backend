@@ -18,5 +18,6 @@ public class ApprovalLineDetailListDTO {
     private String grade;
     private int approvalOrder;
     private char approvalStatus;
+    private int signState;
 
 }
