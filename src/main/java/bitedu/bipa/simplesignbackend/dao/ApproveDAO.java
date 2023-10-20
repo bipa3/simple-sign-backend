@@ -186,7 +186,7 @@ public class ApproveDAO {
         return approveMapper.updateApprovalNextLine(map);
     }
 
-    public int selectOrgUserIdFromApprovalDoc(int approvalDocId) {
+    public Integer selectOrgUserIdFromApprovalDoc(int approvalDocId) {
         return approveMapper.selectOrgUserIdFromApprovalDoc(approvalDocId);
     }
 

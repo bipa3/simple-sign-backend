@@ -129,7 +129,7 @@
 
     <select id="selectApprovalDetailLineByApprovalDocId" parameterType="int" resultType="ApprovalLineDetailListDTO">
         select t1.org_user_id as user_id, user_name as user, t4.comp_id, t4.comp_name as company , t5.est_id, t5.est_name as establishment,
-        t2.dept_id, t6.dept_name as department, t7.position_name as position, t8.grade_name as grade, approval_order, approval_status
+        t2.dept_id, t6.dept_name as department, t7.position_name as position, t8.grade_name as grade, approval_order, approval_status, sign_state
         from approval t1
         left join
         organization_user t2 on t1.org_user_id = t2.org_user_id
@@ -224,7 +224,7 @@
     <update id="updateApprovalDocFromRequest" parameterType="ApprovalDocReqDTO">
         update approval_doc
         set approval_doc_title = #{approvalDocTitle}, contents = #{contents}, created_at = #{createdAt}, updated_at = #{updatedAt},
-        enforcement_date = #{enforcementDate}, seq_code = #{seqCode}, approval_count = #{approvalCount}
+        enforcement_date = #{enforcementDate}, seq_code = #{seqCode}, approval_count = #{approvalCount}, doc_status = #{docStatus}
         where approval_doc_id = #{approvalDocId};
     </update>
 
@@ -306,8 +306,8 @@
     <!--임시저장문서 수정하기-->
     <update id="updateTemporalApprovalDoc" parameterType="ApprovalDocReqDTO">
         update approval_doc
-        set #{approvalDocTitle}, contents = #{contents}, enforcement_date = #{enforcementDate},
-            seq_code #{seqCode}, search_contents =#{searchContents}, approval_date = #{approvalDate}, org_user_id = #{orgUserId}
+        set approval_doc_title = #{approvalDocTitle}, contents = #{contents}, enforcement_date = #{enforcementDate},
+            seq_code = #{seqCode}, search_contents =#{searchContents}, approval_date = #{approvalDate}, org_user_id = #{orgUserId}
         where approval_doc_id = #{approvalDocId};
     </update>
 
