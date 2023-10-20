@@ -224,7 +224,7 @@
     <update id="updateApprovalDocFromRequest" parameterType="ApprovalDocReqDTO">
         update approval_doc
         set approval_doc_title = #{approvalDocTitle}, contents = #{contents}, created_at = #{createdAt}, updated_at = #{updatedAt},
-        enforcement_date = #{enforcementDate}, seq_code = #{seqCode}, approval_count = #{approvalCount}
+        enforcement_date = #{enforcementDate}, seq_code = #{seqCode}, approval_count = #{approvalCount}, doc_status = #{docStatus}
         where approval_doc_id = #{approvalDocId};
     </update>
 
@@ -306,8 +306,8 @@
     <!--임시저장문서 수정하기-->
     <update id="updateTemporalApprovalDoc" parameterType="ApprovalDocReqDTO">
         update approval_doc
-        set #{approvalDocTitle}, contents = #{contents}, enforcement_date = #{enforcementDate},
-            seq_code #{seqCode}, search_contents =#{searchContents}, approval_date = #{approvalDate}, org_user_id = #{orgUserId}
+        set approval_doc_title = #{approvalDocTitle}, contents = #{contents}, enforcement_date = #{enforcementDate},
+            seq_code = #{seqCode}, search_contents =#{searchContents}, approval_date = #{approvalDate}, org_user_id = #{orgUserId}
         where approval_doc_id = #{approvalDocId};
     </update>
 
