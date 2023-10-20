@@ -62,7 +62,6 @@ public class ApprovalBoxDAO {
     }
     public ArrayList<CompanyDTO> selectUserCompany( int userId){
         ArrayList<CompanyDTO> companyList = (ArrayList)approvalBoxManageMapper.getUserCompany(userId);
-        System.out.println("Dao : " +companyList);
         return companyList;
     }
 

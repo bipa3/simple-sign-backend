@@ -63,7 +63,6 @@ public class ApprovalBoxController {
     @GetMapping("/list")
     public ArrayList<ApprovalBoxDTO> viewDocBoxList(@RequestParam(name="company", required=false)int company){
         ArrayList<ApprovalBoxDTO> boxList = approvalBoxService.selectApprovalBox(company);
-        System.out.println("박스리스트" + boxList);
         return boxList;
     }
 
