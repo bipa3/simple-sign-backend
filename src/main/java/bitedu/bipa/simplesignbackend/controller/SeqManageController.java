@@ -1,4 +1,5 @@
 package bitedu.bipa.simplesignbackend.controller;
+import bitedu.bipa.simplesignbackend.interceptor.Authority;
 import bitedu.bipa.simplesignbackend.model.dto.FormDetailResDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqAndCompDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqDetailDTO;
@@ -20,6 +21,7 @@ public class SeqManageController {
         this.seqManageService = seqManageService;
     }
 
+    @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @PostMapping("/list")
     public ResponseEntity<List<SeqAndCompDTO>> seqAndCompListSearch(@RequestBody SeqAndCompDTO seqAndCompDTO) {
         List<SeqAndCompDTO> formAndCompList = seqManageService.searchSeqAndCompList(seqAndCompDTO);
@@ -31,6 +33,7 @@ public class SeqManageController {
         }
     }
 
+    @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @GetMapping("/detail/{code}")
     public ResponseEntity<SeqDetailDTO> seqDetailSearch(@PathVariable int code) {
         SeqDetailDTO seqDetail = seqManageService.searchSeqDetail(code);
@@ -42,6 +45,7 @@ public class SeqManageController {
         }
     }
 
+    @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @DeleteMapping("/{code}")
     public ResponseEntity seqRemove(@PathVariable int code) {
         Boolean removeResult = seqManageService.removeSeq(code);
@@ -52,6 +56,7 @@ public class SeqManageController {
         }
     }
 
+    @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @PostMapping("/detail")
     public ResponseEntity registSeqDetail(@RequestBody SeqDetailDTO seqDetail){
         System.out.println(seqDetail.toString());
@@ -63,6 +68,7 @@ public class SeqManageController {
         }
     }
 
+    @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @PatchMapping("/detail")
     public ResponseEntity changeSeqDetail(@RequestBody SeqDetailDTO seqDetailDTO){
         Boolean updateResult = seqManageService.seqDetailChange(seqDetailDTO);

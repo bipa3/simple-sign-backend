@@ -78,7 +78,7 @@ public interface ApproveMapper {
     int updateApprovalNextLine(Map map);
 
 
-    int selectOrgUserIdFromApprovalDoc(int approvalDocId);
+    Integer selectOrgUserIdFromApprovalDoc(int approvalDocId);
 
     Character selectFirstApprovalStatus(int approvalDocId);
 

@@ -17,6 +17,7 @@ public class ApprovalDocReqDTO {
     private int formCode;
     private String approvalDocTitle;
     private String contents;
+    private String searchContents;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime approvalDate;

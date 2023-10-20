@@ -1,7 +1,6 @@
 package bitedu.bipa.simplesignbackend.config;
 
 import bitedu.bipa.simplesignbackend.interceptor.AuthorityInterceptor;
-import bitedu.bipa.simplesignbackend.interceptor.CookieInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -16,13 +15,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     AuthorityInterceptor authorityInterceptor;
 
-    @Autowired
-    CookieInterceptor cookieInterceptor;
-
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authorityInterceptor);
-        registry.addInterceptor(cookieInterceptor);
     }
 
     @Override

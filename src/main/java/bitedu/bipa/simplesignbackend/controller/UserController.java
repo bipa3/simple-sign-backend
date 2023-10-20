@@ -1,6 +1,5 @@
 package bitedu.bipa.simplesignbackend.controller;
 
-import bitedu.bipa.simplesignbackend.interceptor.Authority;
 import bitedu.bipa.simplesignbackend.model.dto.UserDTO;
 import bitedu.bipa.simplesignbackend.model.dto.UserPasswordDTO;
 import bitedu.bipa.simplesignbackend.service.S3Service;
@@ -11,8 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.multipart.MultipartFile;
-
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ public class UserController {
     private final S3Service s3Service;
 
     @PostMapping("/login")
-    public ResponseEntity<Integer> userLogin(@RequestBody UserDTO userDTO){
+    public ResponseEntity<Integer> userLogin(@RequestBody UserDTO userDTO, HttpServletResponse response){
         UserDTO userDTO2 = userService.loginUser(userDTO.getLoginId(),userDTO.getPassword());
         if(userDTO2 != null){
 
@@ -34,6 +34,8 @@ public class UserController {
             String userName = userDTO2.getUserName();
             SessionUtils.addAttribute("userId", userId);
             SessionUtils.addAttribute("userName", userName);
+
+            response.addHeader("Set-Cookie", "JSESSIONID=" + RequestContextHolder.getRequestAttributes().getSessionId() + "; Path=/; Secure; HttpOnly; SameSite=None");
 
             return ResponseEntity.ok(userId);
         } else {
@@ -69,7 +71,6 @@ public class UserController {
     // 개인정보 수정
     @PutMapping("/updateinfo")
     public ResponseEntity userUpdate(@RequestBody UserDTO userDTO){
-
         int userId = (int) SessionUtils.getAttribute("userId");
         userDTO.setUserId(userId);
 
@@ -119,6 +120,7 @@ public class UserController {
     // 사인 수정
     @PostMapping("/updateinfo/sign")
     public ResponseEntity<String> uploadSignFile(@RequestParam(value = "file", required = false) MultipartFile file, @RequestParam("signState") boolean signState) throws IOException {
+
         if(file == null || file.isEmpty()){
             boolean flag = userService.updateSignState(signState);
             if(flag){
