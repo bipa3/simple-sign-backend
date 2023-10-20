@@ -16,9 +16,9 @@ public class ApprovalBoxService {
 
     public Map<String, Object> selectDocuments(List<String> viewItems, int userId, int deptId,int estId, int compId, int itemsPerPage, int offset) {
         ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDocsList(viewItems,userId,deptId,estId,compId,itemsPerPage,offset);
-        ArrayList<DocumentListDTO> allDocList= approvalBoxDAO.selectDocsCount(viewItems,userId,deptId,estId,compId);
+        int count= approvalBoxDAO.selectDocsCount(viewItems,userId,deptId,estId,compId);
 
-        int count = allDocList.size();
+
         Map<String, Object> result = new HashMap<>();
         result.put("docList", docList);
         result.put("count", count);
@@ -128,5 +128,13 @@ public class ApprovalBoxService {
 
     public ArrayList<Integer> selectReadDoc(int userId) {
         return approvalBoxDAO.selectReadDoc(userId);
+    }
+
+    public String selectUserCompName(int compId) {
+        return approvalBoxDAO.selectUserCompName(compId);
+    }
+
+    public ArrayList<CompanyDTO> selectUserCompany(int userId) {
+        return approvalBoxDAO.selectUserCompany(userId);
     }
 }
