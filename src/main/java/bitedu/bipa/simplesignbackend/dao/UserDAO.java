@@ -2,8 +2,11 @@ package bitedu.bipa.simplesignbackend.dao;
 
 import bitedu.bipa.simplesignbackend.model.dto.UserDTO;
 import bitedu.bipa.simplesignbackend.mapper.UserMapper;
+import bitedu.bipa.simplesignbackend.model.dto.UserOrgDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public class UserDAO {
@@ -70,5 +73,9 @@ public class UserDAO {
     }
     public boolean updateSign(int userId, String approvalFilePath){
         return userMapper.updateSign(userId, approvalFilePath);
+    }
+
+    public List<UserOrgDTO> getOrgList(int userId) {
+        return userMapper.getOrgList(userId);
     }
 }
