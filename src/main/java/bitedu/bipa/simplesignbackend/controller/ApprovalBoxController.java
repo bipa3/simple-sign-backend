@@ -67,7 +67,7 @@ public class ApprovalBoxController {
     }
 
 
-    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @Authority(role = {Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/box/detail")
     public ArrayList<ApprovalBoxDetailDTO> viewDocBoxDetail(@RequestParam(name="boxId")int boxId){
         ArrayList<ApprovalBoxDetailDTO> detail = approvalBoxService.selectApprovalBoxDetail(boxId);
@@ -81,7 +81,7 @@ public class ApprovalBoxController {
         return viewItems;
     }
 
-    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @Authority(role = {Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PutMapping("/box/delete")
     public ResponseEntity<Void> viewDocBoxDelete(@RequestParam(name="boxId") int boxId) {
         approvalBoxService.deleteApprovalBox(boxId);
@@ -104,14 +104,14 @@ public class ApprovalBoxController {
         return result;
     }
 
-    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @Authority(role = {Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PutMapping("/update")
     public ResponseEntity<Void> modifyApprovalBox(@RequestBody ApprovalBoxReqDTO criteria) {
         approvalBoxService.updateApprovalBox(criteria);
         return ResponseEntity.ok().build();
     }
 
-    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @Authority(role = {Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/insert")
     public ResponseEntity<Void> createApprovalBox(@RequestBody ApprovalBoxReqDTO criteria) {
         approvalBoxService.createApprovalBox(criteria);
