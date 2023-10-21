@@ -39,4 +39,12 @@ public class CommonDAO {
     public List<SeqItemListDTO> selectSeqItemList() {
         return commonMapper.selectSeqItemList();
     }
+
+    public int selectCompIdByFormCode(int formCode) {
+        return commonMapper.selectCompIdByFormCode(formCode);
+    }
+
+    public int selectCompIdBySeqCode(int seqCode) {
+        return commonMapper.selectCompIdBySeqCode(seqCode);
+    }
 }

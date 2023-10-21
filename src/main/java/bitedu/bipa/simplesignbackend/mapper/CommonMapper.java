@@ -20,6 +20,9 @@ public interface CommonMapper {
     int selectDeptId(int userId);
     List<SeqItemListDTO> selectSeqItemList();
 
+    int selectCompIdByFormCode(int formCode);
+    int selectCompIdBySeqCode(int seqCode);
+
 //    List<Member> getMemberList();
 //
 //    int createMember(Member member);
