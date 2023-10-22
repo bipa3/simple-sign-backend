@@ -14,7 +14,7 @@ public class ApprovalBoxDetailDTO {
     private String approvalBoxName;
     private int sortOrder;
     private int approvalBoxUsedStatus;
-    private char menuUsingRange;
+    private String menuUsingRange;
     private int boxDeleteStatus;
 
 

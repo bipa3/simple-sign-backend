@@ -1,8 +1,5 @@
 package bitedu.bipa.simplesignbackend.mapper;
-import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO;
-import bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDetailDTO;
-import bitedu.bipa.simplesignbackend.model.dto.CompanyDTO;
-import bitedu.bipa.simplesignbackend.model.dto.ViewItemDTO;
+import bitedu.bipa.simplesignbackend.model.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import java.util.ArrayList;
@@ -41,4 +38,6 @@ public interface ApprovalBoxManageMapper {
     String selectCompName(@Param("compId")int compId);
 
     List<CompanyDTO> getUserCompany(@Param("userId") int userId);
+
+    List<BoxUseDepartmentDTO> selectBoxUseDept(@Param("boxId")int boxId);
 }
