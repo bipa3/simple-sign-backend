@@ -3,15 +3,12 @@ package bitedu.bipa.simplesignbackend.controller;
 import bitedu.bipa.simplesignbackend.interceptor.Authority;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalDocDetailDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalDocReqDTO;
-import bitedu.bipa.simplesignbackend.model.dto.ApprovalPermissionResDTO;
 import bitedu.bipa.simplesignbackend.service.ApproveService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.validation.Valid;
+
 
 @RestController
 @RequestMapping("/approve")
@@ -25,7 +22,7 @@ public class ApproveController {
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/register")
-    public ResponseEntity<String> approveRegister(@RequestBody ApprovalDocReqDTO approvalDocReqDTO) {
+    public ResponseEntity<String> approveRegister(@Valid @RequestBody ApprovalDocReqDTO approvalDocReqDTO) {
         approveService.registerApprovalDoc(approvalDocReqDTO);
         return ResponseEntity.ok("ok");
     }

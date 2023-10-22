@@ -4,6 +4,8 @@
     import bitedu.bipa.simplesignbackend.model.dto.AuthorityDTO;
     import bitedu.bipa.simplesignbackend.model.dto.RoleRequestDTO;
     import bitedu.bipa.simplesignbackend.utils.SessionUtils;
+    import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
+    import bitedu.bipa.simplesignbackend.validation.RestApiException;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.http.HttpStatus;
     import org.springframework.stereotype.Component;
@@ -12,10 +14,6 @@
 
     import javax.servlet.http.HttpServletRequest;
     import javax.servlet.http.HttpServletResponse;
-    import java.util.Arrays;
-    import java.util.Collections;
-    import java.util.List;
-    import java.util.Map;
 
     @Component
     public class AuthorityInterceptor extends HandlerInterceptorAdapter {
@@ -42,8 +40,7 @@
             //세션에서 userId
             int userId = (int) SessionUtils.getAttribute("userId");
             if(userId == 0){
-                response.setStatus(HttpStatus.UNAUTHORIZED.value()); // 401
-                return false;
+                throw  new RestApiException(CustomErrorCode.UNAUTHORIZED_USER);
             }
 
             //DB에 해당 userId 권한 조회
@@ -51,7 +48,7 @@
             int roleCount = authorityMapper.findAuthority(roleRequestDTO);
 
             if(roleCount ==0) {
-                throw  new RuntimeException(); //권한이 없습니다.
+                throw  new RestApiException(CustomErrorCode.INACTIVE_USER);
             }
             String authorityName = authorityMapper.getAuthorityName(authorityCode);
 
@@ -62,6 +59,6 @@
                 }
             }
 
-           throw  new RuntimeException(); //권한이 없습니다.
+            throw  new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
     }

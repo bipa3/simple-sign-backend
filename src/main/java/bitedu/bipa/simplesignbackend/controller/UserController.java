@@ -36,10 +36,10 @@ public class UserController {
             String userName = userDTO2.getUserName();
 
             List<UserOrgDTO> userOrgDTO = userService.orgUser(userId);
-            System.out.println("size:" + userOrgDTO.size());
+            //System.out.println("size:" + userOrgDTO.size());
             if(userOrgDTO.size() > 0){
                 userDTO2.setUserOrgList(userOrgDTO);
-                System.out.println(userOrgDTO.toString());
+                //System.out.println(userOrgDTO.toString());
             }
 
             SessionUtils.addAttribute("userId", userId);
@@ -74,7 +74,7 @@ public class UserController {
     // 개인정보 조회
     @GetMapping("/userinfo")
     public UserDTO userDetail(){
-        System.out.println("개인정보 조회 " + RequestContextHolder.getRequestAttributes().getSessionId());
+        //System.out.println("개인정보 조회 " + RequestContextHolder.getRequestAttributes().getSessionId());
         int userId = (int) SessionUtils.getAttribute("userId");
         return userService.detailUser(userId);
     }

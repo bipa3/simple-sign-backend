@@ -11,7 +11,7 @@ import java.util.Map;
 @Mapper
 public interface ApproveMapper {
 
-    int insertApprovalDoc(ApprovalDocReqDTO dto);
+    Integer insertApprovalDoc(ApprovalDocReqDTO dto);
 
     int insertApprovalLine(ApprovalLineDTO dto);
 

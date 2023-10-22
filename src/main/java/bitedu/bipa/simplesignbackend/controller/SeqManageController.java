@@ -59,7 +59,7 @@ public class SeqManageController {
     @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @PostMapping("/detail")
     public ResponseEntity registSeqDetail(@RequestBody SeqDetailDTO seqDetail){
-        System.out.println(seqDetail.toString());
+        //System.out.println(seqDetail.toString());
         Boolean createResult = seqManageService.seqDetailRegist(seqDetail);
         if (createResult) {
             return new ResponseEntity<>(HttpStatus.OK);
