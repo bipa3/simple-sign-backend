@@ -63,7 +63,7 @@
             </if>
         </foreach>
         )
-        ORDER BY ad.created_at DESC
+        ORDER BY ad.approval_date DESC
         LIMIT #{itemsPerPage} OFFSET #{offset};
     </select>
 
@@ -191,7 +191,7 @@
         OR u3.user_name LIKE CONCAT('%', #{searchInput}, '%')
         OR f.form_name LIKE CONCAT('%', #{searchInput}, '%')
         )
-        ORDER BY ad.created_at DESC
+        ORDER BY ad.approval_date DESC
         LIMIT #{itemsPerPage} OFFSET #{offset};
     </select>
 
@@ -380,7 +380,7 @@
         </foreach>
         )
         <include refid="commonIfConditions"/>
-        ORDER BY ad.created_at DESC
+        ORDER BY ad.approval_date DESC
         LIMIT #{itemsPerPage} OFFSET #{offset};
     </select>
 

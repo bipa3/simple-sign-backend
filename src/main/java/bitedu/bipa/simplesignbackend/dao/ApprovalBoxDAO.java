@@ -126,4 +126,8 @@ public class ApprovalBoxDAO {
     public String selectUserCompName(int compId) {
         return approvalBoxManageMapper.selectCompName(compId);
     }
+
+    public ArrayList<BoxUseDepartmentDTO> selectBoxUseDept(int boxId) {
+        return (ArrayList) approvalBoxManageMapper.selectBoxUseDept(boxId);
+    }
 }

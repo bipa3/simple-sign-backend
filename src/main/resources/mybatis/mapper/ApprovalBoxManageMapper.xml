@@ -70,7 +70,7 @@
         AND (c.comp_id = #{company} OR d.dept_id=#{deptId} OR u.user_id = #{userId});
     </select>
     <select id="getCustomBoxViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.ViewItemDTO">
-        SELECT ab.approval_box_id, ab.approval_box_name, cc.code_id, cc.code_value
+        SELECT ab.approval_box_id as boxId, ab.approval_box_name as boxName, cc.code_id, cc.code_value
         FROM common_code cc
         join approval_box_view_item abvi on (abvi.code_id = cc.code_id and cc.section_id=004)
         join approval_box ab on ab.approval_box_id = abvi.approval_box_id
@@ -122,5 +122,8 @@
     <select id="selectCompName" resultType="String">
         select comp_name from company where comp_id = #{compId}
     </select>
-
+    <select id="selectBoxUseDept" resultType="bitedu.bipa.simplesignbackend.model.dto.BoxUseDepartmentDTO">
+        select using_category as category, use_id, c.comp_id, c.comp_name as company from box_use_department
+        join company c on c.comp_id = use_id where approval_box_id = #{boxId}
+    </select>
 </mapper>

@@ -137,4 +137,8 @@ public class ApprovalBoxService {
     public ArrayList<CompanyDTO> selectUserCompany(int userId) {
         return approvalBoxDAO.selectUserCompany(userId);
     }
+
+    public ArrayList<BoxUseDepartmentDTO> selectBoxUseDept(int boxId) {
+        return approvalBoxDAO.selectBoxUseDept(boxId);
+    }
 }
