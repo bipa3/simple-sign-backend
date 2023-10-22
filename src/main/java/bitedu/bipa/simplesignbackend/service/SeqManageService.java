@@ -36,11 +36,11 @@ public class SeqManageService {
             seqDetail.setFormScope(formScopeList);
 
             List<String> seqItems = List.of(seqDetail.getSeqString().split(","));
-            System.out.println("SeqItems: " + seqItems);
+            //System.out.println("SeqItems: " + seqItems);
             Map<String, Object> map = new HashMap<>();
             map.put("seqItems", seqItems);
             String seqList = seqManageDAO.selectSeqItems(map);
-            System.out.println("seqList: " + seqList);
+            //System.out.println("seqList: " + seqList);
             seqDetail.setSeqList(seqList);
         }catch (Exception e){
             e.printStackTrace();

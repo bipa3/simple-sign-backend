@@ -4,6 +4,8 @@ import bitedu.bipa.simplesignbackend.enums.ApprovalStatus;
 import bitedu.bipa.simplesignbackend.mapper.ApproveMapper;
 import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
 import bitedu.bipa.simplesignbackend.model.dto.*;
+import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
+import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -28,7 +30,10 @@ public class ApproveDAO {
         approvalDocReqDTO.setGradeName(positionAndGradeDTO.getGradeName());
         approvalDocReqDTO.setOrgUserId(userId);
 
-        int affectedCount =  approveMapper.insertApprovalDoc(approvalDocReqDTO);
+        Integer affectedCount =  approveMapper.insertApprovalDoc(approvalDocReqDTO);
+        if(affectedCount == null) {
+            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
+        }
         if(affectedCount ==0) {
             throw new RuntimeException();
         }

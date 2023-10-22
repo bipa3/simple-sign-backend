@@ -2,6 +2,7 @@ package bitedu.bipa.simplesignbackend.model.dto;
 
 import lombok.Data;
 
+import javax.validation.constraints.Min;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class ApprovalDocReqDTO {
     private int approvalCount;
     private char docStatus;
     private LocalDateTime enforcementDate;
+    @Min(message = "품의번호는 빈 값일 수 없습니다.", value = 1)
     private int seqCode;
     private List<Integer> approverList = new ArrayList<>();
     private List<ReceivedRefDTO> receiveRefList = new ArrayList<>();
