@@ -11,6 +11,9 @@ public interface OrgMapper {
     // TreeView
     List<OrgCompanyDTO> selectOrgTreeView();
 
+    // 회사별 TreeView
+    List<OrgCompanyDTO> selectOrgTreeViewComp(int compId);
+
     // GridView
     List<OrgRespDTO> selectComp(int compId);
 

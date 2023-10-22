@@ -36,16 +36,17 @@ public class UserController {
             String userName = userDTO2.getUserName();
 
             List<UserOrgDTO> userOrgDTO = userService.orgUser(userId);
-            //System.out.println("size:" + userOrgDTO.size());
             if(userOrgDTO.size() > 0){
                 userDTO2.setUserOrgList(userOrgDTO);
-                //System.out.println(userOrgDTO.toString());
+
+                int authorityCode = userOrgDTO.get(0).getAuthorityCode();
+                SessionUtils.addAttribute("authorityCode", authorityCode);
             }
 
             SessionUtils.addAttribute("userId", userId);
             SessionUtils.addAttribute("userName", userName);
 
-            response.addHeader("Set-Cookie", "JSESSIONID=" + RequestContextHolder.getRequestAttributes().getSessionId() + "; Path=/; Secure; HttpOnly; SameSite=None");
+            response.addHeader("Set-Cookie", "JSESSIONID=" + RequestContextHolder.getRequestAttributes().getSessionId() + "; Path=/; Secure; SameSite=None");
 
             return ResponseEntity.ok(userDTO2);
         } else {
@@ -74,7 +75,6 @@ public class UserController {
     // 개인정보 조회
     @GetMapping("/userinfo")
     public UserDTO userDetail(){
-        //System.out.println("개인정보 조회 " + RequestContextHolder.getRequestAttributes().getSessionId());
         int userId = (int) SessionUtils.getAttribute("userId");
         return userService.detailUser(userId);
     }
