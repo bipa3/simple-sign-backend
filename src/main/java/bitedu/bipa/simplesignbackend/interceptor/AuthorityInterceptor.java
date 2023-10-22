@@ -12,10 +12,6 @@
 
     import javax.servlet.http.HttpServletRequest;
     import javax.servlet.http.HttpServletResponse;
-    import java.util.Arrays;
-    import java.util.Collections;
-    import java.util.List;
-    import java.util.Map;
 
     @Component
     public class AuthorityInterceptor extends HandlerInterceptorAdapter {
@@ -24,7 +20,9 @@
 
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-            int authorityCode = 1; //1은 master, 2는 부서관리자, 3은 일반사용자 필요에 따라 바꿔 사용하세요
+            //int authorityCode = 1; //1은 master, 2는 부서관리자, 3은 일반사용자 필요에 따라 바꿔 사용하세요
+
+            int authorityCode = (SessionUtils.getAttribute("authorityCode") != null) ? (int) SessionUtils.getAttribute("authorityCode") : 3;
 
             //handler 종류 확인 -> HandlerMethod 타입인지 체크
             if(handler instanceof HandlerMethod == false){

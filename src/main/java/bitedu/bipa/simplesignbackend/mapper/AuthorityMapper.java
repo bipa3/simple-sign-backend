@@ -11,4 +11,6 @@ public interface AuthorityMapper {
     int findAuthority(RoleRequestDTO roleRequestDTO);
 
     String getAuthorityName(int authorityCode);
+
+    int selectAuthorityCode(int orgUserId);
 }
