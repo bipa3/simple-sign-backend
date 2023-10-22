@@ -81,6 +81,13 @@ public class ApprovalBoxController {
         return viewItems;
     }
 
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @GetMapping("/box/detail/usedept")
+    public ArrayList<BoxUseDepartmentDTO> viewBoxUseDept(@RequestParam(name="boxId")int boxId){
+        ArrayList<BoxUseDepartmentDTO> UseDept = approvalBoxService.selectBoxUseDept(boxId);
+        return UseDept;
+    }
+
     @Authority(role = {Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PutMapping("/box/delete")
     public ResponseEntity<Void> viewDocBoxDelete(@RequestParam(name="boxId") int boxId) {
