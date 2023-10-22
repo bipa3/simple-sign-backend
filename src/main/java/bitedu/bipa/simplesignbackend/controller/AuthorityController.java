@@ -20,7 +20,6 @@ public class AuthorityController {
         if(authorityCodeService != 0){
             SessionUtils.addAttribute("authorityCode", authorityCodeService);
         }
-        System.out.println( "상단바에서 변환한 권한 코드 : " + SessionUtils.getAttribute("authorityCode"));
         return ResponseEntity.ok(authorityCodeService);
     }
 }
