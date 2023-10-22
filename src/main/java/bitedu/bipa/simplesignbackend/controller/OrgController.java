@@ -3,6 +3,7 @@ package bitedu.bipa.simplesignbackend.controller;
 import bitedu.bipa.simplesignbackend.model.dto.OrgCompanyDTO;
 import bitedu.bipa.simplesignbackend.model.dto.OrgRespDTO;
 import bitedu.bipa.simplesignbackend.service.OrgService;
+import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +21,17 @@ public class OrgController {
 
     //TreeView
     @GetMapping("/orgTreeView")
-    public ResponseEntity<List<OrgCompanyDTO>> orgTreeView(){
-        List<OrgCompanyDTO> orgCompanyDTOList = orgService.orgTreeView();
+    public ResponseEntity<List<OrgCompanyDTO>> orgTreeView(@RequestParam(required = false) int compId){
+
+        int authorityCode = (int) SessionUtils.getAttribute("authorityCode");
+
+        List<OrgCompanyDTO> orgCompanyDTOList = null;
+        if(authorityCode == 1){
+            orgCompanyDTOList = orgService.orgTreeView();
+        } else if (authorityCode == 2 || authorityCode == 3) {
+            orgCompanyDTOList = orgService.orgTreeViewComp(compId);    
+        }
+        
         return ResponseEntity.ok(orgCompanyDTOList);
     }
 

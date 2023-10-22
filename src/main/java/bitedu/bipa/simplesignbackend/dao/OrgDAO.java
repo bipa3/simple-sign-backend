@@ -19,6 +19,11 @@ public class OrgDAO {
         return orgMapper.selectOrgTreeView();
     }
 
+    //회사별 트리뷰
+    public List<OrgCompanyDTO> getOrgTreeViewComp(int compId){
+        return orgMapper.selectOrgTreeViewComp(compId);
+    }
+
     // GridView
     public List<OrgRespDTO> getComp(int compId){
         return orgMapper.selectComp(compId);
