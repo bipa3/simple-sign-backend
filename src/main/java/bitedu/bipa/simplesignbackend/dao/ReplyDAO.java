@@ -32,19 +32,19 @@ public class ReplyDAO {
            throw  new RuntimeException(); //댓글 삽입 실패
        }
        int replyId = replyReqDTO.getReplyId();
-        System.out.println("replyId"+ replyId);
+        //System.out.println("replyId"+ replyId);
        //그룹의 순서 가져오기
         int depth = 1;
         Map<String, Integer> map = new HashMap();
         map.put("depth", depth);
         map.put("approvalDocId", replyReqDTO.getApprovalDocId());
         int groupOrd = replyMapper.selectGroupOrd(map);
-        System.out.println(groupOrd);
+        //System.out.println(groupOrd);
         Map<String, Integer> map2 = new HashMap<>();
         map2.put("replyId", replyId);
         map2.put("groupOrd", groupOrd);
         affectedCount = replyMapper.updateGroupNoAndOrder(map2);
-        System.out.println(affectedCount);
+        //System.out.println(affectedCount);
        if(affectedCount ==0) {
            throw new RuntimeException(); //댓글 업데이트 실패
        }
