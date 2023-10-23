@@ -60,14 +60,14 @@
     <select id="getCustomBoxList" resultType="bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO">
         SELECT ab.approval_box_id, ab.approval_box_name
         FROM approval_box ab
+        join organization_user ou on ou.org_user_id = #{userId}
         JOIN box_use_department bud ON bud.approval_box_id = ab.approval_box_id
-        LEFT JOIN company c ON bud.use_id = c.comp_id AND bud.using_category = 'C'
-        LEFT JOIN establishment e ON bud.use_id = e.est_id AND bud.using_category = 'E'
+        JOIN company c ON bud.use_id = c.comp_id AND bud.using_category = 'C'
         LEFT JOIN department d ON bud.use_id = d.dept_id AND bud.using_category = 'D'
         LEFT JOIN user u ON bud.use_id = u.user_id AND bud.using_category = 'U'
         WHERE ab.box_delete_status != 1
         AND ab.approval_box_used_status != 0
-        AND (c.comp_id = #{company} OR d.dept_id=#{deptId} OR u.user_id = #{userId});
+        AND (c.comp_name = ou.comp_name OR d.dept_id=ou.dept_id OR u.user_id = ou.user_id);
     </select>
     <select id="getCustomBoxViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.ViewItemDTO">
         SELECT ab.approval_box_id as boxId, ab.approval_box_name as boxName, cc.code_id, cc.code_value
@@ -75,8 +75,7 @@
         join approval_box_view_item abvi on (abvi.code_id = cc.code_id and cc.section_id=004)
         join approval_box ab on ab.approval_box_id = abvi.approval_box_id
         JOIN box_use_department bud ON bud.approval_box_id = ab.approval_box_id
-        LEFT JOIN company c ON bud.use_id = c.comp_id AND bud.using_category = 'C'
-        LEFT JOIN establishment e ON bud.use_id = e.est_id AND bud.using_category = 'E'
+        JOIN company c ON bud.use_id = c.comp_id AND bud.using_category = 'C'
         LEFT JOIN department d ON bud.use_id = d.dept_id AND bud.using_category = 'D'
         LEFT JOIN user u ON bud.use_id = u.user_id AND bud.using_category = 'U'
         WHERE ab.box_delete_status != 1
@@ -89,7 +88,7 @@
         delete from approval_box_view_item where approval_box_view_item.approval_box_id = #{approvalBoxId};
     </delete>
     <insert id="insertBoxViewItem">
-        INSERT INTO approval_box_view_item (approval_box_id, code_id)
+        INSERT IGNORE INTO approval_box_view_item (approval_box_id, code_id)
         SELECT #{approvalBoxId}, cc.code_id
         FROM common_code AS cc
         WHERE cc.code_value = #{item}
@@ -108,7 +107,7 @@
         AND c.comp_id = #{compId};
     </update>
     <insert id="insertApprovalBox">
-        insert into approval_box (approval_box_name,approval_box_used_status, sort_order, menu_using_range,box_delete_status)
+        INSERT IGNORE into approval_box (approval_box_name,approval_box_used_status, sort_order, menu_using_range,box_delete_status)
         values(#{approvalBoxName},#{approvalBoxUsedStatus},#{sortOrder},#{menuUsingRange},0);
     </insert>
 
@@ -117,7 +116,7 @@
     </select>
 
     <insert id="insertBoxUseCompany">
-        insert into box_use_department(approval_box_id,using_category,use_id) values (#{approvalBoxId},'C',#{compId});
+        INSERT IGNORE into box_use_department(approval_box_id,using_category,use_id) values (#{approvalBoxId},'C',#{compId});
     </insert>
     <select id="selectCompName" resultType="String">
         select comp_name from company where comp_id = #{compId}
@@ -195,7 +194,7 @@
         delete from box_use_department where box_use_department.approval_box_id = #{approvalBoxId};
     </delete>
     <insert id="insertBoxUseDept">
-        INSERT INTO box_use_department (approval_box_id, using_category, use_id)
+        INSERT IGNORE INTO box_use_department (approval_box_id, using_category, use_id)
         VALUES (#{approvalBoxId},#{dto.category}, #{dto.useId})
     </insert>
 </mapper>

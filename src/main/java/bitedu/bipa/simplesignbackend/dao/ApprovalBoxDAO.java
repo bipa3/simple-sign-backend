@@ -93,7 +93,7 @@ public class ApprovalBoxDAO {
         return approvalBoxManageMapper.getUserEstId(userId);
     }
 
-    public void createApprovalBox(int compId, String approvalBoxName, ArrayList<String> viewItems, int approvalBoxUsedStatus, String menuUsingRange, int sortOrder) {
+    public void createApprovalBox(int compId, String approvalBoxName, ArrayList<String> viewItems, int approvalBoxUsedStatus, String menuUsingRange, ArrayList<BoxUseDepartmentDTO> boxUseDept, int sortOrder) {
         approvalBoxManageMapper.insertApprovalBox(approvalBoxName,approvalBoxUsedStatus,menuUsingRange,sortOrder);
         int approvalBoxId = approvalBoxManageMapper.getLastInsertId();
 
@@ -101,6 +101,11 @@ public class ApprovalBoxDAO {
         if (viewItems.size()>0){
             for (String item : viewItems) {
                 approvalBoxManageMapper.insertBoxViewItem(approvalBoxId,item);
+            }
+        }
+        if (boxUseDept != null && boxUseDept.size()>0){
+            for (BoxUseDepartmentDTO dto : boxUseDept) {
+                approvalBoxManageMapper.insertBoxUseDept(dto, approvalBoxId);
             }
         }
     }

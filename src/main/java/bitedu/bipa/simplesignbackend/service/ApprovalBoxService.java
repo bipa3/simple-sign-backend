@@ -99,14 +99,15 @@ public class ApprovalBoxService {
         int compId = criteria.getCompId();
         String approvalBoxName = criteria.getApprovalBoxName();
         int approvalBoxUsedStatus =-1;
-        if(criteria.getApprovalBoxUsedStatus() == "미사용") {
+        if("미사용".equals(criteria.getApprovalBoxUsedStatus())) {
             approvalBoxUsedStatus = 0;
         }else{
             approvalBoxUsedStatus = 1;
         }
         String menuUsingRange = criteria.getMenuUsingRange();
+        ArrayList<BoxUseDepartmentDTO> boxUseDept = criteria.getBoxUseDept();
         int sortOrder = criteria.getSortOrder();
-        approvalBoxDAO.createApprovalBox( compId, approvalBoxName, viewItems,approvalBoxUsedStatus,menuUsingRange,sortOrder);
+        approvalBoxDAO.createApprovalBox( compId, approvalBoxName, viewItems,approvalBoxUsedStatus,menuUsingRange,boxUseDept,sortOrder);
     }
 
     public int selectDocumentsCount(int userId, int deptId, int estId, int compId, String boxName) {
