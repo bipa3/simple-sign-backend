@@ -176,6 +176,9 @@ public class ApproveService {
         int orgUserId = (int)SessionUtils.getAttribute("userId");
         ApprovalDocDetailDTO approvalDocDetailDTO =  approveDAO.selectApprovalDocById(approvalDocId);
         //System.out.println(approvalDocDetailDTO);
+        if(approvalDocDetailDTO ==null) {
+            throw new RestApiException(CustomErrorCode.APPROVAL_DOC_DELETED);
+        }
         //해당 아이디가 결재라인에도 없고 상신자에도 없고 수신참조문서에 없으면 권한이 없음
         //1.본인이 상신자인지 확인
         Integer approverId = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
@@ -335,7 +338,7 @@ public class ApproveService {
         int orgUserId = (int) SessionUtils.getAttribute("userId");
         List<ApprovalPermissionResDTO> list =  approveDAO.selectApprovalUserIdByApprovalDocId(approvalDocId);
         for(ApprovalPermissionResDTO dto: list) {
-            if(dto.getOrgUserId() == orgUserId && dto.getApprovalStatus() =='P') {
+            if(dto.getOrgUserId() == orgUserId && dto.getApprovalStatus() ==ApprovalStatus.PROGRESS.getCode()) {
                 return true;
             }
         }
@@ -406,7 +409,7 @@ public class ApproveService {
             }
         }
         //본인이 아직 결재 안했어도 false
-        if(currentApprover.getApprovalStatus() =='W' || currentApprover.getApprovalStatus() =='P') {
+        if(currentApprover.getApprovalStatus() ==ApprovalStatus.WAIT.getCode() || currentApprover.getApprovalStatus() ==ApprovalStatus.PROGRESS.getCode()) {
             return false;
         }
         //3.다음 결재자가 결재했으면 예외
