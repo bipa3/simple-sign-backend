@@ -6,9 +6,9 @@
 <mapper namespace="bitedu.bipa.simplesignbackend.mapper.SeqManageMapper">
 
     <select id="getSeqAndCompList" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqAndCompDTO">
-        SELECT seq_code AS id, comp_name, seq_code AS code, seq_name, seq_description AS description FROM sequence
+        SELECT seq_code AS id, comp_name, seq_code AS code, seq_name, seq_description AS description, seq_sort_order AS sortOrder FROM sequence
         INNER JOIN company ON sequence.comp_id = company.comp_id
-        WHERE sequence.comp_id=#{compId} AND seq_name like CONCAT('%', #{seqName}, '%') AND seq_code like CONCAT('%', #{code}, '%') AND seq_del_status=0;
+        WHERE sequence.comp_id=#{compId} AND seq_name like CONCAT('%', #{seqName}, '%') AND seq_code like CONCAT('%', #{code}, '%') AND seq_del_status=0 ORDER BY seq_sort_order;
     </select>
 
     <select id="getSeqDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqDetailDTO">
