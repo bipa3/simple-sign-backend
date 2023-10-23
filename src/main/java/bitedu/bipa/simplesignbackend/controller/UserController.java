@@ -53,9 +53,7 @@ public class UserController {
             SessionUtils.addAttribute("userName", userName);
 
             response.addHeader("Set-Cookie", "JSESSIONID=" + RequestContextHolder.getRequestAttributes().getSessionId() + "; Path=/; HttpOnly; Secure; SameSite=None");
-
-            Cookie cookie = new Cookie("LOGIN_COOKIE", "ture");
-            response.addCookie(cookie);
+            response.addHeader("Set-Cookie", "LOGIN_COOKIE=" + "true" + "; Path=/; Secure; SameSite=None");
 
             return ResponseEntity.ok(userDTO2);
         } else {
