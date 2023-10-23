@@ -19,8 +19,9 @@
     <select id="selectSeqItems" resultType="java.lang.String">
         SELECT GROUP_CONCAT(code_value SEPARATOR ' ') FROM (
         <foreach collection="seqItems" item="seqItem" separator="UNION ALL">
-            SELECT code_value FROM common_code WHERE section_id="005" AND code_id=#{seqItem}
+            SELECT code_value FROM common_code WHERE section_id="005" AND code_id=#{seqItem} AND code_status=1;
         </foreach>) AS result
+
     </select>
 
     <select id="getSeqDeptScope" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqScopeDTO">
