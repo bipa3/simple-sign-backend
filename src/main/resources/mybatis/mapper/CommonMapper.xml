@@ -62,6 +62,12 @@
         SELECT comp_id FROM sequence WHERE seq_code=#{seqCode};
     </select>
 
+    <select id="getRecommendedForm" parameterType="int">
+        SELECT form.form_code, form.form_name, count FROM
+        (SELECT form_code, count(form_code) AS count FROM approval_doc WHERE org_user_id=#{orgUserId} AND created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH) GROUP BY form_code) AS ad
+        LEFT JOIN form ON ad.form_code=form.form_code WHERE form_used_status=1 AND form_del_status=0 ORDER BY count DESC LIMIT 0, 4;
+    </select>
+
 <!--    <select id="getMember" resultType="Member">-->
 <!--        select * from member where id = #{id}-->
 <!--    </select>-->
