@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
@@ -21,7 +22,7 @@ public class FormManageController {
 
     @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @PostMapping("/list")
-    public ResponseEntity<List<FormAndCompDTO>> formAndCompListSearch(@RequestBody FormAndCompDTO formAndCompDTO) {
+    public ResponseEntity<List<FormAndCompDTO>> formAndCompListSearch(@Valid @RequestBody FormAndCompDTO formAndCompDTO) {
         List<FormAndCompDTO> formAndCompList = formManageService.selectFormAndCompList(formAndCompDTO);
 
         if (formAndCompList != null && !formAndCompList.isEmpty()) {
@@ -96,7 +97,7 @@ public class FormManageController {
 
     @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @PostMapping("/detail")
-    public ResponseEntity registFormDetail(@RequestBody FormDetailResDTO formDetail){
+    public ResponseEntity registFormDetail(@Valid @RequestBody FormDetailResDTO formDetail){
         //System.out.println(formDetail.toString());
         Boolean createResult = formManageService.formDetailRegist(formDetail);
         if (createResult) {
@@ -108,7 +109,7 @@ public class FormManageController {
 
     @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @PatchMapping("/detail")
-    public ResponseEntity changeFormDetail(@RequestBody FormDetailResDTO formDetail){
+    public ResponseEntity changeFormDetail(@Valid @RequestBody FormDetailResDTO formDetail){
         //System.out.println(formDetail.toString());
         Boolean updateResult = formManageService.formDetailChange(formDetail);
         if (updateResult) {
