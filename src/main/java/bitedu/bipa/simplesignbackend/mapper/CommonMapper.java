@@ -1,8 +1,5 @@
 package bitedu.bipa.simplesignbackend.mapper;
-import bitedu.bipa.simplesignbackend.model.dto.BelongOrganizationDTO;
-import bitedu.bipa.simplesignbackend.model.dto.CompanyDTO;
-import bitedu.bipa.simplesignbackend.model.dto.PositionAndGradeDTO;
-import bitedu.bipa.simplesignbackend.model.dto.SeqItemListDTO;
+import bitedu.bipa.simplesignbackend.model.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -22,6 +19,8 @@ public interface CommonMapper {
 
     int selectCompIdByFormCode(int formCode);
     int selectCompIdBySeqCode(int seqCode);
+
+    List<FormRecommendResDTO> getRecommendedForm(int OrgUserId);
 
 //    List<Member> getMemberList();
 //
