@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.multipart.MultipartFile;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
@@ -38,15 +40,22 @@ public class UserController {
             List<UserOrgDTO> userOrgDTO = userService.orgUser(userId);
             if(userOrgDTO.size() > 0){
                 userDTO2.setUserOrgList(userOrgDTO);
-
-                int authorityCode = userOrgDTO.get(0).getAuthorityCode();
-                SessionUtils.addAttribute("authorityCode", authorityCode);
+                SessionUtils.addAttribute("orgUserId", userOrgDTO.get(0).getOrgUserId());
+                SessionUtils.addAttribute("compId", userOrgDTO.get(0).getCompId());
+                SessionUtils.addAttribute("authorityCode", userOrgDTO.get(0).getAuthorityCode());
+                SessionUtils.addAttribute("compName", userOrgDTO.get(0).getCompName());
+                SessionUtils.addAttribute("deptId", userOrgDTO.get(0).getDeptId());
+                SessionUtils.addAttribute("deptName", userOrgDTO.get(0).getDeptName());
+                SessionUtils.addAttribute("authorityName", userOrgDTO.get(0).getAuthorityName());
             }
 
             SessionUtils.addAttribute("userId", userId);
             SessionUtils.addAttribute("userName", userName);
 
-            response.addHeader("Set-Cookie", "JSESSIONID=" + RequestContextHolder.getRequestAttributes().getSessionId() + "; Path=/; Secure; SameSite=None");
+            response.addHeader("Set-Cookie", "JSESSIONID=" + RequestContextHolder.getRequestAttributes().getSessionId() + "; Path=/; HttpOnly; Secure; SameSite=None");
+
+            Cookie cookie = new Cookie("LOGIN_COOKIE", "ture");
+            response.addCookie(cookie);
 
             return ResponseEntity.ok(userDTO2);
         } else {
@@ -55,8 +64,14 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity userLogout (HttpSession session){
-        session.invalidate();
+    public ResponseEntity userLogout (HttpServletRequest request, HttpServletResponse response){
+        HttpSession session = request.getSession(false);
+        if(session != null) {
+            session.invalidate();
+            Cookie cookie = new Cookie("LOGIN_COOKIE", "false");
+            cookie.setMaxAge(0);
+            response.addCookie(cookie);
+        }
         return new ResponseEntity(HttpStatus.OK);
     }
 
