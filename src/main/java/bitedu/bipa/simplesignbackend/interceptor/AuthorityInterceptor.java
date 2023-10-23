@@ -25,7 +25,7 @@
             //int authorityCode = 1; //1은 master, 2는 부서관리자, 3은 일반사용자 필요에 따라 바꿔 사용하세요
 
             int authorityCode = (SessionUtils.getAttribute("authorityCode") != null) ? (int) SessionUtils.getAttribute("authorityCode") : 3;
-
+            System.out.println("url:" + request.getRequestURI() + "  authorityCode:" + authorityCode);
             //handler 종류 확인 -> HandlerMethod 타입인지 체크
             if(handler instanceof HandlerMethod == false){
                 return true;

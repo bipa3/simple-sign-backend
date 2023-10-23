@@ -63,9 +63,9 @@ public class SeqManageService {
     public Boolean seqDetailRegist(SeqDetailDTO seqDetail) {
         Boolean result = false;
         try {
-            int seqCode = seqManageDAO.getSeqDetailId();
-
             seqManageDAO.insertSeqDetail(seqDetail);
+            int seqCode = seqManageDAO.getSeqDetailId();
+            System.out.println("seqCode:" + seqCode);
 
             List<SeqScopeDTO> deptScopeList = seqDetail.getDeptScope();
             for(SeqScopeDTO deptScope : deptScopeList) {
