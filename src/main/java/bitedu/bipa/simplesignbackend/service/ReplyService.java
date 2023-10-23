@@ -4,6 +4,8 @@ import bitedu.bipa.simplesignbackend.dao.ReplyDAO;
 import bitedu.bipa.simplesignbackend.model.dto.ReplyReqDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ReplyResDTO;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
+import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
+import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,11 +43,11 @@ public class ReplyService {
         //댓글이 본인이 작성한 것인지 확인
         int replierId = replyDAO.selectReplierId(replyReqDTO.getReplyId());
         if(replierId !=orgUserId) {
-            throw new RuntimeException(); //권한이 없음
+            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
         int affectedCount = replyDAO.updateReply(replyReqDTO);
         if(affectedCount ==0) {
-            throw new RuntimeException(); //댓글 수정 안됨
+            throw new RestApiException(CustomErrorCode.REPLY_UPDATE_FAIL);
         }
     }
 
@@ -55,11 +57,11 @@ public class ReplyService {
         //댓글이 본인이 작성한 것인지 확인
         int replierId = replyDAO.selectReplierId(replyId);
         if(replierId !=orgUserId) {
-            throw new RuntimeException(); //권한이 없습니다.
+            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
         int affectedCount = replyDAO.deleteReply(replyId);
         if(affectedCount ==0) {
-            throw new RuntimeException(); //댓글 삭제 실패
+            throw new RestApiException(CustomErrorCode.REPLY_DELETE_FAIL);
         }
     }
 

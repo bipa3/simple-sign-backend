@@ -4,6 +4,8 @@ import bitedu.bipa.simplesignbackend.dao.AlarmDAO;
 import bitedu.bipa.simplesignbackend.dao.CommonDAO;
 import bitedu.bipa.simplesignbackend.model.dto.AlarmReqDTO;
 import bitedu.bipa.simplesignbackend.model.dto.PositionAndGradeDTO;
+import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
+import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,7 +36,7 @@ public class AlarmService {
         alarmReqDTO.setAlarmContent(defaultMessage);
         int affectedCount = alarmDAO.insertAlarm(alarmReqDTO);
         if(affectedCount ==0) {
-            throw  new RuntimeException();
+            throw  new RestApiException(CustomErrorCode.ALARM_INSERT_FAIL);
         }
     }
 }
