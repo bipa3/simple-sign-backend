@@ -1,10 +1,7 @@
 package bitedu.bipa.simplesignbackend.dao;
 
 import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
-import bitedu.bipa.simplesignbackend.model.dto.BelongOrganizationDTO;
-import bitedu.bipa.simplesignbackend.model.dto.CompanyDTO;
-import bitedu.bipa.simplesignbackend.model.dto.PositionAndGradeDTO;
-import bitedu.bipa.simplesignbackend.model.dto.SeqItemListDTO;
+import bitedu.bipa.simplesignbackend.model.dto.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -47,4 +44,6 @@ public class CommonDAO {
     public int selectCompIdBySeqCode(int seqCode) {
         return commonMapper.selectCompIdBySeqCode(seqCode);
     }
+
+    public List<FormRecommendResDTO> getRecommendedForm(int orgUserId) { return commonMapper.getRecommendedForm(orgUserId); }
 }
