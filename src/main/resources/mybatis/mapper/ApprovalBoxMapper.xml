@@ -451,7 +451,7 @@
     <select id="selectPendCount" resultType="int">
         select count(*) from approval_doc ad
         join approval a on a.approval_doc_id = ad.approval_doc_id
-        where a.org_user_id = #{userId} and a.approval_status = 'P' and doc_del_status = 0 and (ad.doc_status != 'A' and ad.doc_status != 'R')
+        where a.org_user_id = #{userId} and a.approval_status = 'P' and doc_del_status = 0 and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status != 'T')
     </select>
     <select id="selectConcludedCount" resultType="int">
         select count(*) from approval_doc ad
