@@ -98,7 +98,7 @@ public class FormManageController {
     @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @PostMapping("/detail")
     public ResponseEntity registFormDetail(@Valid @RequestBody FormDetailResDTO formDetail){
-        //System.out.println(formDetail.toString());
+
         Boolean createResult = formManageService.formDetailRegist(formDetail);
         if (createResult) {
             return new ResponseEntity<>(HttpStatus.OK);
@@ -110,7 +110,7 @@ public class FormManageController {
     @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @PatchMapping("/detail")
     public ResponseEntity changeFormDetail(@Valid @RequestBody FormDetailResDTO formDetail){
-        //System.out.println(formDetail.toString());
+
         Boolean updateResult = formManageService.formDetailChange(formDetail);
         if (updateResult) {
             return new ResponseEntity<>(HttpStatus.OK);
