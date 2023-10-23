@@ -45,7 +45,7 @@
     </select>
 
     <select id="selectSeqItemList">
-        SELECT code_id AS id, code_value AS value FROM common_code WHERE section_id = "005";
+        SELECT code_id AS id, code_value AS value FROM common_code WHERE section_id = "005" AND code_status=1;
     </select>
 
     <select id="selectDeptList" resultType="int" parameterType="int">
