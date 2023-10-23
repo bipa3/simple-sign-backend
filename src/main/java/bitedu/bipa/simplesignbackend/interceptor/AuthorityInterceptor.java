@@ -39,8 +39,8 @@
                 return true;
             }
 
-            //세션에서 userId
-            int userId = (int) SessionUtils.getAttribute("userId");
+            //세션에서 orgUserId
+            int userId = (int) SessionUtils.getAttribute("orgUserId");
             if(userId == 0){
                 throw  new RestApiException(CustomErrorCode.UNAUTHORIZED_USER);
             }
