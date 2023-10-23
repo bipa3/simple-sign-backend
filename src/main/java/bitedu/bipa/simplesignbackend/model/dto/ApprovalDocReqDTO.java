@@ -2,7 +2,10 @@ package bitedu.bipa.simplesignbackend.model.dto;
 
 import lombok.Data;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,6 +19,7 @@ public class ApprovalDocReqDTO {
     private String gradeName;
     private String positionName;
     private int formCode;
+    @NotEmpty(message = "제목은 필수입니다.")
     private String approvalDocTitle;
     private String contents;
     private String searchContents;
@@ -27,6 +31,8 @@ public class ApprovalDocReqDTO {
     private LocalDateTime enforcementDate;
     @Min(message = "품의번호는 빈 값일 수 없습니다.", value = 1)
     private int seqCode;
+    @Valid
+    @Size(min = 1, message = "결재라인을 입력해주세요.")
     private List<Integer> approverList = new ArrayList<>();
     private List<ReceivedRefDTO> receiveRefList = new ArrayList<>();
 

@@ -2,14 +2,13 @@ package bitedu.bipa.simplesignbackend.service;
 
 import bitedu.bipa.simplesignbackend.dao.FormManageDAO;
 import bitedu.bipa.simplesignbackend.model.dto.*;
-import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class FormManageService {
@@ -55,7 +54,7 @@ public class FormManageService {
 
             ArrayList<FormDetailScopeDTO> scopeList = formDetail.getScope();
             for(FormDetailScopeDTO scope : scopeList){
-                Map<String, Object> map = new HashMap<>();
+                Map<String, Object> map = new ConcurrentHashMap<>();
                 map.put("category", scope.getCategory());
                 map.put("formCode", formCode);
                 map.put("useId", scope.getUseId());
@@ -65,7 +64,7 @@ public class FormManageService {
             List<DefaultApprovalLineDTO> lineList = formDetail.getApprovalLine();
 
             for(DefaultApprovalLineDTO line : lineList) {
-                Map<String, Object> map = new HashMap<>();
+                Map<String, Object> map = new ConcurrentHashMap<>();
                 map.put("formCode", formCode);
                 map.put("userId", line.getUserId());
                 map.put("lineOrder", line.getLineOrder());
@@ -97,7 +96,7 @@ public class FormManageService {
             }
 
             for (FormDetailScopeDTO delScope : missingDataList) {
-                Map<String, Object> map = new HashMap<>();
+                Map<String, Object> map = new ConcurrentHashMap<>();
                 map.put("category", delScope.getCategory());
                 map.put("formCode", formCode);
                 map.put("useId", delScope.getUseId());
@@ -105,7 +104,7 @@ public class FormManageService {
             }
 
             for (FormDetailScopeDTO insertScope : updateScopeList) {
-                Map<String, Object> map = new HashMap<>();
+                Map<String, Object> map = new ConcurrentHashMap<>();
                 map.put("category", insertScope.getCategory());
                 map.put("formCode", formCode);
                 map.put("useId", insertScope.getUseId());
@@ -123,14 +122,14 @@ public class FormManageService {
             }
 
             for (DefaultApprovalLineDTO delLine : missingLineList) {
-                Map<String, Object> map = new HashMap<>();
+                Map<String, Object> map = new ConcurrentHashMap<>();
                 map.put("formCode", formCode);
                 map.put("userId", delLine.getUserId());
                 formManageDAO.delDefaultLine(map);
             }
 
             for (DefaultApprovalLineDTO insertLine : updateLineList) {
-                Map<String, Object> map = new HashMap<>();
+                Map<String, Object> map = new ConcurrentHashMap<>();
                 map.put("formCode", formCode);
                 map.put("userId", insertLine.getUserId());
                 map.put("lineOrder", insertLine.getLineOrder());

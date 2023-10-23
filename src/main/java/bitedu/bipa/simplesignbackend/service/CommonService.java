@@ -2,6 +2,7 @@ package bitedu.bipa.simplesignbackend.service;
 
 import bitedu.bipa.simplesignbackend.dao.CommonDAO;
 import bitedu.bipa.simplesignbackend.model.dto.CompanyDTO;
+import bitedu.bipa.simplesignbackend.model.dto.FormRecommendResDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqItemListDTO;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class CommonService {
         return commonDAO.selectCompany();
     }
 
-    public List<SeqItemListDTO> selectSeqItemList() {
-        return commonDAO.selectSeqItemList();
-    }
+    public List<SeqItemListDTO> selectSeqItemList() { return commonDAO.selectSeqItemList(); }
+
+    public List<FormRecommendResDTO> selectRecommendedForm(int orgUserId) { return commonDAO.getRecommendedForm(orgUserId); }
 }

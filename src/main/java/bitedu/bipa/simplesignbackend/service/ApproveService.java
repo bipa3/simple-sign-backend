@@ -6,6 +6,8 @@ import bitedu.bipa.simplesignbackend.enums.AlarmStatus;
 import bitedu.bipa.simplesignbackend.enums.ApprovalStatus;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
+import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
+import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +53,7 @@ public class ApproveService {
         //결재라인 삽입
         int count = this.insertApprovalList(approvalDocId,approverList,0);
             if(count-1 !=approvalCount) {
-            throw new RuntimeException(); //결재라인 전부 삽입 안됨
+                throw new RestApiException(CustomErrorCode.APPROVALLINE_INSERT_FAIL);
         }
 
         //수신참조 insert ---> 활성화 여부를 넣고 활성화 된 것만 불러와서 보여주게하기
@@ -63,7 +65,7 @@ public class ApproveService {
             receiveCount += approveDAO.insertReceivedRef(dto);
         }
         if(totalCount !=receiveCount) {
-            throw new RuntimeException();
+            throw new RestApiException(CustomErrorCode.RECEIVED_REF_INSERT_FAIL);
         }
     }
 
@@ -73,15 +75,15 @@ public class ApproveService {
         //1. 결재테이블에서 결재할 문서가 있는지 가져오기, 없으면 bad request
         int orgUserId = (int)SessionUtils.getAttribute("userId");
         ApprovalResDTO approvalResDTO =  approveDAO.selectApprovalByApprovalId(orgUserId,approvalDocId);
-        if(approvalResDTO.getApprovalId() ==0 || approvalResDTO.getApprovalStatus() !='P') {
-            throw  new RuntimeException();
+        if(approvalResDTO.getApprovalId() ==0 || approvalResDTO.getApprovalStatus() !=ApprovalStatus.PROGRESS.getCode()) {
+            throw new RestApiException(CustomErrorCode.INAPPROPRIATE_USER);
         }else {
             //2. 결재문서가 있다면 결재 상태를 '승인'으로 바꾸고 결재시간 삽입하기
             approvalResDTO.setApprovalStatus(ApprovalStatus.APPROVAL.getCode());
             approvalResDTO.setApprovalDate(LocalDateTime.now());
             int affectedCount = approveDAO.updateCurrentApproval(approvalResDTO);
             if(affectedCount ==0) {
-                throw new RuntimeException();
+                throw new RestApiException(CustomErrorCode.APPROVAL_FAIL);
             }
         }
 
@@ -108,12 +110,12 @@ public class ApproveService {
             upperApproverDTO.setReceiveDate(LocalDateTime.now());
             int affectedCount = approveDAO.updateUpperApproverId(upperApproverDTO);
             if(affectedCount ==0) {
-                throw  new RuntimeException();
+                throw  new RestApiException(CustomErrorCode.APPROVAL_FAIL);
             }
         }
         int affectedCount = approveDAO.updateApprovalDoc(approvalDocResDTO);
         if(affectedCount ==0) {
-            throw new RuntimeException();
+            throw new RestApiException(CustomErrorCode.APPROVAL_FAIL);
         }
 
         //4. 알림보내기(결재승인알람 및 결재문서가 종결이라면 종결알람)
@@ -138,15 +140,15 @@ public class ApproveService {
         //결재하기
         int orgUserId = (int)SessionUtils.getAttribute("userId");
         ApprovalResDTO approvalResDTO =  approveDAO.selectApprovalByApprovalId(orgUserId,approvalDocId);
-        if(approvalResDTO.getApprovalId() ==0 || approvalResDTO.getApprovalStatus() !='P') {
-            throw  new RuntimeException();
+        if(approvalResDTO.getApprovalId() ==0 || approvalResDTO.getApprovalStatus() !=ApprovalStatus.PROGRESS.getCode()) {
+            throw  new RestApiException(CustomErrorCode.INAPPROPRIATE_USER);
         }else {
             //2. 결재문서가 있다면 결재상태를 '반려'로 바꾸고 결재시간 삽입하기
             approvalResDTO.setApprovalStatus(ApprovalStatus.RETURN.getCode());
             approvalResDTO.setApprovalDate(LocalDateTime.now());
             int affectedCount = approveDAO.updateCurrentApproval(approvalResDTO);
             if(affectedCount ==0) {
-                throw new RuntimeException();
+                throw new RestApiException(CustomErrorCode.RETURN_FAIL);
             }
         }
         //3. 결재 문서를 '반려' 상태로 바꾸기(이후 결재자 행은 어떻게 할건지?)
@@ -155,7 +157,7 @@ public class ApproveService {
         approvalDocResDTO.setApprovalDocId(approvalDocId);
         int affectedCount = approveDAO.updateApprovalDoc(approvalDocResDTO);
         if(affectedCount ==0) {
-            throw new RuntimeException();
+            throw new RestApiException(CustomErrorCode.RETURN_FAIL);
         }
 
         //4. 하위 결재자 모두에게 알림 보내기
@@ -174,11 +176,14 @@ public class ApproveService {
         int orgUserId = (int)SessionUtils.getAttribute("userId");
         ApprovalDocDetailDTO approvalDocDetailDTO =  approveDAO.selectApprovalDocById(approvalDocId);
         //System.out.println(approvalDocDetailDTO);
+        if(approvalDocDetailDTO ==null) {
+            throw new RestApiException(CustomErrorCode.APPROVAL_DOC_DELETED);
+        }
         //해당 아이디가 결재라인에도 없고 상신자에도 없고 수신참조문서에 없으면 권한이 없음
         //1.본인이 상신자인지 확인
         Integer approverId = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
         if(approverId ==null) {
-            throw new RuntimeException(); //해당 사용자가 없습니다.
+            throw new RestApiException(CustomErrorCode.INAPPROPRIATE_USER);
         }
         boolean sameApprover = false;
         if(approverId == orgUserId) {
@@ -195,7 +200,7 @@ public class ApproveService {
               receiveUser == orgUserId
         );
         if(!hasApprovalLine && !sameApprover && !hasReceivedRef) {
-            throw  new RuntimeException(); //권한 없음
+            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
 
         approvalDocDetailDTO.setApprovalLineList(approveDAO.selectApprovalDetailLineByApprovalDocId(approvalDocId));
@@ -208,7 +213,7 @@ public class ApproveService {
     public void updateApprovalDoc(int approvalDocId, ApprovalDocReqDTO approvalDocReqDTO) {
         boolean hasApproval = this.getHasUpdate(approvalDocId);
         if(!hasApproval) {
-            throw new RuntimeException(); //권한이 없습니다.
+            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
         //1. 결재문서 수정
         approvalDocReqDTO.setApprovalDocId(approvalDocId);
@@ -216,7 +221,7 @@ public class ApproveService {
         approvalDocReqDTO.setApprovalCount(approvalDocReqDTO.getApproverList().size());
         int affectedCount = approveDAO.updateApprovalDocFromRequest(approvalDocReqDTO);
         if(affectedCount ==0) {
-            throw  new RuntimeException(); //문서 수정 안됨
+            throw  new RestApiException(CustomErrorCode.APPROVAL_DOC_UPDATE_FAIL);
         }
         //2.결재라인 수정, 결재라인 중 결재가 안된 부분만 수정가능
         this.updateApprovalLine(approvalDocId, approvalDocReqDTO.getApproverList());
@@ -231,7 +236,7 @@ public class ApproveService {
             receiveCount += approveDAO.insertReceivedRef(dto);
         }
         if(totalCount !=receiveCount) {
-            throw new RuntimeException();
+            throw new RestApiException(CustomErrorCode.RECEIVED_REF_INSERT_FAIL);
         }
 
         //4. 알림보내기(문서를 결재한 사람들, 문서를 수신한 사람)
@@ -252,7 +257,7 @@ public class ApproveService {
         if(approvalList.size() ==0) {
             int insertedCount = this.insertApprovalList(approvalDocId,approverList,0);
             if(insertedCount !=approvalCount) {
-                throw  new RuntimeException(); //결재라인 삽입 전부 안됨
+                throw new RestApiException(CustomErrorCode.APPROVALLINE_INSERT_FAIL);
             }
         }
         //결재라인에서 approvalStatus 가 P나 W면 수정이 가능한 결재라인임
@@ -303,7 +308,7 @@ public class ApproveService {
                 approvalLineDTO.setPositionName(positionAndGradeDTO.getPositionName());
                 int affectedCount = approveDAO.insertApprovalLine(approvalLineDTO);
                 if (affectedCount == 0) {
-                    throw new RuntimeException();
+                    throw new RestApiException(CustomErrorCode.APPROVALLINE_INSERT_FAIL);
                 }
                 count++;
             }
@@ -323,7 +328,7 @@ public class ApproveService {
             //있으면 del_status 업데이트 하기
             int affectedCount = approveDAO.deleteApprovalDoc(approvalDocId);
             if(affectedCount ==0) {
-                throw  new RuntimeException(); //삭제안됨
+                throw new RestApiException(CustomErrorCode.APPROVAL_DOC_DELETE_FAIL);
             }
         }
 
@@ -333,7 +338,7 @@ public class ApproveService {
         int orgUserId = (int) SessionUtils.getAttribute("userId");
         List<ApprovalPermissionResDTO> list =  approveDAO.selectApprovalUserIdByApprovalDocId(approvalDocId);
         for(ApprovalPermissionResDTO dto: list) {
-            if(dto.getOrgUserId() == orgUserId && dto.getApprovalStatus() =='P') {
+            if(dto.getOrgUserId() == orgUserId && dto.getApprovalStatus() ==ApprovalStatus.PROGRESS.getCode()) {
                 return true;
             }
         }
@@ -349,7 +354,7 @@ public class ApproveService {
             approvalLineListDTO.getOrgUserId() == orgUserId
         );
         if(!hasApprovalLine) {
-            throw  new RuntimeException();// 해당 사용자는 결재 취소할 권한 없음
+            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
         //2.있으면 해당 사용자 다음 결재자가 결재하지는 않았는지 확인
         ApprovalLineListDTO currentApprover = null;
@@ -359,20 +364,20 @@ public class ApproveService {
             }
         }
         //본인이 아직 결재 안했어도 false
-        if(currentApprover.getApprovalStatus() =='W' || currentApprover.getApprovalStatus() =='P') {
-            throw  new RuntimeException();
+        if(currentApprover.getApprovalStatus() ==ApprovalStatus.WAIT.getCode() || currentApprover.getApprovalStatus() ==ApprovalStatus.PROGRESS.getCode()) {
+            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
         //3.다음 결재자가 결재했으면 예외
         for(ApprovalLineListDTO dto: approvalLineLists) {
             if(dto.getApprovalOrder() > currentApprover.getApprovalOrder()
                     && (dto.getApprovalStatus() == ApprovalStatus.APPROVAL.getCode() || dto.getApprovalStatus() == ApprovalStatus.RETURN.getCode())) {
-                throw new RuntimeException(); //이미 다음 결재자가 결재했음
+               throw new RestApiException(CustomErrorCode.NEXT_APPROVER_APPROVAL_COMPLETE);
             }
         }
         //4.이전결재자가 있으면 문서상태는 진행중, 아니면 상신중으로 바꿔야 함
-        char approvalDocStatus = 'P';
+        char approvalDocStatus = ApprovalStatus.PROGRESS.getCode();
         if(currentApprover.getApprovalOrder() ==1) {
-            approvalDocStatus ='W';
+            approvalDocStatus =ApprovalStatus.WAIT.getCode();
         }
         //결재라인, 결재문서, 품의번호(있으면) 되돌리기
         ApprovalCancelReqDTO approvalCancelReqDTO = new ApprovalCancelReqDTO(orgUserId, approvalDocId,approvalDocStatus);
@@ -382,7 +387,7 @@ public class ApproveService {
         int affectedCount3 = approveDAO.updateApprovalNextLine(approvalDocId, currentApprover.getApprovalOrder());
 
         if(affectedCount ==0 || affecteeCount2 ==0 || affectedCount3 ==0) {
-            throw new RuntimeException(); //업데이트 실패
+            throw new RestApiException(CustomErrorCode.APPROVAL_DOC_UPDATE_FAIL);
         }
     }
 
@@ -404,7 +409,7 @@ public class ApproveService {
             }
         }
         //본인이 아직 결재 안했어도 false
-        if(currentApprover.getApprovalStatus() =='W' || currentApprover.getApprovalStatus() =='P') {
+        if(currentApprover.getApprovalStatus() ==ApprovalStatus.WAIT.getCode() || currentApprover.getApprovalStatus() ==ApprovalStatus.PROGRESS.getCode()) {
             return false;
         }
         //3.다음 결재자가 결재했으면 예외
@@ -422,7 +427,7 @@ public class ApproveService {
         //1.본인이 상신자인지 확인
         Integer approverId = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
         if(approverId ==null) {
-            throw new RuntimeException(); //해당 사용자가 없습니다.
+            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
         boolean sameApprover = false;
         if(approverId == orgUserId) {
@@ -471,7 +476,7 @@ public class ApproveService {
         //해당 사용자가 문서작성자이면서 결재라인에 있는 첫 결재자가 결재하지 않았을 때에만 삭제가능
         Integer approver = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
         if(approver ==null) {
-            throw new RuntimeException(); //해당 사용자가 없습니다.
+            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
         if(approver !=orgUserId) {
             return false;
@@ -495,7 +500,7 @@ public class ApproveService {
         approvalDocReqDTO.setOrgUserId(orgUserId);
         int affectedCount = approveDAO.updateTemporalApprovalDoc(approvalDocReqDTO);
         if(affectedCount ==0) {
-            throw new RuntimeException(); //문서수정 안됨
+            throw new RestApiException(CustomErrorCode.APPROVAL_DOC_UPDATE_FAIL);
         }
 
         //결재라인 삭제
@@ -504,7 +509,7 @@ public class ApproveService {
         //결재라인 삽입
         int count = this.insertApprovalList(approvalDocId,approverList,0);
         if(count-1 !=approvalCount) {
-            throw new RuntimeException(); //결재라인 전부 삽입 안됨
+            throw new RestApiException(CustomErrorCode.APPROVALLINE_INSERT_FAIL);
         }
 
     }

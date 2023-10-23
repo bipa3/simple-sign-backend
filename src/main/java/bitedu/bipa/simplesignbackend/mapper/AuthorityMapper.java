@@ -2,6 +2,7 @@ package bitedu.bipa.simplesignbackend.mapper;
 
 import bitedu.bipa.simplesignbackend.model.dto.AuthorityDTO;
 import bitedu.bipa.simplesignbackend.model.dto.RoleRequestDTO;
+import bitedu.bipa.simplesignbackend.model.dto.UserOrgDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -12,5 +13,5 @@ public interface AuthorityMapper {
 
     String getAuthorityName(int authorityCode);
 
-    int selectAuthorityCode(int orgUserId);
+    UserOrgDTO selectAuthorityCode(int orgUserId);
 }

@@ -19,7 +19,7 @@
         establishment t3 on t1.est_name = t3.est_name
         left join
         department t4 on t1.dept_id = t4.dept_id
-        where user_id = #{userId};
+        where org_user_id = #{userId};
     </select>
 
     <!--해당 사용자의 현재 직책, 직급 검색-->
@@ -30,14 +30,14 @@
             organization_user t2 on t1.grade_code = t2.grade_code
             inner join
             position t3 on t2.position_code = t3.position_code
-        where user_id = #{userId};
+        where org_user_id = #{userId};
     </select>
 
     <!--해당 사용자의 부서아이디 가져오기-->
     <select id="selectDeptId" resultType="int" parameterType="int">
         select dept_id
         from organization_user
-        where user_id = #{userId};
+        where org_user_id = #{userId};
     </select>
 
     <select id="getLastInsertId" resultType="int">
@@ -45,13 +45,13 @@
     </select>
 
     <select id="selectSeqItemList">
-        SELECT code_id AS id, code_value AS value FROM common_code WHERE section_id = "005";
+        SELECT code_id AS id, code_value AS value FROM common_code WHERE section_id = "005" AND code_status=1;
     </select>
 
     <select id="selectDeptList" resultType="int" parameterType="int">
         select dept_id
         from organization_user
-        where user_id = #{userId};
+        where org_user_id = #{userId};
     </select>
 
     <select id="selectCompIdByFormCode" resultType="int" parameterType="int">
@@ -60,6 +60,12 @@
 
     <select id="selectCompIdBySeqCode" resultType="int" parameterType="int">
         SELECT comp_id FROM sequence WHERE seq_code=#{seqCode};
+    </select>
+
+    <select id="getRecommendedForm" parameterType="int">
+        SELECT form.form_code, form.form_name, count FROM
+        (SELECT form_code, count(form_code) AS count FROM approval_doc WHERE org_user_id=#{orgUserId} AND created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH) GROUP BY form_code) AS ad
+        LEFT JOIN form ON ad.form_code=form.form_code WHERE form_used_status=1 AND form_del_status=0 ORDER BY count DESC LIMIT 0, 4;
     </select>
 
 <!--    <select id="getMember" resultType="Member">-->

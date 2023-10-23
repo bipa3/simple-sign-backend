@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class SeqManageController {
 
     @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @PostMapping("/list")
-    public ResponseEntity<List<SeqAndCompDTO>> seqAndCompListSearch(@RequestBody SeqAndCompDTO seqAndCompDTO) {
+    public ResponseEntity<List<SeqAndCompDTO>> seqAndCompListSearch(@Valid @RequestBody SeqAndCompDTO seqAndCompDTO) {
         List<SeqAndCompDTO> formAndCompList = seqManageService.searchSeqAndCompList(seqAndCompDTO);
 
         if (formAndCompList != null && !formAndCompList.isEmpty()) {
@@ -58,8 +59,8 @@ public class SeqManageController {
 
     @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @PostMapping("/detail")
-    public ResponseEntity registSeqDetail(@RequestBody SeqDetailDTO seqDetail){
-        //System.out.println(seqDetail.toString());
+    public ResponseEntity registSeqDetail(@Valid @RequestBody SeqDetailDTO seqDetail){
+
         Boolean createResult = seqManageService.seqDetailRegist(seqDetail);
         if (createResult) {
             return new ResponseEntity<>(HttpStatus.OK);
@@ -70,7 +71,7 @@ public class SeqManageController {
 
     @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @PatchMapping("/detail")
-    public ResponseEntity changeSeqDetail(@RequestBody SeqDetailDTO seqDetailDTO){
+    public ResponseEntity changeSeqDetail(@Valid @RequestBody SeqDetailDTO seqDetailDTO){
         Boolean updateResult = seqManageService.seqDetailChange(seqDetailDTO);
         if (updateResult) {
             return new ResponseEntity<>(HttpStatus.OK);

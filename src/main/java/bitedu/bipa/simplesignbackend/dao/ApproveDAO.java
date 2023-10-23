@@ -133,7 +133,7 @@ public class ApproveDAO {
     public boolean isUpdatePossible(int approvalDocId, int approvalOrder) {
         char docStatus = approveMapper.selectApprovalDocStatus(approvalDocId);
         if(docStatus == ApprovalStatus.APPROVAL.getCode() || docStatus == ApprovalStatus.RETURN.getCode()) {
-            throw new RuntimeException(); //이미 결재된 문서임
+            throw new RestApiException(CustomErrorCode.APPROVAL_DOC_COMPLETED);
         }
         Map<String, Integer> map = new HashMap<>();
         map.put("approvalDocId", approvalDocId);
@@ -141,7 +141,7 @@ public class ApproveDAO {
         List<Character> approvalStatusList = approveMapper.selectApprovalStatusList(map);
         for(char approvalStatus : approvalStatusList) {
             if(approvalStatus == ApprovalStatus.APPROVAL.getCode() || approvalStatus == ApprovalStatus.RETURN.getCode()) {
-                throw  new RuntimeException(); //이미 상위 결재자 중 결재한 사람이 있음
+                throw  new RestApiException(CustomErrorCode.NEXT_APPROVER_APPROVAL_COMPLETE);
             }
         }
         return true;

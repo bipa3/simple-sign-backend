@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @Service
@@ -36,11 +37,11 @@ public class SeqManageService {
             seqDetail.setFormScope(formScopeList);
 
             List<String> seqItems = List.of(seqDetail.getSeqString().split(","));
-            //System.out.println("SeqItems: " + seqItems);
-            Map<String, Object> map = new HashMap<>();
+
+            Map<String, Object> map = new ConcurrentHashMap<>();
             map.put("seqItems", seqItems);
             String seqList = seqManageDAO.selectSeqItems(map);
-            //System.out.println("seqList: " + seqList);
+
             seqDetail.setSeqList(seqList);
         }catch (Exception e){
             e.printStackTrace();
@@ -63,13 +64,12 @@ public class SeqManageService {
     public Boolean seqDetailRegist(SeqDetailDTO seqDetail) {
         Boolean result = false;
         try {
-            int seqCode = seqManageDAO.getSeqDetailId();
-
             seqManageDAO.insertSeqDetail(seqDetail);
+            int seqCode = seqManageDAO.getSeqDetailId();
 
             List<SeqScopeDTO> deptScopeList = seqDetail.getDeptScope();
             for(SeqScopeDTO deptScope : deptScopeList) {
-                Map<String, Object> map = new HashMap<>();
+                Map<String, Object> map = new ConcurrentHashMap<>();
                 map.put("category", deptScope.getCategory());
                 map.put("seqCode", seqCode);
                 map.put("useId", deptScope.getUseId());
@@ -78,7 +78,7 @@ public class SeqManageService {
 
             List<SeqScopeDTO> formScopeList = seqDetail.getFormScope();
             for(SeqScopeDTO formScope : formScopeList){
-                Map<String, Object> map = new HashMap<>();
+                Map<String, Object> map = new ConcurrentHashMap<>();
                 map.put("seqCode", seqCode);
                 map.put("formCode", formScope.getUseId());
                 seqManageDAO.insertSeqForm(map);
@@ -110,7 +110,7 @@ public class SeqManageService {
         }
 
         for (SeqScopeDTO delDept : missingDeptDataList) {
-            Map<String, Object> map = new HashMap<>();
+            Map<String, Object> map = new ConcurrentHashMap<>();
             map.put("category", delDept.getCategory());
             map.put("seqCode", seqCode);
             map.put("useId", delDept.getUseId());
@@ -118,7 +118,7 @@ public class SeqManageService {
         }
 
         for (SeqScopeDTO insertDept : deptScopeList) {
-            Map<String, Object> map = new HashMap<>();
+            Map<String, Object> map = new ConcurrentHashMap<>();
             map.put("category", insertDept.getCategory());
             map.put("seqCode", seqCode);
             map.put("useId", insertDept.getUseId());
@@ -138,14 +138,14 @@ public class SeqManageService {
         }
 
         for (SeqScopeDTO delForm : missingFormDataList) {
-            Map<String, Object> map = new HashMap<>();
+            Map<String, Object> map = new ConcurrentHashMap<>();
             map.put("seqCode", seqCode);
             map.put("formCode", delForm.getUseId());
             seqManageDAO.delFormScope(map);
         }
 
         for (SeqScopeDTO insertForm : formScopeList) {
-            Map<String, Object> map = new HashMap<>();
+            Map<String, Object> map = new ConcurrentHashMap<>();
             map.put("seqCode", seqCode);
             map.put("formCode", insertForm.getUseId());
             seqManageDAO.insertIgnoreFormScope(map);
