@@ -71,6 +71,65 @@ public class OrgService {
         return new ArrayList<>(companyMap.values());
     }
 
+    //회사별 트리뷰
+    public List<OrgCompanyDTO> orgTreeViewComp(int compId) {
+        List<OrgCompanyDTO> rawDataList = orgDAO.getOrgTreeViewComp(compId);
+
+        if (rawDataList == null || rawDataList.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        OrgCompanyDTO companyDTO = new OrgCompanyDTO();
+        companyDTO.setCompId(rawDataList.get(0).getCompId());
+        companyDTO.setCompName(rawDataList.get(0).getCompName());
+        companyDTO.setEsts(new ArrayList<>());
+
+        Map<Integer, OrgEstablishmentDTO> establishmentMap = new HashMap<>();
+        Map<Integer, OrgDepartmentDTO> departmentMap = new HashMap<>();
+
+        for (OrgCompanyDTO rawData : rawDataList) {
+            if (rawData.getEstId() != 0) {
+                OrgEstablishmentDTO estDTO = establishmentMap.computeIfAbsent(rawData.getEstId(), id -> {
+                    OrgEstablishmentDTO newEstablishment = new OrgEstablishmentDTO();
+                    newEstablishment.setEstId(rawData.getEstId());
+                    newEstablishment.setEstName(rawData.getEstName());
+                    newEstablishment.setDepts(new ArrayList<>());
+                    companyDTO.getEsts().add(newEstablishment);
+                    return newEstablishment;
+                });
+
+                if (rawData.getDeptId() != 0) {
+                    OrgDepartmentDTO deptDTO = departmentMap.computeIfAbsent(rawData.getDeptId(), id -> {
+                        OrgDepartmentDTO newDepartment = new OrgDepartmentDTO();
+                        newDepartment.setDeptId(rawData.getDeptId());
+                        newDepartment.setDeptName(rawData.getDeptName());
+                        newDepartment.setUpperDeptId(rawData.getUpperDeptId());
+                        newDepartment.setSubDepts(new ArrayList<>());
+
+                        if (newDepartment.getUpperDeptId() == 0) {
+                            estDTO.getDepts().add(newDepartment);
+                        }
+                        return newDepartment;
+                    });
+
+                    if (deptDTO.getUpperDeptId() != 0) {
+                        OrgDepartmentDTO upperDept = departmentMap.get(deptDTO.getUpperDeptId());
+                        if (upperDept != null) {
+                            upperDept.getSubDepts().add(deptDTO);
+                        } else {
+                            List<OrgDepartmentDTO> subDeptsList = new ArrayList<>();
+                            subDeptsList.add(deptDTO);
+                            deptDTO.setSubDepts(subDeptsList);
+                        }
+                    }
+                }
+            }
+        }
+
+        return Collections.singletonList(companyDTO);
+    }
+
+
     // TopGridView
     public List<OrgRespDTO> getGrid(String nodeId, String type, boolean isChecked){
         String[] ids = nodeId.split("-");
