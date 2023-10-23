@@ -73,12 +73,18 @@ public class ApprovalBoxDAO {
         return approvalBoxManageMapper.getCustomBoxViewItems(company,userId,deptId);
     }
 
-    public void updateApprovalBox(int approvalBoxId, int compId, String approvalBoxName, ArrayList<String> viewItems, int approvalBoxUsedStatus, char menuUsingRange, int sortOrder) {
+    public void updateApprovalBox(int approvalBoxId, int compId, String approvalBoxName, ArrayList<String> viewItems, int approvalBoxUsedStatus, String menuUsingRange, ArrayList<BoxUseDepartmentDTO> boxUseDept, int sortOrder) {
         approvalBoxManageMapper.updateApprovalBox(approvalBoxId,compId,approvalBoxName,approvalBoxUsedStatus,menuUsingRange,sortOrder);
         if (viewItems.size()>0){
             approvalBoxManageMapper.deleteBoxViewItem(approvalBoxId);
             for (String item : viewItems) {
                 approvalBoxManageMapper.insertBoxViewItem(approvalBoxId,item);
+            }
+        }
+        if (boxUseDept.size()>0){
+            approvalBoxManageMapper.deleteBoxUseDept(approvalBoxId);
+            for (BoxUseDepartmentDTO dto : boxUseDept) {
+                approvalBoxManageMapper.insertBoxUseDept(dto, approvalBoxId);
             }
         }
     }
@@ -87,7 +93,7 @@ public class ApprovalBoxDAO {
         return approvalBoxManageMapper.getUserEstId(userId);
     }
 
-    public void createApprovalBox(int compId, String approvalBoxName, ArrayList<String> viewItems, int approvalBoxUsedStatus, char menuUsingRange, int sortOrder) {
+    public void createApprovalBox(int compId, String approvalBoxName, ArrayList<String> viewItems, int approvalBoxUsedStatus, String menuUsingRange, int sortOrder) {
         approvalBoxManageMapper.insertApprovalBox(approvalBoxName,approvalBoxUsedStatus,menuUsingRange,sortOrder);
         int approvalBoxId = approvalBoxManageMapper.getLastInsertId();
 

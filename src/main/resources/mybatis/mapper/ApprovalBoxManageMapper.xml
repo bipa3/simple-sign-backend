@@ -123,7 +123,79 @@
         select comp_name from company where comp_id = #{compId}
     </select>
     <select id="selectBoxUseDept" resultType="bitedu.bipa.simplesignbackend.model.dto.BoxUseDepartmentDTO">
-        select using_category as category, use_id, c.comp_id, c.comp_name as company from box_use_department
-        join company c on c.comp_id = use_id where approval_box_id = #{boxId}
+        (
+        SELECT
+        using_category as category,
+        use_id,
+        c.comp_id,
+        c.comp_name as company,
+        NULL as est_id,
+        NULL as establishment,
+        NULL as dept_id,
+        NULL as department,
+        NULL as user_id,
+        NULL as user
+        FROM
+        box_use_department
+        JOIN company c ON c.comp_id = use_id
+        WHERE
+        approval_box_id = #{boxId}
+        AND using_category = 'C'
+        )
+        UNION
+        (
+        SELECT
+        using_category as category,
+        use_id,
+        c.comp_id,
+        c.comp_name as company,
+        e.est_id,
+        e.est_name as establishment,
+        d.dept_id,
+        d.dept_name as department,
+        NULL as user_id,
+        NULL as user
+        FROM
+        box_use_department
+        JOIN company c ON c.comp_id = use_id
+        JOIN establishment e ON e.comp_id = c.comp_id
+        JOIN department d ON d.dept_id = use_id
+        WHERE
+        approval_box_id = #{boxId}
+        AND using_category = 'D'
+        )
+        UNION
+        (
+        SELECT
+        using_category as category,
+        use_id,
+        c.comp_id,
+        c.comp_name as company,
+        e.est_id,
+        e.est_name as establishment,
+        d.dept_id,
+        d.dept_name as department,
+        u.user_id,
+        u.user_name as user
+        FROM
+        box_use_department
+        JOIN user u ON u.user_id = use_id
+        JOIN organization_user ou ON ou.user_id = u.user_id
+        JOIN company c ON c.comp_name = ou.comp_name
+        JOIN establishment e ON e.comp_id = c.comp_id
+        JOIN department d ON d.dept_id = ou.dept_id
+
+
+        WHERE
+        approval_box_id = #{boxId}
+        AND using_category = 'U'
+        )
     </select>
+    <delete id="deleteBoxUseDept">
+        delete from box_use_department where box_use_department.approval_box_id = #{approvalBoxId};
+    </delete>
+    <insert id="insertBoxUseDept">
+        INSERT INTO box_use_department (approval_box_id, using_category, use_id)
+        VALUES (#{approvalBoxId},#{dto.category}, #{dto.useId})
+    </insert>
 </mapper>

@@ -22,7 +22,7 @@ public interface ApprovalBoxManageMapper {
 
     ArrayList<ViewItemDTO> getCustomBoxViewItems(@Param("company")int company, @Param("userId")int userId, @Param("deptId")int deptId);
 
-    void updateApprovalBox(@Param("approvalBoxId")int approvalBoxId, @Param("compId")int compId, @Param("approvalBoxName")String approvalBoxName, @Param("approvalBoxUsedStatus")int approvalBoxUsedStatus, @Param("menuUsingRange")char menuUsingRange, @Param("sortOrder")int sortOrder);
+    void updateApprovalBox(@Param("approvalBoxId")int approvalBoxId, @Param("compId")int compId, @Param("approvalBoxName")String approvalBoxName, @Param("approvalBoxUsedStatus")int approvalBoxUsedStatus, @Param("menuUsingRange")String menuUsingRange, @Param("sortOrder")int sortOrder);
 
     void deleteBoxViewItem(@Param("approvalBoxId")int approvalBoxId);
 
@@ -30,7 +30,7 @@ public interface ApprovalBoxManageMapper {
 
     int getUserEstId(@Param("userId")int userId);
 
-    void insertApprovalBox( @Param("approvalBoxName")String approvalBoxName, @Param("approvalBoxUsedStatus")int approvalBoxUsedStatus, @Param("menuUsingRange")char menuUsingRange, @Param("sortOrder")int sortOrder);
+    void insertApprovalBox( @Param("approvalBoxName")String approvalBoxName, @Param("approvalBoxUsedStatus")int approvalBoxUsedStatus, @Param("menuUsingRange")String menuUsingRange, @Param("sortOrder")int sortOrder);
 
     int getLastInsertId();
     void insertBoxUseCompany(@Param("approvalBoxId")int approvalBoxId, @Param("compId")int compId);
@@ -40,4 +40,8 @@ public interface ApprovalBoxManageMapper {
     List<CompanyDTO> getUserCompany(@Param("userId") int userId);
 
     List<BoxUseDepartmentDTO> selectBoxUseDept(@Param("boxId")int boxId);
+
+    void deleteBoxUseDept(@Param("approvalBoxId")int approvalBoxId);
+
+    void insertBoxUseDept(@Param("dto") BoxUseDepartmentDTO dto, @Param("approvalBoxId") int approvalBoxId);
 }
