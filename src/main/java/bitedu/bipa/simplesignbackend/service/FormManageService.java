@@ -2,6 +2,7 @@ package bitedu.bipa.simplesignbackend.service;
 
 import bitedu.bipa.simplesignbackend.dao.FormManageDAO;
 import bitedu.bipa.simplesignbackend.model.dto.*;
+import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,8 +39,9 @@ public class FormManageService {
         return formManageDAO.selectFormList(searchContent);
     }
 
-    public List<SequenceListDTO> showSeqList(int userId, int formCode) {
-        return formManageDAO.selectSeqList(userId, formCode);
+    public List<SequenceListDTO> showSeqList(int formCode) {
+        int orgUserId = (int)SessionUtils.getAttribute("userId");
+        return formManageDAO.selectSeqList(orgUserId, formCode);
     }
 
     public List<FormItemDTO> searchFormItem() {
