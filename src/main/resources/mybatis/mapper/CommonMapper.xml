@@ -19,7 +19,7 @@
         establishment t3 on t1.est_name = t3.est_name
         left join
         department t4 on t1.dept_id = t4.dept_id
-        where user_id = #{userId};
+        where org_user_id = #{userId};
     </select>
 
     <!--해당 사용자의 현재 직책, 직급 검색-->
@@ -30,14 +30,14 @@
             organization_user t2 on t1.grade_code = t2.grade_code
             inner join
             position t3 on t2.position_code = t3.position_code
-        where user_id = #{userId};
+        where org_user_id = #{userId};
     </select>
 
     <!--해당 사용자의 부서아이디 가져오기-->
     <select id="selectDeptId" resultType="int" parameterType="int">
         select dept_id
         from organization_user
-        where user_id = #{userId};
+        where org_user_id = #{userId};
     </select>
 
     <select id="getLastInsertId" resultType="int">
@@ -51,7 +51,7 @@
     <select id="selectDeptList" resultType="int" parameterType="int">
         select dept_id
         from organization_user
-        where user_id = #{userId};
+        where org_user_id = #{userId};
     </select>
 
     <select id="selectCompIdByFormCode" resultType="int" parameterType="int">
