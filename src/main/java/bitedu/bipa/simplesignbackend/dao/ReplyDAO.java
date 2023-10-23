@@ -5,6 +5,8 @@ import bitedu.bipa.simplesignbackend.mapper.ApproveMapper;
 import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
 import bitedu.bipa.simplesignbackend.mapper.ReplyMapper;
 import bitedu.bipa.simplesignbackend.model.dto.*;
+import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
+import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +31,7 @@ public class ReplyDAO {
 
        int affectedCount = replyMapper.insertReply(replyReqDTO);
        if(affectedCount ==0) {
-           throw  new RuntimeException(); //댓글 삽입 실패
+           throw new RestApiException(CustomErrorCode.REPLY_INSERT_FAIL);
        }
        int replyId = replyReqDTO.getReplyId();
         //System.out.println("replyId"+ replyId);
@@ -46,7 +48,7 @@ public class ReplyDAO {
         affectedCount = replyMapper.updateGroupNoAndOrder(map2);
         //System.out.println(affectedCount);
        if(affectedCount ==0) {
-           throw new RuntimeException(); //댓글 업데이트 실패
+           throw new RestApiException(CustomErrorCode.REPLY_INSERT_FAIL);
        }
     }
 
@@ -55,7 +57,7 @@ public class ReplyDAO {
     public void insertLowerReply(ReplyReqDTO replyReqDTO) {
         int affectedCount = replyMapper.insertLowerReply(replyReqDTO);
         if(affectedCount ==0) {
-            throw new RuntimeException(); //대댓글 삽입 실패
+            throw new RestApiException(CustomErrorCode.REPLY_INSERT_FAIL);
         }
         int replyId = replyReqDTO.getReplyId();
         int depth = 2;
@@ -68,7 +70,7 @@ public class ReplyDAO {
         map2.put("groupOrd", groupOrd);
         affectedCount = replyMapper.updateGroupOrder(map2);
         if(affectedCount ==0) {
-            throw new RuntimeException(); //댓글 업데이트 실패
+            throw new RestApiException(CustomErrorCode.REPLY_INSERT_FAIL);
         }
 
 
