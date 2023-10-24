@@ -85,4 +85,6 @@ public interface ApproveMapper {
     int deleteApprovalLine(Map map);
 
     int updateTemporalApprovalDoc(ApprovalDocReqDTO approvalDocReqDTO);
+
+    int insertApprovalAttachment(ApprovalAttachmentDTO approvalAttachmentDTO);
 }
