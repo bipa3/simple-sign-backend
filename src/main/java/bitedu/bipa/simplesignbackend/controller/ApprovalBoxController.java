@@ -28,21 +28,22 @@ public class ApprovalBoxController {
     @GetMapping("/view")
     public Map<String, Object> viewDocList(
             @SessionAttribute(name = "userId") int userId,
+            @SessionAttribute(name = "orgUserId") int orgUserId,
+            @SessionAttribute(name = "compId") int compId,
+            @SessionAttribute(name = "deptId") int deptId,
             @RequestParam(name = "viewItems") List<String> viewItems,
             @RequestParam(name = "itemsPerPage") int itemsPerPage,
             @RequestParam(name = "offset") int offset,
             @RequestParam(name = "searchInput") String searchInput
     ) {
-        int deptId = commonDAO.selectDeptId(userId);
         int estId = approvalBoxDAO.selectEstId(userId);
-        int compId = approvalBoxDAO.selectUserCompId(userId);
 
         Map<String, Object> result = new HashMap<>();
 
         if (!searchInput.equals("")) {
             result=approvalBoxService.selectSearchDocuments(viewItems, userId, deptId, estId, compId, itemsPerPage, offset, searchInput);
         }else{
-            result = approvalBoxService.selectDocuments(viewItems, userId, deptId,estId,compId, itemsPerPage, offset);
+            result = approvalBoxService.selectDocuments(viewItems, orgUserId, deptId,estId,compId, itemsPerPage, offset);
         }
 
         return result;
@@ -50,12 +51,15 @@ public class ApprovalBoxController {
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/search")
-    public ResponseEntity<Map<String, Object>> searchDocuments(@SessionAttribute(name = "userId") int userId, @RequestBody SearchRequestDTO criteria) {
-        int deptId = commonDAO.selectDeptId(userId);
-        int estId = approvalBoxDAO.selectEstId(userId);
-        int compId = approvalBoxDAO.selectUserCompId(userId);
+    public ResponseEntity<Map<String, Object>> searchDocuments(@SessionAttribute(name = "userId") int userId,
+                                                               @SessionAttribute(name = "orgUserId") int orgUserId,
+                                                               @SessionAttribute(name = "compId") int compId,
+                                                               @SessionAttribute(name = "deptId") int deptId, @RequestBody SearchRequestDTO criteria) {
 
-        Map<String, Object> result = approvalBoxService.searchDocuments( userId,deptId,estId,compId,criteria);
+        int estId = approvalBoxDAO.selectEstId(userId);
+
+
+        Map<String, Object> result = approvalBoxService.searchDocuments( orgUserId,deptId,estId,compId,criteria);
         return ResponseEntity.ok(result);
     }
 
@@ -97,12 +101,9 @@ public class ApprovalBoxController {
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/boxlist")
-    public Map<String, Object> viewApprovalBoxList(@SessionAttribute(name = "userId") int userId){
-        int deptId = commonDAO.selectDeptId(userId);
-        int company = approvalBoxDAO.selectUserCompId(userId);
-
-        ArrayList<ApprovalBoxDTO> boxList = approvalBoxService.selectCustomBoxList(company,userId,deptId);
-        ArrayList<ViewItemDTO> viewItems = approvalBoxDAO.selectCustomBoxViewItems(company,userId,deptId);
+    public Map<String, Object> viewApprovalBoxList(@SessionAttribute(name = "orgUserId") int orgUserId, @SessionAttribute(name = "compId") int compId, @SessionAttribute(name = "deptId") int deptId){
+        ArrayList<ApprovalBoxDTO> boxList = approvalBoxService.selectCustomBoxList(compId,orgUserId,deptId);
+        ArrayList<ViewItemDTO> viewItems = approvalBoxDAO.selectCustomBoxViewItems(compId,orgUserId,deptId);
 
         Map<String, Object> result = new HashMap<>();
         result.put("boxList", boxList);
@@ -127,31 +128,32 @@ public class ApprovalBoxController {
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/doc/count")
-    public int viewDocumentsCount (@SessionAttribute(name = "userId") int userId, @RequestParam String boxName){
-        int deptId = commonDAO.selectDeptId(userId);
+    public int viewDocumentsCount (@SessionAttribute(name = "userId") int userId,
+                                   @SessionAttribute(name = "orgUserId") int orgUserId,
+                                   @SessionAttribute(name = "compId") int compId,
+                                   @SessionAttribute(name = "deptId") int deptId, @RequestParam String boxName){
         int estId = approvalBoxDAO.selectEstId(userId);
-        int compId = approvalBoxDAO.selectUserCompId(userId);
 
-        int count = approvalBoxService.selectDocumentsCount(userId,deptId,estId,compId,boxName);
+        int count = approvalBoxService.selectDocumentsCount(orgUserId,deptId,estId,compId,boxName);
         return count;
     }
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/doc/read")
-    public void checkReadDoc (@SessionAttribute(name = "userId") int userId, @RequestParam int docId){
-        approvalBoxService.insertReadDoc(userId, docId);
+    public void checkReadDoc (@SessionAttribute(name = "orgUserId") int orgUserId, @RequestParam int docId){
+        approvalBoxService.insertReadDoc(orgUserId, docId);
     }
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/doc/getread")
-    public ArrayList<Integer> getReadDoc (@SessionAttribute(name = "userId") int userId){
-        return approvalBoxService.selectReadDoc(userId);
+    public ArrayList<Integer> getReadDoc (@SessionAttribute(name = "orgUserId") int orgUserId){
+        return approvalBoxService.selectReadDoc(orgUserId);
     }
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/company")
-    public ArrayList<CompanyDTO>getUserCompany (@SessionAttribute (name="userId") int userId){
-        return approvalBoxService.selectUserCompany(userId);
+    public ArrayList<CompanyDTO>getUserCompany (@SessionAttribute (name="orgUserId") int orgUserId){
+        return approvalBoxService.selectUserCompany(orgUserId);
     }
 }
 
