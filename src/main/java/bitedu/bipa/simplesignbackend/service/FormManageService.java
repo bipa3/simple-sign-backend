@@ -1,7 +1,10 @@
 package bitedu.bipa.simplesignbackend.service;
 
 import bitedu.bipa.simplesignbackend.dao.FormManageDAO;
+import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
 import bitedu.bipa.simplesignbackend.model.dto.*;
+import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
+import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,13 +16,19 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class FormManageService {
     FormManageDAO formManageDAO;
+    CommonMapper commonMapper;
 
-    public FormManageService (FormManageDAO formManageDAO) {
+    public FormManageService (FormManageDAO formManageDAO, CommonMapper commonMapper) {
+        this.commonMapper = commonMapper;
         this.formManageDAO = formManageDAO;
     }
 
     public List<FormAndCompDTO> selectFormAndCompList(FormAndCompDTO formAndCompDTO) {
-        return formManageDAO.selectFormAndComp(formAndCompDTO);
+        List<FormAndCompDTO> formAndCompList = formManageDAO.selectFormAndComp(formAndCompDTO);
+        if(formAndCompList.size() < 1){
+            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+        }
+        return formAndCompList;
     }
 
     public FormDetailResDTO searchFormDetail(int code) {
@@ -28,8 +37,12 @@ public class FormManageService {
             formDetail = formManageDAO.selectFormDetail(code);
             ArrayList<FormDetailScopeDTO> formDetailScopeList = formManageDAO.selectFormScope(code);
             formDetail.setScope(formDetailScopeList);
+            if(formDetail.getCode() == 0){
+                throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+            }
         }catch(Exception e){
             e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
         return formDetail;
     }
@@ -43,48 +56,72 @@ public class FormManageService {
     }
 
     public List<FormItemDTO> searchFormItem() {
-        return formManageDAO.selectFormItemList();
+        List<FormItemDTO> formItemDTOList = new ArrayList<>();;
+        try {
+            formItemDTOList = formManageDAO.selectFormItemList();
+            if (formItemDTOList.size() < 1) {
+                throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+            }
+        } catch (Exception e) {
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+        return formItemDTOList;
     }
 
     @Transactional
     public Boolean formDetailRegist(FormDetailResDTO formDetail) {
-        Boolean result = false;
         try {
-            int formCode = formManageDAO.insertFormDetail(formDetail);
+            formManageDAO.insertFormDetail(formDetail);
+            int formCode = commonMapper.getLastInsertId();
+            if(formCode == 0){
+                throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
+            }
 
             ArrayList<FormDetailScopeDTO> scopeList = formDetail.getScope();
             for(FormDetailScopeDTO scope : scopeList){
+                String category = scope.getCategory();
+                int userId = scope.getUseId();
+                if(!category.equals("C") && !category.equals("E") && !category.equals("D") && !category.equals("U")){
+                    throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
+                }
                 Map<String, Object> map = new ConcurrentHashMap<>();
-                map.put("category", scope.getCategory());
+                map.put("category", category);
                 map.put("formCode", formCode);
-                map.put("useId", scope.getUseId());
+                map.put("useId", userId);
                 formManageDAO.insertScope(map);
             }
 
             List<DefaultApprovalLineDTO> lineList = formDetail.getApprovalLine();
 
             for(DefaultApprovalLineDTO line : lineList) {
+                int userId = line.getUserId();
+                int lineOrder = line.getLineOrder();
+                if(userId == 0 || lineOrder < 1){
+                    throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
+                }
                 Map<String, Object> map = new ConcurrentHashMap<>();
                 map.put("formCode", formCode);
-                map.put("userId", line.getUserId());
-                map.put("lineOrder", line.getLineOrder());
+                map.put("userId", userId);
+                map.put("lineOrder", lineOrder);
                 formManageDAO.insertDefaultApprovalLine(map);
             }
-            result = true;
         }
         catch(Exception e) {
             e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
-        return result;
+        return true;
     }
 
     @Transactional
     public Boolean formDetailChange(FormDetailResDTO formDetail) {
-        Boolean result = false;
         try {
             formManageDAO.updateFormDetail(formDetail);
-
             int formCode = formDetail.getCode();
+            if(formCode == 0){
+                throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
+            }
+
             ArrayList<FormDetailScopeDTO> updateScopeList = formDetail.getScope();
             ArrayList<FormDetailScopeDTO> defaultScopeList = formManageDAO.getFormDetailScope(formCode);
             ArrayList<FormDetailScopeDTO> missingDataList = new ArrayList<>();
@@ -97,17 +134,28 @@ public class FormManageService {
 
             for (FormDetailScopeDTO delScope : missingDataList) {
                 Map<String, Object> map = new ConcurrentHashMap<>();
-                map.put("category", delScope.getCategory());
+                String category = delScope.getCategory();
+                int userId = delScope.getUseId();
+                if(!category.equals("C") && !category.equals("E") && !category.equals("D") && !category.equals("U")){
+                    throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
+                }
+
+                map.put("category", category);
                 map.put("formCode", formCode);
-                map.put("useId", delScope.getUseId());
+                map.put("useId", userId);
                 formManageDAO.delFormScope(map);
             }
 
             for (FormDetailScopeDTO insertScope : updateScopeList) {
+                String category = insertScope.getCategory();
+                int userId = insertScope.getUseId();
+                if(!category.equals("C") && !category.equals("E") && !category.equals("D") && !category.equals("U")){
+                    throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
+                }
                 Map<String, Object> map = new ConcurrentHashMap<>();
-                map.put("category", insertScope.getCategory());
+                map.put("category", category);
                 map.put("formCode", formCode);
-                map.put("useId", insertScope.getUseId());
+                map.put("useId", userId);
                 formManageDAO.insertIgnoreFormScope(map);
             }
 
@@ -122,35 +170,65 @@ public class FormManageService {
             }
 
             for (DefaultApprovalLineDTO delLine : missingLineList) {
+                int userId = delLine.getUserId();
+                if (userId < 1){
+                    throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
+                }
                 Map<String, Object> map = new ConcurrentHashMap<>();
                 map.put("formCode", formCode);
-                map.put("userId", delLine.getUserId());
+                map.put("userId", userId);
                 formManageDAO.delDefaultLine(map);
             }
 
             for (DefaultApprovalLineDTO insertLine : updateLineList) {
+                int userId = insertLine.getUserId();
+                int lineOrder = insertLine.getLineOrder();
+                if (userId < 1 || lineOrder < 1){
+                    throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
+                }
                 Map<String, Object> map = new ConcurrentHashMap<>();
                 map.put("formCode", formCode);
-                map.put("userId", insertLine.getUserId());
-                map.put("lineOrder", insertLine.getLineOrder());
+                map.put("userId", userId);
+                map.put("lineOrder", lineOrder);
                 formManageDAO.insertIgnoreDefaultLine(map);
             }
-            result = true;
         }catch (Exception e){
             e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
-        return result;
+        return true;
     }
 
     public Boolean removeForm(int code) {
-        return formManageDAO.deleteForm(code);
+        try {
+            formManageDAO.deleteForm(code);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+        return true;
     }
 
     public List<FormDTO> searchFormList() {
-        return formManageDAO.searchFormListAll();
+        List<FormDTO> formList = new ArrayList<FormDTO>();
+        try{
+            formList = formManageDAO.searchFormListAll();
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        return formList;
     }
 
     public List<DefaultApprovalLineDTO> searchDefaultApprovalLine(int code) {
-        return formManageDAO.searchDefaultApprovalLineAll(code);
+        List<DefaultApprovalLineDTO> defaultApprovalLineDTOList = new ArrayList<DefaultApprovalLineDTO>();
+        try{
+            defaultApprovalLineDTOList = formManageDAO.searchDefaultApprovalLineAll(code);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+        return defaultApprovalLineDTOList;
     }
 }

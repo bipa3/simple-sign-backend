@@ -19,8 +19,8 @@ public class CommonDAO {
     public BelongOrganizationDTO getBelongs(int userId) {
         return commonMapper.getBelongs(userId);
     }
-    public ArrayList<CompanyDTO> selectCompany() {
-        ArrayList<CompanyDTO> companyList = (ArrayList) commonMapper.getCompanyList();
+    public ArrayList<CompanyDTO> selectCompany(int compId) {
+        ArrayList<CompanyDTO> companyList = (ArrayList) commonMapper.getCompanyList(compId);
         return companyList;
     }
 

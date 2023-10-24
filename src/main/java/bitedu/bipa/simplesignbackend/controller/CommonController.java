@@ -4,6 +4,7 @@ import bitedu.bipa.simplesignbackend.model.dto.FormRecommendResDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqItemListDTO;
 import bitedu.bipa.simplesignbackend.model.dto.UserOrgDTO;
 import bitedu.bipa.simplesignbackend.service.CommonService;
+import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,8 +44,8 @@ public class CommonController {
     }
 
     @PostMapping("/form/recommend")
-    public ResponseEntity<List<FormRecommendResDTO>> recommendedFormSelect(@RequestBody UserOrgDTO userOrgDTO) {
-        List<FormRecommendResDTO> formRecommendList = commonService.selectRecommendedForm(userOrgDTO.getOrgUserId());
+    public ResponseEntity<List<FormRecommendResDTO>> recommendedFormSelect() {
+        List<FormRecommendResDTO> formRecommendList = commonService.selectRecommendedForm();
 
         if (formRecommendList != null && !formRecommendList.isEmpty()) {
             return new ResponseEntity<>(formRecommendList, HttpStatus.OK);
