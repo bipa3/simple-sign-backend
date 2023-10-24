@@ -80,7 +80,7 @@
         LEFT JOIN user u ON bud.use_id = u.user_id AND bud.using_category = 'U'
         WHERE ab.box_delete_status != 1
         AND ab.approval_box_used_status != 0
-        AND (c.comp_id = #{company} OR d.dept_id=#{deptId} OR u.user_id = #{userId});
+        AND (c.comp_id = #{company} OR d.dept_id=#{deptId} OR u.user_id = #{orgUserId});
 
     </select>
 

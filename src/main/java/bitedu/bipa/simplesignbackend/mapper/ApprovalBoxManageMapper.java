@@ -20,7 +20,7 @@ public interface ApprovalBoxManageMapper {
 
     ArrayList<ApprovalBoxDTO> getCustomBoxList(@Param("company")int company, @Param("userId")int userId, @Param("deptId")int deptId);
 
-    ArrayList<ViewItemDTO> getCustomBoxViewItems(@Param("company")int company, @Param("userId")int userId, @Param("deptId")int deptId);
+    ArrayList<ViewItemDTO> getCustomBoxViewItems(@Param("company")int company, @Param("orgUserId")int userId, @Param("deptId")int deptId);
 
     void updateApprovalBox(@Param("approvalBoxId")int approvalBoxId, @Param("compId")int compId, @Param("approvalBoxName")String approvalBoxName, @Param("approvalBoxUsedStatus")int approvalBoxUsedStatus, @Param("menuUsingRange")String menuUsingRange, @Param("sortOrder")int sortOrder);
 
@@ -37,7 +37,7 @@ public interface ApprovalBoxManageMapper {
 
     String selectCompName(@Param("compId")int compId);
 
-    List<CompanyDTO> getUserCompany(@Param("userId") int userId);
+    List<CompanyDTO> getUserCompany(@Param("orgUserId") int orgUserId);
 
     List<BoxUseDepartmentDTO> selectBoxUseDept(@Param("boxId")int boxId);
 
