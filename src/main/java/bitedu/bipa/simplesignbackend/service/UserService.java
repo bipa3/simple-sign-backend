@@ -55,8 +55,8 @@ public class UserService {
     }
 
     // 개인정보 조회
-    public UserDTO detailUser(int userId) {
-        return userDAO.detailUser(userId);
+    public UserDTO detailUser(int orgUserId) {
+        return userDAO.detailUser(orgUserId);
     }
 
     // 개인정보 수정
@@ -68,6 +68,12 @@ public class UserService {
     public String getUserProfile(){
         int userId = (int) SessionUtils.getAttribute("userId");
         return userDAO.getUserProfile(userId);
+    }
+
+    // 프로필 삽입
+    public boolean insertProfile(String approvalFilePath){
+        int userId = (int) SessionUtils.getAttribute("userId");
+        return userDAO.insertProfile(userId, approvalFilePath);
     }
 
     // 프로필 수정
@@ -85,15 +91,15 @@ public class UserService {
         int userId = (int) SessionUtils.getAttribute("userId");
         return userDAO.getSignImage(userId);
     }
-    public String getSign(){
-        int userId = (int) SessionUtils.getAttribute("userId");
-        return userDAO.getSign(userId);
-    }
 
     // 사인 수정
     public boolean updateSignState(boolean signState){
         int userId = (int) SessionUtils.getAttribute("userId");
         return userDAO.updateSignState(userId,signState);
+    }
+    public boolean insertSign(String approvalFilePath){
+        int userId = (int) SessionUtils.getAttribute("userId");
+        return userDAO.insertSign(userId, approvalFilePath);
     }
     public boolean updateSign(String approvalFilePath){
         int userId = (int) SessionUtils.getAttribute("userId");

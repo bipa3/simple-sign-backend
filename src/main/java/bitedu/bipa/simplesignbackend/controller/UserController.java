@@ -1,5 +1,6 @@
 package bitedu.bipa.simplesignbackend.controller;
 
+import bitedu.bipa.simplesignbackend.interceptor.Authority;
 import bitedu.bipa.simplesignbackend.model.dto.UserDTO;
 import bitedu.bipa.simplesignbackend.model.dto.UserOrgDTO;
 import bitedu.bipa.simplesignbackend.model.dto.UserPasswordDTO;
@@ -52,8 +53,8 @@ public class UserController {
             SessionUtils.addAttribute("userId", userId);
             SessionUtils.addAttribute("userName", userName);
 
-            response.addHeader("Set-Cookie", "JSESSIONID=" + RequestContextHolder.getRequestAttributes().getSessionId() + "; Path=/; HttpOnly; Secure; SameSite=None");
-            response.addHeader("Set-Cookie", "LOGIN_COOKIE=" + "true" + "; Path=/; Secure; SameSite=None");
+            response.addHeader("Set-Cookie", "JSESSIONID=" + RequestContextHolder.getRequestAttributes().getSessionId() + "; Max-Age=86400; Path=/; HttpOnly; Secure; SameSite=None");
+            response.addHeader("Set-Cookie", "LOGIN_COOKIE=" + "true" + "; Max-Age=86400; Path=/; Secure; SameSite=None");
 
             return ResponseEntity.ok(userDTO2);
         } else {
@@ -74,6 +75,7 @@ public class UserController {
     }
 
     // 비밀번호 변경 + 암호화
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/user/password/change")
     public ResponseEntity chanePassword(@RequestBody UserPasswordDTO userPasswordDTO){
         int userId = (int) SessionUtils.getAttribute("userId");
@@ -86,17 +88,19 @@ public class UserController {
     }
 
     // 개인정보 조회
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/userinfo")
     public UserDTO userDetail(){
-        int userId = (int) SessionUtils.getAttribute("userId");
-        return userService.detailUser(userId);
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
+        return userService.detailUser(orgUserId);
     }
 
     // 개인정보 수정
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PutMapping("/updateinfo")
     public ResponseEntity userUpdate(@RequestBody UserDTO userDTO){
-        int userId = (int) SessionUtils.getAttribute("userId");
-        userDTO.setUserId(userId);
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
+        userDTO.setOrgUserId(orgUserId);
         boolean flag = userService.updateUser(userDTO);
         if(flag){
             return new ResponseEntity(HttpStatus.OK);
@@ -105,6 +109,7 @@ public class UserController {
     }
 
     //프로필 조회
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/userinfo/profile")
     public ResponseEntity<String> userProfileGet(){
         String profile = userService.getUserProfile();
@@ -112,6 +117,7 @@ public class UserController {
     }
 
     // 사인 조회
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/userinfo/sign")
     public ResponseEntity<String> userSignGet(){
         boolean flag = userService.getSignState();
@@ -123,24 +129,35 @@ public class UserController {
         return ResponseEntity.ok("default");
     }
 
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/updateinfo/sign")
     public ResponseEntity<String> signGet(){
-        String sign = userService.getSign();
+        String sign = userService.getSignImage();
         return ResponseEntity.ok(sign);
     }
 
     // 프로필 수정
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/updateinfo/profile")
     public ResponseEntity uploadProfileFile(@RequestParam("file") MultipartFile file) throws IOException {
-            String s3Url = s3Service.upload(file, "profile");
+        String s3Url = s3Service.upload(file, "profile");
+        String profile = userService.getUserProfile();
+        if(profile != null){
             boolean flag = userService.updateProfile(s3Url);
             if(flag){
                 return new ResponseEntity(HttpStatus.OK);
             }
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        } else{
+            boolean flag = userService.insertProfile(s3Url);
+            if(flag){
+                return new ResponseEntity(HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
     // 사인 수정
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/updateinfo/sign")
     public ResponseEntity<String> uploadSignFile(@RequestParam(value = "file", required = false) MultipartFile file, @RequestParam("signState") boolean signState) throws IOException {
 
@@ -150,11 +167,17 @@ public class UserController {
                 return new ResponseEntity(HttpStatus.OK);
             }
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }else{
+        } else {
             String s3Url = s3Service.upload(file, "sign");
             userService.updateSignState(signState);
-            userService.updateSign(s3Url);
-            return new ResponseEntity(HttpStatus.OK);
+            String sign = userService.getSignImage();
+            if(sign != null) {
+                userService.updateSign(s3Url);
+                return new ResponseEntity(HttpStatus.OK);
+            }else{
+                userService.insertSign(s3Url);
+                return new ResponseEntity(HttpStatus.OK);
+            }
         }
     }
 
