@@ -37,8 +37,8 @@ public class UserDAO {
     }
 
     // 개인정보 조회
-    public UserDTO detailUser(int userId){
-        return userMapper.selectUser(userId);
+    public UserDTO detailUser(int orgUserId){
+        return userMapper.selectUser(orgUserId);
     }
 
     //개인정보 수정
@@ -49,6 +49,11 @@ public class UserDAO {
     // 프로필 조회
     public String getUserProfile(int userId){
         return userMapper.selectProfile(userId);
+    }
+
+    // 프로필 삽입
+    public boolean insertProfile(int userId, String approvalFilePath){
+        return userMapper.insertProfile(userId, approvalFilePath);
     }
 
     // 프로필 수정
@@ -63,13 +68,13 @@ public class UserDAO {
     public String getSignImage(int userId){
         return userMapper.selectSignImage(userId);
     }
-    public String getSign(int userId){
-        return userMapper.selectSign(userId);
-    }
 
     // 사인 수정
     public boolean updateSignState(int userId, boolean signState){
         return userMapper.updateSignState(userId,signState);
+    }
+    public boolean insertSign(int userId, String approvalFilePath){
+        return userMapper.insertSign(userId, approvalFilePath);
     }
     public boolean updateSign(int userId, String approvalFilePath){
         return userMapper.updateSign(userId, approvalFilePath);
