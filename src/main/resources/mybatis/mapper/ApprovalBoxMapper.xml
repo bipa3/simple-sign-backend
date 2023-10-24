@@ -18,7 +18,7 @@
         LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'pend' || viewItem == 'concluded' || viewItem == 'reference'">
-                and a.org_user_id =#{userId}
+                and a.org_user_id =#{orgUserId}
             </if>
         </foreach>
         left join approval a2 on (ad.approval_doc_id = a2.approval_doc_id and ad.approval_count = a2.approval_order and end_at is not null)
@@ -26,7 +26,7 @@
         LEFT JOIN user u ON (ad.org_user_id = u.user_id)
         left join user u2 on (a2.org_user_id = u2.user_id)
         left join user u3 on (a3.org_user_id = u3.user_id)
-        JOIN organization_user ou ON ou.user_id = 1
+        JOIN organization_user ou ON ou.user_id = #{orgUserId}
         JOIN department d ON d.dept_id = ou.dept_id
         LEFT JOIN form f ON ad.form_code = f.form_code
         <foreach collection="viewItems" item="viewItem" separator="OR">
@@ -38,28 +38,28 @@
         AND (
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'send'">
-                (ad.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
             </if>
             <if test="viewItem == 'tempor'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'T')
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = #{userId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
+                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
                 'T'))</if>
             <if test="viewItem == 'concluded'">
-                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
+                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                ((ad.doc_status != 'T' and ad.doc_status != 'P') and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{userId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
+                ((ad.doc_status != 'T' and ad.doc_status != 'P') and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId} AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'end'">
                 (ad.end_at is not null)
             </if>
             <if test="viewItem == 'reject'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId}))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
             </if>
         </foreach>
         )
@@ -71,12 +71,12 @@
 
 
     <select id="getDocCountByViewItems" resultType="int">
-        SELECT COUNT(DISTINCT ad.approval_doc_id)
+        SELECT COUNT (DISTINCT ad.approval_doc_id)
         FROM approval_doc ad
         LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'pend' || viewItem == 'concluded' || viewItem == 'reference'">
-                and a.org_user_id =#{userId}
+                and a.org_user_id =#{orgUserId}
             </if>
         </foreach>
         left join approval a2 on (ad.approval_doc_id = a2.approval_doc_id and ad.approval_count = a2.approval_order and end_at is not null)
@@ -84,7 +84,7 @@
         LEFT JOIN user u ON (ad.org_user_id = u.user_id)
         left join user u2 on (a2.org_user_id = u2.user_id)
         left join user u3 on (a3.org_user_id = u3.user_id)
-        JOIN organization_user ou ON ou.user_id = 1
+        JOIN organization_user ou ON ou.user_id = #{orgUserId}
         JOIN department d ON d.dept_id = ou.dept_id
         LEFT JOIN form f ON ad.form_code = f.form_code
         <foreach collection="viewItems" item="viewItem" separator="OR">
@@ -96,33 +96,32 @@
         AND (
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'send'">
-                (ad.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
             </if>
             <if test="viewItem == 'tempor'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'T')
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = #{userId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
+                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
+                'T'))</if>
             <if test="viewItem == 'concluded'">
-                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
+                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                ((ad.doc_status != 'T' and ad.doc_status != 'P') and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{userId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
+                ((ad.doc_status != 'T' and ad.doc_status != 'P') and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId} AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'end'">
                 (ad.end_at is not null)
             </if>
             <if test="viewItem == 'reject'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId}))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
             </if>
         </foreach>
         )
     </select>
-
-
 
     <select id="getSearchDocumentsByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
         SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate, ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name, ad.end_at as end_date, u2.user_name as end_user, u3.user_name as approver
@@ -138,7 +137,7 @@
         LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'pend' || viewItem == 'concluded' || viewItem == 'reference'">
-                and a.org_user_id =#{userId}
+                and a.org_user_id =#{orgUserId}
             </if>
         </foreach>
         left join approval a2 on (ad.approval_doc_id = a2.approval_doc_id and ad.approval_count = a2.approval_order and end_at is not null)
@@ -146,7 +145,7 @@
         LEFT JOIN user u ON (ad.org_user_id = u.user_id)
         left join user u2 on (a2.org_user_id = u2.user_id)
         left join user u3 on (a3.org_user_id = u3.user_id)
-        JOIN organization_user ou ON ou.user_id = 1
+        JOIN organization_user ou ON ou.user_id = #{orgUserId}
         JOIN department d ON d.dept_id = ou.dept_id
         LEFT JOIN form f ON ad.form_code = f.form_code
         <foreach collection="viewItems" item="viewItem" separator="OR">
@@ -158,27 +157,28 @@
         AND (
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'send'">
-                (ad.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
             </if>
             <if test="viewItem == 'tempor'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'T')
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = #{userId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
+                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
+                'T'))</if>
             <if test="viewItem == 'concluded'">
-                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
+                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                ((ad.doc_status != 'T' and ad.doc_status != 'P') and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{userId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
+                ((ad.doc_status != 'T' and ad.doc_status != 'P') and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId} AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'end'">
                 (ad.end_at is not null)
             </if>
             <if test="viewItem == 'reject'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId}))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
             </if>
         </foreach>
         )
@@ -195,21 +195,13 @@
         LIMIT #{itemsPerPage} OFFSET #{offset};
     </select>
 
-    <select id="getSearchDocCountByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate, ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name, ad.end_at as end_date, u2.user_name as end_user, u3.user_name as approver
-        <foreach collection="viewItems" item="viewItem" separator="OR">
-            <if test="viewItem == 'pend'">
-                , a.receive_date
-            </if>
-            <if test="viewItem == 'concluded' ">
-                , a.approval_date
-            </if>
-        </foreach>
+    <select id="getSearchDocCountByViewItems" resultType="int">
+        SELECT COUNT (DISTINCT ad.approval_doc_id)
         FROM approval_doc ad
         LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'pend' || viewItem == 'concluded' || viewItem == 'reference'">
-                and a.org_user_id =#{userId}
+                and a.org_user_id =#{orgUserId}
             </if>
         </foreach>
         left join approval a2 on (ad.approval_doc_id = a2.approval_doc_id and ad.approval_count = a2.approval_order and end_at is not null)
@@ -217,7 +209,7 @@
         LEFT JOIN user u ON (ad.org_user_id = u.user_id)
         left join user u2 on (a2.org_user_id = u2.user_id)
         left join user u3 on (a3.org_user_id = u3.user_id)
-        JOIN organization_user ou ON ou.user_id = 1
+        JOIN organization_user ou ON ou.user_id = #{orgUserId}
         JOIN department d ON d.dept_id = ou.dept_id
         LEFT JOIN form f ON ad.form_code = f.form_code
         <foreach collection="viewItems" item="viewItem" separator="OR">
@@ -229,27 +221,28 @@
         AND (
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'send'">
-                (ad.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
             </if>
             <if test="viewItem == 'tempor'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'T')
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = #{userId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
+                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
+                'T'))</if>
             <if test="viewItem == 'concluded'">
-                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
+                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                ((ad.doc_status != 'T' and ad.doc_status != 'P') and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{userId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
+                ((ad.doc_status != 'T' and ad.doc_status != 'P') and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId} AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'end'">
                 (ad.end_at is not null)
             </if>
             <if test="viewItem == 'reject'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId}))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
             </if>
         </foreach>
         )
@@ -335,7 +328,7 @@
         LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'pend' || viewItem == 'concluded' || viewItem == 'reference'">
-                and a.org_user_id =#{userId}
+                and a.org_user_id =#{orgUserId}
             </if>
         </foreach>
         left join approval a2 on (ad.approval_doc_id = a2.approval_doc_id and ad.approval_count = a2.approval_order and end_at is not null)
@@ -343,7 +336,7 @@
         LEFT JOIN user u ON (ad.org_user_id = u.user_id)
         left join user u2 on (a2.org_user_id = u2.user_id)
         left join user u3 on (a3.org_user_id = u3.user_id)
-        JOIN organization_user ou ON ou.user_id = 1
+        JOIN organization_user ou ON ou.user_id = #{orgUserId}
         JOIN department d ON d.dept_id = ou.dept_id
         LEFT JOIN form f ON ad.form_code = f.form_code
         <foreach collection="viewItems" item="viewItem" separator="OR">
@@ -355,27 +348,28 @@
         AND (
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'send'">
-                (ad.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
             </if>
             <if test="viewItem == 'tempor'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'T')
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = #{userId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
+                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
+                'T'))</if>
             <if test="viewItem == 'concluded'">
-                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
+                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                ((ad.doc_status != 'T' and ad.doc_status != 'P') and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{userId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
+                ((ad.doc_status != 'T' and ad.doc_status != 'P') and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId} AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'end'">
                 (ad.end_at is not null)
             </if>
             <if test="viewItem == 'reject'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId}))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
             </if>
         </foreach>
         )
@@ -384,21 +378,13 @@
         LIMIT #{itemsPerPage} OFFSET #{offset};
     </select>
 
-    <select id="getDetailSearchDocsCount" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        SELECT DISTINCT ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate, ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name, ad.end_at as end_date, u2.user_name as end_user, u3.user_name as approver
-        <foreach collection="viewItems" item="viewItem" separator="OR">
-            <if test="viewItem == 'pend'">
-                , a.receive_date
-            </if>
-            <if test="viewItem == 'concluded' ">
-                , a.approval_date
-            </if>
-        </foreach>
+    <select id="getDetailSearchDocsCount" resultType="int">
+        SELECT COUNT (DISTINCT ad.approval_doc_id)
         FROM approval_doc ad
         LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'pend' || viewItem == 'concluded' || viewItem == 'reference'">
-                and a.org_user_id =#{userId}
+                and a.org_user_id =#{orgUserId}
             </if>
         </foreach>
         left join approval a2 on (ad.approval_doc_id = a2.approval_doc_id and ad.approval_count = a2.approval_order and end_at is not null)
@@ -406,7 +392,7 @@
         LEFT JOIN user u ON (ad.org_user_id = u.user_id)
         left join user u2 on (a2.org_user_id = u2.user_id)
         left join user u3 on (a3.org_user_id = u3.user_id)
-        JOIN organization_user ou ON ou.user_id = 1
+        JOIN organization_user ou ON ou.user_id = #{orgUserId}
         JOIN department d ON d.dept_id = ou.dept_id
         LEFT JOIN form f ON ad.form_code = f.form_code
         <foreach collection="viewItems" item="viewItem" separator="OR">
@@ -418,27 +404,28 @@
         AND (
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'send'">
-                (ad.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
             </if>
             <if test="viewItem == 'tempor'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'T')
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = #{userId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R'))</if>
+                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
+                'T'))</if>
             <if test="viewItem == 'concluded'">
-                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
+                (EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'reference'">
-                ((ad.doc_status != 'T' and ad.doc_status != 'P') and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{userId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
+                ((ad.doc_status != 'T' and ad.doc_status != 'P') and (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId} and r.category='D') OR (r.use_id = #{estId} and r.category='E') OR (r.use_id = #{compId} and r.category='C'))) )
             </if>
             <if test="viewItem == 'progress'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.user_id = #{userId} AND a.approval_status IN ('A', 'R')))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId} AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'end'">
                 (ad.end_at is not null)
             </if>
             <if test="viewItem == 'reject'">
-                (ad.org_user_id = #{userId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{userId}))
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
             </if>
         </foreach>
         )
@@ -446,17 +433,17 @@
     </select>
 
     <select id="selectSendCount" resultType="int">
-        select count(*) from approval_doc where org_user_id = #{userId} and doc_status = 'P' and doc_del_status = 0
+        select count(*) from approval_doc where org_user_id = #{orgUserId} and doc_status = 'P' and doc_del_status = 0
     </select>
     <select id="selectPendCount" resultType="int">
         select count(*) from approval_doc ad
         join approval a on a.approval_doc_id = ad.approval_doc_id
-        where a.org_user_id = #{userId} and a.approval_status = 'P' and doc_del_status = 0 and (ad.doc_status != 'A' and ad.doc_status != 'R')
+        where a.org_user_id = #{orgUserId} and a.approval_status = 'P' and doc_del_status = 0 and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status != 'T')
     </select>
     <select id="selectConcludedCount" resultType="int">
         select count(*) from approval_doc ad
         join approval a on a.approval_doc_id = ad. approval_doc_id
-        where a.org_user_id = #{userId} and (a.approval_status = 'A' or a.approval_status = 'R') and doc_del_status = 0
+        where a.org_user_id = #{orgUserId} and (a.approval_status = 'A' or a.approval_status = 'R') and doc_del_status = 0
         and ad.doc_status = 'P'
     </select>
     <select id="selectReferenceCount" resultType="int">
@@ -465,22 +452,22 @@
         FROM approval_doc ad
         JOIN received_ref r ON (r.active_state =1 AND r.approval_doc_id = ad.approval_doc_id)
         LEFT JOIN doc_view dv ON (dv.approval_doc_id = ad.approval_doc_id)
-        WHERE ((ad.doc_status != 'T' AND ad.doc_status != 'P') AND (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.use_id = #{userId} AND r.category = 'U') OR (r.use_id =#{deptId} AND r.category='D') OR (r.use_id = #{estId} AND r.category='E') OR (r.use_id = #{compId} AND r.category='C'))))
+        WHERE ((ad.doc_status != 'T' AND ad.doc_status != 'P') AND (EXISTS (SELECT 1 FROM received_ref r WHERE r.approval_doc_id = ad.approval_doc_id AND (r.use_id = #{orgUserId} AND r.category = 'U') OR (r.use_id =#{deptId} AND r.category='D') OR (r.use_id = #{estId} AND r.category='E') OR (r.use_id = #{compId} AND r.category='C'))))
         AND doc_del_status = 0
-        AND (dv.org_user_id IS NULL OR dv.org_user_id != #{userId})
+        AND (dv.org_user_id IS NULL OR dv.org_user_id != #{orgUserId})
         ) as subquery;
     </select>
     <insert id="insertDocView">
         INSERT INTO doc_view(approval_doc_id, org_user_id)
-        SELECT #{docId}, #{userId}
+        SELECT #{docId}, #{orgUserId}
         WHERE NOT EXISTS (
         SELECT 1
         FROM doc_view
-        WHERE approval_doc_id = #{docId} AND org_user_id = #{userId}
+        WHERE approval_doc_id = #{docId} AND org_user_id = #{orgUserId}
         )
     </insert>
     <select id="selectDocView"  resultType="java.lang.Integer">
-        select approval_doc_id from doc_view where org_user_id = #{userId}
+        select approval_doc_id from doc_view where org_user_id = #{orgUserId}
     </select>
 
 </mapper>

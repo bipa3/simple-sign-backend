@@ -15,7 +15,8 @@ public class ApprovalBoxReqDTO {
     private String approvalBoxName;
     private ArrayList<String> viewItems;
     private String approvalBoxUsedStatus;
-    private char menuUsingRange;
+    private String menuUsingRange;
+    private ArrayList<BoxUseDepartmentDTO> boxUseDept;
     private int sortOrder;
 
 

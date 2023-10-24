@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper
 public interface ApprovalBoxMapper {
     ArrayList<DocumentListDTO> getDocumentsByViewItems(
-            @Param("userId") int userId,
+            @Param("orgUserId") int orgUserId,
             @Param("itemsPerPage") int itemsPerPage,
             @Param("offset") int offset,
             @Param("deptId") int deptId,
@@ -19,13 +19,13 @@ public interface ApprovalBoxMapper {
             @Param("viewItems") List<String> viewItems
     );
 
-    int getDocCountByViewItems(@Param("userId") int userId,
+    int getDocCountByViewItems(@Param("orgUserId") int orgUserId,
                                                       @Param("deptId") int deptId,
                                                       @Param("estId") int estId,
                                                       @Param("compId") int compId,
                                                       @Param("viewItems") List<String> viewItems);
 
-    ArrayList<DocumentListDTO> getSearchDocumentsByViewItems(@Param("userId") int userId,
+    ArrayList<DocumentListDTO> getSearchDocumentsByViewItems(@Param("orgUserId") int orgUserId,
                                                              @Param("itemsPerPage") int itemsPerPage,
                                                              @Param("offset") int offset,
                                                              @Param("deptId") int deptId,
@@ -34,14 +34,14 @@ public interface ApprovalBoxMapper {
                                                              @Param("viewItems") List<String> viewItems,
                                                              @Param("searchInput") String searchInput);
 
-    ArrayList<DocumentListDTO> getSearchDocCountByViewItems(@Param("userId") int userId,
+    int getSearchDocCountByViewItems(@Param("orgUserId") int orgUserId,
                                                             @Param("deptId") int deptId,
                                                             @Param("estId") int estId,
                                                             @Param("compId") int compId,
                                                             @Param("viewItems") List<String> viewItems,
                                                             @Param("searchInput") String searchInput);
 
-    ArrayList<DocumentListDTO> getDetailSearchDocsList(@Param("userId") int userId,
+    ArrayList<DocumentListDTO> getDetailSearchDocsList(@Param("orgUserId") int orgUserId,
                                                         @Param("deptId") int deptId,
                                                        @Param("estId") int estId,
                                                        @Param("compId") int compId,
@@ -50,25 +50,25 @@ public interface ApprovalBoxMapper {
                                                         @Param("offset") int offset,
                                                         @Param("criteria") SearchRequestDTO criteria);
 
-    ArrayList<DocumentListDTO> getDetailSearchDocsCount(@Param("userId") int userId,
+    int getDetailSearchDocsCount(@Param("orgUserId") int orgUserId,
                                                         @Param("deptId") int deptId,
                                                         @Param("estId") int estId,
                                                         @Param("compId") int compId,
                                                         @Param("viewItems") List<String> viewItems,
                                                         @Param("criteria") SearchRequestDTO criteria);
 
-    int selectSendCount(@Param("userId") int userId);
+    int selectSendCount(@Param("orgUserId") int orgUserId);
 
-    int selectPendCount(@Param("userId") int userId);
+    int selectPendCount(@Param("orgUserId") int orgUserId);
 
-    int selectConcludedCount(@Param("userId") int userId);
+    int selectConcludedCount(@Param("orgUserId") int orgUserId);
 
-    int selectReferenceCount(@Param("userId") int userId,
+    int selectReferenceCount(@Param("orgUserId") int orgUserId,
                              @Param("deptId") int deptId,
                              @Param("estId") int estId,
                              @Param("compId") int compId);
 
-    void insertDocView(@Param("userId") int userId, @Param("docId") int docId);
+    void insertDocView(@Param("orgUserId") int userId, @Param("docId") int docId);
 
-    ArrayList<Integer> selectDocView(@Param("userId") int userId);
+    ArrayList<Integer> selectDocView(@Param("orgUserId") int orgUserId);
 }
