@@ -23,7 +23,10 @@ public enum CustomErrorCode implements ErrorCode{
     REPLY_UPDATE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "결재의견 수정에 실패했습니다."),
     REPLY_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "결재의견 삭제에 실패했습니다."),
     APPROVAL_DOC_COMPLETED(HttpStatus.BAD_REQUEST, "이미 결재된 문서입니다."),
-    APPROVAL_DOC_DELETED(HttpStatus.BAD_REQUEST, "존재하지 않는 문서입니다.")
+    APPROVAL_DOC_DELETED(HttpStatus.BAD_REQUEST, "존재하지 않는 문서입니다."),
+
+    //
+
     ;
 
     private final HttpStatus httpStatus;
