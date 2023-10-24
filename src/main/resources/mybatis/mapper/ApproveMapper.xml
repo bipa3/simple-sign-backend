@@ -311,4 +311,10 @@
         where approval_doc_id = #{approvalDocId};
     </update>
 
+    <!--파일 경로 저장-->
+    <insert id="insertApprovalAttachment" parameterType="ApprovalAttachmentDTO">
+        insert attatchment_file (file_name, approval_file_path, file_code, use_id)
+            values (#{fileName}, #{approvalFilePath}, '03', #{approvalDocId});
+    </insert>
+
 </mapper>
