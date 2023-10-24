@@ -4,6 +4,10 @@ import bitedu.bipa.simplesignbackend.dao.CommonDAO;
 import bitedu.bipa.simplesignbackend.model.dto.CompanyDTO;
 import bitedu.bipa.simplesignbackend.model.dto.FormRecommendResDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqItemListDTO;
+import bitedu.bipa.simplesignbackend.utils.SessionUtils;
+import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
+import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
+import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,10 +23,28 @@ public class CommonService {
     }
 
     public ArrayList<CompanyDTO> selectCompList() {
-        return commonDAO.selectCompany();
+        int authorityCode = (int) SessionUtils.getAttribute("authorityCode");
+        int compId = 0;
+        if(authorityCode == 2){
+            compId = (int) SessionUtils.getAttribute("compId");
+        }
+        return commonDAO.selectCompany(compId);
     }
 
     public List<SeqItemListDTO> selectSeqItemList() { return commonDAO.selectSeqItemList(); }
 
-    public List<FormRecommendResDTO> selectRecommendedForm(int orgUserId) { return commonDAO.getRecommendedForm(orgUserId); }
+    public List<FormRecommendResDTO> selectRecommendedForm() {
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
+        List<FormRecommendResDTO> recommendedForms = new ArrayList<FormRecommendResDTO>();
+        try{
+            recommendedForms= commonDAO.getRecommendedForm(orgUserId);
+            if(recommendedForms.size() < 1){
+                throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+        return recommendedForms;
+    }
 }

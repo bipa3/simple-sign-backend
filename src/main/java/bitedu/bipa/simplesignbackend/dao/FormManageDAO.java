@@ -55,10 +55,8 @@ public class FormManageDAO {
         return formManageMapper.getFormItemList();
     }
 
-    public int insertFormDetail(FormDetailResDTO formDetail) {
+    public void insertFormDetail(FormDetailResDTO formDetail) {
         formManageMapper.createFormDetail(formDetail);
-        int formCode = commonMapper.getLastInsertId();
-        return formCode;
     }
 
     public void insertScope(Map<String, Object> map) {
@@ -93,9 +91,8 @@ public class FormManageDAO {
         formManageMapper.insertIgnoreDefaultLine(map);
     }
 
-    public Boolean deleteForm(int code) {
+    public void deleteForm(int code) {
         formManageMapper.deleteForm(code);
-        return true;
     }
 
     public List<FormDTO> searchFormListAll() {

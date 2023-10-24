@@ -3,6 +3,8 @@ import bitedu.bipa.simplesignbackend.dao.SeqManageDAO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqAndCompDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqDetailDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqScopeDTO;
+import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
+import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +25,17 @@ public class SeqManageService {
     }
 
     public List<SeqAndCompDTO> searchSeqAndCompList(SeqAndCompDTO seqAndCompDTO) {
-        return seqManageDAO.selectSeqAndComp(seqAndCompDTO);
+        List<SeqAndCompDTO> seqAndCompList = new ArrayList<SeqAndCompDTO>();
+        try{
+            seqAndCompList = seqManageDAO.selectSeqAndComp(seqAndCompDTO);
+            if(seqAndCompList.size() < 1){
+                throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+        return seqAndCompList;
     }
 
     @Transactional
@@ -45,117 +57,139 @@ public class SeqManageService {
             seqDetail.setSeqList(seqList);
         }catch (Exception e){
             e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
         return seqDetail;
     }
 
     public Boolean removeSeq(int code) {
-        Boolean result = false;
         try{
             seqManageDAO.deleteSeq(code);
-            result = true;
         } catch (Exception e){
             e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
-        return result;
+        return true;
     }
 
     @Transactional
     public Boolean seqDetailRegist(SeqDetailDTO seqDetail) {
-        Boolean result = false;
         try {
             seqManageDAO.insertSeqDetail(seqDetail);
             int seqCode = seqManageDAO.getSeqDetailId();
+            if(seqCode < 1){
+                throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+            }
 
             List<SeqScopeDTO> deptScopeList = seqDetail.getDeptScope();
             for(SeqScopeDTO deptScope : deptScopeList) {
+                String category = deptScope.getCategory();
+                int userId = deptScope.getUseId();
+                if(!category.equals("C") && !category.equals("E") && !category.equals("D") && !category.equals("U")){
+                    throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
+                }
                 Map<String, Object> map = new ConcurrentHashMap<>();
-                map.put("category", deptScope.getCategory());
+                map.put("category", category);
                 map.put("seqCode", seqCode);
-                map.put("useId", deptScope.getUseId());
+                map.put("useId", userId);
                 seqManageDAO.insertSeqDept(map);
             }
 
             List<SeqScopeDTO> formScopeList = seqDetail.getFormScope();
             for(SeqScopeDTO formScope : formScopeList){
+                String category = formScope.getCategory();
+                if(!category.equals("F")){
+                    throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
+                }
+                int useId = formScope.getUseId();
                 Map<String, Object> map = new ConcurrentHashMap<>();
                 map.put("seqCode", seqCode);
-                map.put("formCode", formScope.getUseId());
+                map.put("formCode", useId);
                 seqManageDAO.insertSeqForm(map);
             }
-            result = true;
         }
         catch (Exception e){
             e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
-        return result;
+        return true;
     }
 
     @Transactional
     public Boolean seqDetailChange(SeqDetailDTO seqDetailDTO) {
-        Boolean result = false;
         try {
-        int seqCode = Integer.parseInt(seqDetailDTO.getCode());
-        seqManageDAO.updateSeqDetail(seqDetailDTO);
+            int seqCode = Integer.parseInt(seqDetailDTO.getCode());
+            seqManageDAO.updateSeqDetail(seqDetailDTO);
 
-        // 회사 scope
-        List<SeqScopeDTO> deptScopeList = seqDetailDTO.getDeptScope();
-        List<SeqScopeDTO> defaultDeptScopeList = seqManageDAO.getSeqDeptScope(seqCode);
-        List<SeqScopeDTO> missingDeptDataList = new ArrayList<>();
+            // 회사 scope
+            List<SeqScopeDTO> deptScopeList = seqDetailDTO.getDeptScope();
+            List<SeqScopeDTO> defaultDeptScopeList = seqManageDAO.getSeqDeptScope(seqCode);
+            List<SeqScopeDTO> missingDeptDataList = new ArrayList<>();
 
-        for (SeqScopeDTO defaultDept : defaultDeptScopeList) {
-            if (!deptScopeList.contains(defaultDept)) {
-                missingDeptDataList.add(defaultDept);
+            for (SeqScopeDTO defaultDept : defaultDeptScopeList) {
+                if (!deptScopeList.contains(defaultDept)) {
+                    missingDeptDataList.add(defaultDept);
+                }
             }
-        }
 
-        for (SeqScopeDTO delDept : missingDeptDataList) {
-            Map<String, Object> map = new ConcurrentHashMap<>();
-            map.put("category", delDept.getCategory());
-            map.put("seqCode", seqCode);
-            map.put("useId", delDept.getUseId());
-            seqManageDAO.delDeptScope(map);
-        }
+            for (SeqScopeDTO delDept : missingDeptDataList) {
+                String category = delDept.getCategory();
+                int userId = delDept.getUseId();
 
-        for (SeqScopeDTO insertDept : deptScopeList) {
-            Map<String, Object> map = new ConcurrentHashMap<>();
-            map.put("category", insertDept.getCategory());
-            map.put("seqCode", seqCode);
-            map.put("useId", insertDept.getUseId());
-            seqManageDAO.insertIgnoreDeptScope(map);
-        }
-
-        // 양식 scope
-        List<SeqScopeDTO> formScopeList = seqDetailDTO.getFormScope();
-        List<SeqScopeDTO> defaultFormScopeList = seqManageDAO.getSeqFormScope(seqCode);
-        List<SeqScopeDTO> missingFormDataList = new ArrayList<>();
-
-
-        for (SeqScopeDTO defaultForm : defaultFormScopeList) {
-            if (!formScopeList.contains(defaultForm)) {
-                missingFormDataList.add(defaultForm);
+                Map<String, Object> map = new ConcurrentHashMap<>();
+                map.put("category", category);
+                map.put("seqCode", seqCode);
+                map.put("useId", userId);
+                seqManageDAO.delDeptScope(map);
             }
-        }
 
-        for (SeqScopeDTO delForm : missingFormDataList) {
-            Map<String, Object> map = new ConcurrentHashMap<>();
-            map.put("seqCode", seqCode);
-            map.put("formCode", delForm.getUseId());
-            seqManageDAO.delFormScope(map);
-        }
+            for (SeqScopeDTO insertDept : deptScopeList) {
+                String category = insertDept.getCategory();
+                int userId = insertDept.getUseId();
+                if(!category.equals("C") && !category.equals("E") && !category.equals("D") && !category.equals("U")){
+                    throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
+                }
+                Map<String, Object> map = new ConcurrentHashMap<>();
+                map.put("category", category);
+                map.put("seqCode", seqCode);
+                map.put("useId", userId);
+                seqManageDAO.insertIgnoreDeptScope(map);
+            }
 
-        for (SeqScopeDTO insertForm : formScopeList) {
-            Map<String, Object> map = new ConcurrentHashMap<>();
-            map.put("seqCode", seqCode);
-            map.put("formCode", insertForm.getUseId());
-            seqManageDAO.insertIgnoreFormScope(map);
-        }
+            // 양식 scope
+            List<SeqScopeDTO> formScopeList = seqDetailDTO.getFormScope();
+            List<SeqScopeDTO> defaultFormScopeList = seqManageDAO.getSeqFormScope(seqCode);
+            List<SeqScopeDTO> missingFormDataList = new ArrayList<>();
 
-        result = true;
+
+            for (SeqScopeDTO defaultForm : defaultFormScopeList) {
+                if (!formScopeList.contains(defaultForm)) {
+                    missingFormDataList.add(defaultForm);
+                }
+            }
+
+            for (SeqScopeDTO delForm : missingFormDataList) {
+                Map<String, Object> map = new ConcurrentHashMap<>();
+                map.put("seqCode", seqCode);
+                map.put("formCode", delForm.getUseId());
+                seqManageDAO.delFormScope(map);
+            }
+
+            for (SeqScopeDTO insertForm : formScopeList) {
+                String category = insertForm.getCategory();
+                if(!category.equals("F")){
+                    throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
+                }
+                Map<String, Object> map = new ConcurrentHashMap<>();
+                map.put("seqCode", seqCode);
+                map.put("formCode", insertForm.getUseId());
+                seqManageDAO.insertIgnoreFormScope(map);
+            }
         }
         catch (Exception e){
             e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
-        return result;
+        return true;
     }
 }
