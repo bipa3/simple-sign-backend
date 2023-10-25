@@ -34,7 +34,7 @@ public class SearchRequestDTO {
     private String searchDept;
     private String searchWriter;
     private String searchApprovUser;
-    private String searchApprovState;
+    private int searchApprovState;
     private String searchDocForm;
     private String searchDocNumber;
 

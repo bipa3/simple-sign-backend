@@ -292,16 +292,16 @@
         </if>
         <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
             <choose>
-                <when test="criteria.searchApprovState == '상신'"  >
+                <when test="criteria.searchApprovState == 2"  >
                     AND ad.doc_status = 'W'
                 </when>
-                <when test="criteria.searchApprovState == '진행'">
+                <when test="criteria.searchApprovState == 3">
                     AND ad.doc_status = 'P'
                 </when>
-                <when test="criteria.searchApprovState == '종결'">
+                <when test="criteria.searchApprovState == 4">
                     AND ad.doc_status IN ('A', 'R')
                 </when>
-                <when test="criteria.searchApprovState == '반려'">
+                <when test="criteria.searchApprovState == 5">
                     AND ad.doc_status = 'R'
                 </when>
             </choose>

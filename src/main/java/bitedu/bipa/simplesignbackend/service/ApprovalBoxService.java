@@ -129,9 +129,6 @@ public class ApprovalBoxService {
         return approvalBoxDAO.selectReadDoc(orgUserId);
     }
 
-    public String selectUserCompName(int compId) {
-        return approvalBoxDAO.selectUserCompName(compId);
-    }
 
     public ArrayList<CompanyDTO> selectUserCompany(int orgUserId) {
         return approvalBoxDAO.selectUserCompany(orgUserId);
