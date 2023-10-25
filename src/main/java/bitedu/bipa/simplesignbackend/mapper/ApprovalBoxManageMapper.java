@@ -28,7 +28,7 @@ public interface ApprovalBoxManageMapper {
 
     void insertBoxViewItem(@Param("approvalBoxId")int approvalBoxId, @Param("item") String item);
 
-    int getUserEstId(@Param("userId")int userId);
+    int getUserEstId(@Param("orgUserId")int orgUserId);
 
     void insertApprovalBox( @Param("approvalBoxName")String approvalBoxName, @Param("approvalBoxUsedStatus")int approvalBoxUsedStatus, @Param("menuUsingRange")String menuUsingRange, @Param("sortOrder")int sortOrder);
 

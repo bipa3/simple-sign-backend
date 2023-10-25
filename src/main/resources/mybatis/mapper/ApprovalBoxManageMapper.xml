@@ -55,7 +55,7 @@
     <select id="getUserEstId" resultType="int">
         select e.est_id from establishment  e
         join organization_user ou on e.est_name = ou.est_name
-        where ou.user_id =#{userId};
+        where ou.org_user_id =#{orgUserId};
     </select>
     <select id="getCustomBoxList" resultType="bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO">
         SELECT ab.approval_box_id, ab.approval_box_name
