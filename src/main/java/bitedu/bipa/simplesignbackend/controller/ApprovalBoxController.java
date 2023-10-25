@@ -37,7 +37,6 @@ public class ApprovalBoxController {
             @RequestParam(name = "searchInput") String searchInput
     ) {
         int estId = approvalBoxDAO.selectEstId(orgUserId);
-
         Map<String, Object> result = new HashMap<>();
 
         if (!searchInput.equals("")) {
@@ -149,11 +148,11 @@ public class ApprovalBoxController {
         return approvalBoxService.selectReadDoc(orgUserId);
     }
 
-//    @Authority(role = {Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
-//    @GetMapping("/company")
-//    public ArrayList<CompanyDTO>getUserCompany (@SessionAttribute (name="orgUserId") int orgUserId){
-//        return approvalBoxService.selectUserCompany(orgUserId);
-//    }
+    @Authority(role = {Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @GetMapping("/company")
+    public ArrayList<CompanyDTO>getUserCompany (@SessionAttribute (name="orgUserId") int orgUserId){
+        return approvalBoxService.selectUserCompany(orgUserId);
+    }
 }
 
 

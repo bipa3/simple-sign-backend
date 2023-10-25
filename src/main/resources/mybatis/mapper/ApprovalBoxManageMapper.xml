@@ -43,7 +43,7 @@
         select c.comp_id as id, c.comp_name as name from company c
         join organization_user ou on c.comp_name = ou.comp_name
         join user u on u.user_id = ou.user_id
-        where u.user_id = #{orgUserId}
+        where ou.org_user_id = #{orgUserId}
     </select>
 
     <select id="getUserCompId" resultType="int">
