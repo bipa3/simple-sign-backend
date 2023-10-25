@@ -4,7 +4,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="bitedu.bipa.simplesignbackend.mapper.FormManageMapper">
-
     <select id="getFormAndCompList" resultType="bitedu.bipa.simplesignbackend.model.dto.FormAndCompDTO">
         SELECT form_code AS id, comp_name, form_name, form_used_status AS status FROM form
         INNER JOIN company ON form.comp_id = company.comp_id
@@ -17,12 +16,12 @@
     </select>
 
     <select id="getFormDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.FormDetailResDTO">
-        SELECT form_code AS code, form_name AS formName, default_form AS defaultForm, main_form AS mainForm, form_used_status AS status, comp_id
+        SELECT form_code AS code, form_name AS formName, default_form AS defaultForm, main_form AS mainForm, form_used_status AS status, comp_id, NVL(form_explain, "") AS formExplain
         FROM form WHERE form_code=#{code};
     </select>
 
     <select id="getFormDetailScope" resultType="bitedu.bipa.simplesignbackend.model.dto.FormDetailScopeDTO">
-        SELECT A.category, A.form_code, A.use_id, comp.comp_id, comp.comp_name AS company, est.est_id, IFNULL(est.est_name, "") AS establishment, dept.dept_id, IFNULL(dept.dept_name, "") AS department, user.user_id, IFNULL(user.user_name, "") AS user, IFNULL(user.grade_name, "") AS grade, IFNULL(user.position_name, "") AS position
+        SELECT A.category, A.form_code, A.use_id, comp.comp_id, comp.comp_name AS company, est.est_id, NVL(est.est_name, "") AS establishment, dept.dept_id, NVL(dept.dept_name, "") AS department, user.user_id, NVL(user.user_name, "") AS user, NVL(user.grade_name, "") AS grade, NVL(user.position_name, "") AS position
         FROM (SELECT * FROM form_use_department WHERE form_code=#{code}) A
         LEFT JOIN (SELECT user.user_id, user.user_name, ou.dept_id, g.grade_name, p.position_name FROM user
         INNER JOIN organization_user AS ou ON user.user_id=ou.org_user_id
@@ -67,8 +66,8 @@
     </select>
 
     <insert id="createFormDetail" >
-        INSERT INTO form(comp_id, form_name, default_form, main_form, form_used_status)
-        VALUES(#{compId}, #{formName}, #{defaultForm}, #{mainForm}, #{status});
+        INSERT INTO form(comp_id, form_name, default_form, main_form, form_used_status, form_explain)
+        VALUES(#{compId}, #{formName}, #{defaultForm}, #{mainForm}, #{status}, #{formExplain});
     </insert>
 
     <insert id="createFormScope" parameterType="map">
@@ -80,7 +79,8 @@
         SET form_name = #{formName},
         default_form = #{defaultForm},
         main_form = #{mainForm},
-        form_used_status = #{status}
+        form_used_status = #{status},
+        form_explain = #{formExplain}
         WHERE form_code = #{code}
     </update>
 

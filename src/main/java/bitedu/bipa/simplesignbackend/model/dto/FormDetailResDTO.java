@@ -24,4 +24,6 @@ public class FormDetailResDTO {
     private Boolean status;
     @Size(max=10, message = "결재라인은 최대 10개만 입력 가능합니다.")
     private List<DefaultApprovalLineDTO> approvalLine;
+    @Size(max=50, message = "양식설명은 최대 50자까지 입력 가능합니다.")
+    private String formExplain;
 }
