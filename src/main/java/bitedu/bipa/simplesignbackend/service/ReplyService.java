@@ -55,11 +55,15 @@ public class ReplyService {
     public void removeReply(int replyId) {
         int orgUserId = (int) SessionUtils.getAttribute("userId");
         //댓글이 본인이 작성한 것인지 확인
-        int replierId = replyDAO.selectReplierId(replyId);
-        if(replierId !=orgUserId) {
+        ReplyResDTO replyResDTO = replyDAO.selectReplierAndDepth(replyId);
+        if(replyResDTO.getOrgUserId() !=orgUserId) {
             throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
         int affectedCount = replyDAO.deleteReply(replyId);
+        //댓글 depth 가 1이라면 아래 댓글도 모두 삭제
+        if(replyResDTO.getDepth() ==1) {
+            replyDAO.deleteLowerReply(replyId);
+        }
         if(affectedCount ==0) {
             throw new RestApiException(CustomErrorCode.REPLY_DELETE_FAIL);
         }

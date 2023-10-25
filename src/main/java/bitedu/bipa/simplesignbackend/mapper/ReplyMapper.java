@@ -25,6 +25,10 @@ public interface ReplyMapper {
     int updateReply(ReplyReqDTO replyReqDTO);
 
     int deleteReply(int replyId);
-
+    
     int selectReplierId(int replyId);
+
+    ReplyResDTO selectReplierAndDepth(int replyId);
+
+    int deleteLowerReply(int replyId);
 }

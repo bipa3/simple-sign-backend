@@ -1,5 +1,6 @@
 package bitedu.bipa.simplesignbackend.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ public class ReplyResDTO {
     private String replyContent;
     private int approvalDocId;
     private int upperReplyId;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime regDate;
     private int depth;
     private int groupNo;

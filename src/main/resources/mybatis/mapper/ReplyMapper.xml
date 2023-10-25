@@ -51,5 +51,15 @@
         where reply_id = #{replyId};
     </select>
 
+    <select id="selectReplierAndDepth" parameterType="int" resultType="ReplyResDTO">
+        select org_user_id, depth from reply
+        where reply_id = #{replyId};
+    </select>
+
+    <update id="deleteLowerReply" parameterType="int">
+        update reply set reply_del_status = 1
+            where group_no =#{replyId};
+    </update>
+
 
 </mapper>
