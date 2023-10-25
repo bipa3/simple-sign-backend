@@ -92,6 +92,7 @@
         LEFT JOIN company comp ON comp.comp_id=est.comp_id
         LEFT JOIN (SELECT user_role.org_user_id, authority.authority_code, authority.authority_name FROM user_role INNER JOIN authority ON user_role.authority_code=authority.authority_code) AS role
         ON ou.org_user_id=role.org_user_id
-        WHERE user_id=#{userId} order by authority_code asc;
+        WHERE user_id=#{userId}
+        order by authority_code asc, ou.org_user_id asc;
     </select>
 </mapper>
