@@ -35,7 +35,7 @@ public class FormManageDAO {
     }
 
     public List<FormListDTO> selectFormList(String searchContent) {
-        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         BelongOrganizationDTO belong = commonMapper.getBelongs(orgUserId);
         Map<String, Object> map = new HashMap<>();
         map.put("belong", belong);
