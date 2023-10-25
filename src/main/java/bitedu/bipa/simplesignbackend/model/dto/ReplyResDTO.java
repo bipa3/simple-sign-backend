@@ -18,5 +18,8 @@ public class ReplyResDTO {
     private int groupNo;
     private int groupOrd;
     private int orgUserId;
+    private String userName;
+    private String approvalFilePath;
+    private String fileCode;
 
 }

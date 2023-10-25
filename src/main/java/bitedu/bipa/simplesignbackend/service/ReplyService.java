@@ -26,12 +26,13 @@ public class ReplyService {
 
     @Transactional
     public void registerReply(ReplyReqDTO replyReqDTO) {
-        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         replyReqDTO.setOrgUserId(orgUserId);
         //upperReplyId 가 0이면 댓글 아니면 대댓글
         if(replyReqDTO.getUpperReplyId() ==0) {
             replyDAO.insertReply(replyReqDTO);
         }else {
+            System.out.println("대댓글");
             replyDAO.insertLowerReply(replyReqDTO);
         }
 
@@ -39,7 +40,7 @@ public class ReplyService {
 
     @Transactional
     public void updateReply(ReplyReqDTO replyReqDTO) {
-        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         //댓글이 본인이 작성한 것인지 확인
         int replierId = replyDAO.selectReplierId(replyReqDTO.getReplyId());
         if(replierId !=orgUserId) {
@@ -53,7 +54,7 @@ public class ReplyService {
 
     @Transactional
     public void removeReply(int replyId) {
-        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         //댓글이 본인이 작성한 것인지 확인
         ReplyResDTO replyResDTO = replyDAO.selectReplierAndDepth(replyId);
         if(replyResDTO.getOrgUserId() !=orgUserId) {
@@ -70,7 +71,7 @@ public class ReplyService {
     }
 
     public boolean showIsEditable(int replyId) {
-        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         int replier = replyDAO.selectReplierId(replyId);
         if(orgUserId ==replier) {
             return true;
