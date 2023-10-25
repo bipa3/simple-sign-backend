@@ -47,4 +47,11 @@ public class CommonService {
         }
         return recommendedForms;
     }
+
+    public void checkDeptMasterAthority(int id) {
+        int authority = (int)SessionUtils.getAttribute("authorityCode");
+        if (authority != 1 && !SessionUtils.hasIdAttribute("compId", id)) {
+            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
+        }
+    }
 }

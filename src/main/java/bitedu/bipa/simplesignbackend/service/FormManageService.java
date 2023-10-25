@@ -5,12 +5,10 @@ import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
-import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.websocket.Session;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,17 +18,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FormManageService {
     FormManageDAO formManageDAO;
     CommonMapper commonMapper;
+    CommonService commonService;
 
-    public FormManageService (FormManageDAO formManageDAO, CommonMapper commonMapper) {
+    public FormManageService (FormManageDAO formManageDAO, CommonMapper commonMapper, CommonService commonService) {
         this.commonMapper = commonMapper;
         this.formManageDAO = formManageDAO;
+        this.commonService = commonService;
     }
 
     public List<FormAndCompDTO> selectFormAndCompList(FormAndCompDTO formAndCompDTO) {
+        commonService.checkDeptMasterAthority(Integer.parseInt(formAndCompDTO.getCompId()));
         List<FormAndCompDTO> formAndCompList = formManageDAO.selectFormAndComp(formAndCompDTO);
-        if (!SessionUtils.hasIdAttribute("compId", Integer.parseInt(formAndCompDTO.getCompId()))) {
-            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
-        }
+
         if(formAndCompList.size() < 1){
             throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
         }
@@ -41,9 +40,8 @@ public class FormManageService {
         FormDetailResDTO formDetail = new FormDetailResDTO();
         try{
             formDetail = formManageDAO.selectFormDetail(code);
-            if (!SessionUtils.hasIdAttribute("compId", formDetail.getCompId())) {
-                throw new RestApiException(CustomErrorCode.INACTIVE_USER);
-            }
+            commonService.checkDeptMasterAthority(formDetail.getCompId());
+
             ArrayList<FormDetailScopeDTO> formDetailScopeList = formManageDAO.selectFormScope(code);
             formDetail.setScope(formDetailScopeList);
             if(formDetail.getCode() == 0){
@@ -81,9 +79,8 @@ public class FormManageService {
     @Transactional
     public Boolean formDetailRegist(FormDetailResDTO formDetail) {
         try {
-            if (!SessionUtils.hasIdAttribute("compId", formDetail.getCompId())) {
-                throw new RestApiException(CustomErrorCode.INACTIVE_USER);
-            }
+            commonService.checkDeptMasterAthority(formDetail.getCompId());
+
             formManageDAO.insertFormDetail(formDetail);
 
             int formCode = commonMapper.getLastInsertId();
@@ -130,9 +127,8 @@ public class FormManageService {
     @Transactional
     public Boolean formDetailChange(FormDetailResDTO formDetail) {
         try {
-            if (!SessionUtils.hasIdAttribute("compId", formDetail.getCompId())) {
-                throw new RestApiException(CustomErrorCode.INACTIVE_USER);
-            }
+            commonService.checkDeptMasterAthority(formDetail.getCompId());
+
             formManageDAO.updateFormDetail(formDetail);
             int formCode = formDetail.getCode();
             if(formCode == 0){
@@ -220,9 +216,8 @@ public class FormManageService {
         FormDetailResDTO formDetail = new FormDetailResDTO();
         try {
             formDetail = formManageDAO.selectFormDetail(code);
-            if (!SessionUtils.hasIdAttribute("compId", formDetail.getCompId())) {
-                throw new RestApiException(CustomErrorCode.INACTIVE_USER);
-            }
+            commonService.checkDeptMasterAthority(formDetail.getCompId());
+
             formManageDAO.deleteForm(code);
         }catch (Exception e){
             e.printStackTrace();
