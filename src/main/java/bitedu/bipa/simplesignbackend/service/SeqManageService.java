@@ -3,7 +3,9 @@ import bitedu.bipa.simplesignbackend.dao.SeqManageDAO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqAndCompDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqDetailDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqScopeDTO;
+import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
+import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,9 @@ public class SeqManageService {
     }
 
     public List<SeqAndCompDTO> searchSeqAndCompList(SeqAndCompDTO seqAndCompDTO) {
+        if (!SessionUtils.hasIdAttribute("compId", Integer.parseInt(seqAndCompDTO.getCompId()))) {
+            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
+        }
         List<SeqAndCompDTO> seqAndCompList = new ArrayList<SeqAndCompDTO>();
         try{
             seqAndCompList = seqManageDAO.selectSeqAndComp(seqAndCompDTO);
@@ -43,6 +48,9 @@ public class SeqManageService {
         SeqDetailDTO seqDetail = new SeqDetailDTO();
         try {
             seqDetail = seqManageDAO.selectSeqDetail(code);
+            if (!SessionUtils.hasIdAttribute("compId", Integer.parseInt(seqDetail.getCompId()))) {
+                throw new RestApiException(CustomErrorCode.INACTIVE_USER);
+            }
             List<SeqScopeDTO> deptScopeList = seqManageDAO.selectDeptScope(code);
             List<SeqScopeDTO> formScopeList = seqManageDAO.selectFormScope(code);
             seqDetail.setDeptScope(deptScopeList);
@@ -63,7 +71,12 @@ public class SeqManageService {
     }
 
     public Boolean removeSeq(int code) {
-        try{
+        SeqDetailDTO seqDetail = new SeqDetailDTO();
+        try {
+            seqDetail = seqManageDAO.selectSeqDetail(code);
+            if (!SessionUtils.hasIdAttribute("compId", Integer.parseInt(seqDetail.getCompId()))) {
+                throw new RestApiException(CustomErrorCode.INACTIVE_USER);
+            }
             seqManageDAO.deleteSeq(code);
         } catch (Exception e){
             e.printStackTrace();
@@ -74,6 +87,9 @@ public class SeqManageService {
 
     @Transactional
     public Boolean seqDetailRegist(SeqDetailDTO seqDetail) {
+        if (!SessionUtils.hasIdAttribute("compId", Integer.parseInt(seqDetail.getCompId()))) {
+            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
+        }
         try {
             seqManageDAO.insertSeqDetail(seqDetail);
             int seqCode = seqManageDAO.getSeqDetailId();
@@ -117,6 +133,9 @@ public class SeqManageService {
 
     @Transactional
     public Boolean seqDetailChange(SeqDetailDTO seqDetailDTO) {
+        if (!SessionUtils.hasIdAttribute("compId", Integer.parseInt(seqDetailDTO.getCompId()))) {
+            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
+        }
         try {
             int seqCode = Integer.parseInt(seqDetailDTO.getCode());
             seqManageDAO.updateSeqDetail(seqDetailDTO);
