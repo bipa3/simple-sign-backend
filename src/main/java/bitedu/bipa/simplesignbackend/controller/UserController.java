@@ -62,6 +62,15 @@ public class UserController {
         }
     }
 
+    @GetMapping("/login/checkout")
+    public ResponseEntity loginCeckout(HttpServletRequest request){
+        int userId = (int) SessionUtils.getAttribute("userId");
+        if(userId != 0){
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
     @PostMapping("/logout")
     public ResponseEntity userLogout (HttpServletRequest request, HttpServletResponse response){
         HttpSession session = request.getSession(false);
