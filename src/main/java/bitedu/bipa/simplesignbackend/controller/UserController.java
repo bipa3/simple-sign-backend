@@ -63,7 +63,7 @@ public class UserController {
     }
 
     @GetMapping("/login/checkout")
-    public ResponseEntity loginCeckout(HttpServletRequest request){
+    public ResponseEntity loginCeckout(){
         int userId = (int) SessionUtils.getAttribute("userId");
         if(userId != 0){
             return new ResponseEntity(HttpStatus.OK);
