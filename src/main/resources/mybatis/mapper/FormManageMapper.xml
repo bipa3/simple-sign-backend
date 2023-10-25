@@ -12,7 +12,7 @@
     </select>
 
     <select id="getFormDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.FormDetailResDTO">
-        SELECT form_code AS code, form_name AS formName, default_form AS defaultForm, main_form AS mainForm, form_used_status AS status
+        SELECT form_code AS code, form_name AS formName, default_form AS defaultForm, main_form AS mainForm, form_used_status AS status, comp_id
         FROM form WHERE form_code=#{code};
     </select>
 
