@@ -20,4 +20,11 @@ public class SessionUtils {
     public static Object getAttribute(String name){
         return RequestContextHolder.getRequestAttributes().getAttribute(name,RequestAttributes.SCOPE_SESSION);
     }
+
+    public static Boolean hasIdAttribute(String key, int id){
+        int sessionValue = Integer.parseInt(RequestContextHolder.getRequestAttributes().getAttribute(key, RequestAttributes.SCOPE_SESSION).toString());
+        Boolean result = sessionValue == id;
+        System.out.println("sessionValue: " + sessionValue + " value: " + id + " result: " + result);
+        return result;
+    }
 }
