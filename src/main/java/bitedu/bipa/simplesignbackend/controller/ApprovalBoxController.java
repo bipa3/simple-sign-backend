@@ -55,7 +55,6 @@ public class ApprovalBoxController {
                                                                @SessionAttribute(name = "orgUserId") int orgUserId,
                                                                @SessionAttribute(name = "compId") int compId,
                                                                @SessionAttribute(name = "deptId") int deptId, @RequestBody SearchRequestDTO criteria) {
-
         int estId = approvalBoxDAO.selectEstId(userId);
 
 
@@ -150,11 +149,11 @@ public class ApprovalBoxController {
         return approvalBoxService.selectReadDoc(orgUserId);
     }
 
-    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
-    @GetMapping("/company")
-    public ArrayList<CompanyDTO>getUserCompany (@SessionAttribute (name="orgUserId") int orgUserId){
-        return approvalBoxService.selectUserCompany(orgUserId);
-    }
+//    @Authority(role = {Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+//    @GetMapping("/company")
+//    public ArrayList<CompanyDTO>getUserCompany (@SessionAttribute (name="orgUserId") int orgUserId){
+//        return approvalBoxService.selectUserCompany(orgUserId);
+//    }
 }
 
 
