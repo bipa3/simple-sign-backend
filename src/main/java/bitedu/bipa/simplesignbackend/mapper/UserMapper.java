@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface UserMapper {
@@ -45,4 +46,5 @@ public interface UserMapper {
 
     List<UserOrgDTO> getOrgList(int userId);
 
+    int selectPasswordByInput(Map<String, Object> map);
 }

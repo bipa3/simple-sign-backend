@@ -2,9 +2,11 @@ package bitedu.bipa.simplesignbackend.service;
 
 import bitedu.bipa.simplesignbackend.dao.ApproveDAO;
 import bitedu.bipa.simplesignbackend.dao.CommonDAO;
+import bitedu.bipa.simplesignbackend.dao.UserDAO;
 import bitedu.bipa.simplesignbackend.enums.AlarmStatus;
 import bitedu.bipa.simplesignbackend.enums.ApprovalStatus;
 import bitedu.bipa.simplesignbackend.model.dto.*;
+import bitedu.bipa.simplesignbackend.utils.PasswordUtil;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
@@ -21,13 +23,15 @@ public class ApproveService {
     private final CommonDAO commonDAO;
     private final AlarmService alarmService;
     private final SequenceService sequenceService;
+    private final UserDAO userDAO;
 
 
-    public ApproveService(ApproveDAO approveDAO, CommonDAO commonDAO, AlarmService alarmService, SequenceService sequenceService) {
+    public ApproveService(ApproveDAO approveDAO, CommonDAO commonDAO, AlarmService alarmService, SequenceService sequenceService, UserDAO userDAO) {
         this.approveDAO = approveDAO;
         this.commonDAO = commonDAO;
         this.alarmService = alarmService;
         this.sequenceService = sequenceService;
+        this.userDAO = userDAO;
     }
 
     @Transactional
@@ -530,4 +534,13 @@ public class ApproveService {
         }
     }
 
+    public void validPassword(String password) {
+        int userId = (int) SessionUtils.getAttribute("userId");
+        String currentSalt = userDAO.getSalt(userId);
+        String currentPwHash = PasswordUtil.getEncode(password, currentSalt);
+        int count = userDAO.selectPasswordByInput(userId, currentPwHash);
+        if(count ==0) {
+            throw  new RestApiException(CustomErrorCode.INAPPROPIRATE_PASSWORD);
+        }
+    }
 }

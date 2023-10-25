@@ -95,4 +95,9 @@
         WHERE user_id=#{userId}
         order by authority_code asc, ou.org_user_id asc;
     </select>
+
+    <select id="selectPasswordByInput">
+        select count(*) from user
+        where user_id = #{userId} and password = #{password};
+    </select>
 </mapper>
