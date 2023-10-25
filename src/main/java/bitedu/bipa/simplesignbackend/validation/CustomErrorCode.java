@@ -24,7 +24,7 @@ public enum CustomErrorCode implements ErrorCode{
     REPLY_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "결재의견 삭제에 실패했습니다."),
     APPROVAL_DOC_COMPLETED(HttpStatus.BAD_REQUEST, "이미 결재된 문서입니다."),
     APPROVAL_DOC_DELETED(HttpStatus.BAD_REQUEST, "존재하지 않는 문서입니다."),
-
+    INAPPROPIRATE_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다")
     //
 
     ;

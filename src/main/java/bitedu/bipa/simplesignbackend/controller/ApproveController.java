@@ -5,6 +5,7 @@ import bitedu.bipa.simplesignbackend.model.dto.ApprovalDocDetailDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalDocReqDTO;
 import bitedu.bipa.simplesignbackend.service.ApproveService;
 import bitedu.bipa.simplesignbackend.service.S3Service;
+import bitedu.bipa.simplesignbackend.service.UserService;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -118,6 +120,14 @@ public class ApproveController {
     @PatchMapping("/temp/{num}")
     public ResponseEntity<String>  updateTemporalApprovalDoc(@PathVariable("num") int approvalDocId, @RequestBody ApprovalDocReqDTO approvalDocReqDTO) {
         approveService.updateTemporalApprovalDoc(approvalDocId, approvalDocReqDTO);
+        return ResponseEntity.ok("ok");
+    }
+
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @PostMapping("/password")
+    public ResponseEntity<String> validPassword(@RequestBody Map<String,String> map) {
+        //System.out.println("password: " + map.get("password"));
+        approveService.validPassword(map.get("password"));
         return ResponseEntity.ok("ok");
     }
 
