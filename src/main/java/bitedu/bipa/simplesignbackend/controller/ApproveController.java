@@ -35,7 +35,7 @@ public class ApproveController {
                                                   ) throws IOException {
         //System.out.println(files.get(0).getOriginalFilename());
         int approvalDocId = approveService.registerApprovalDoc(approvalDocReqDTO);
-        if(!files.isEmpty()){
+        if(files !=null){
             for(MultipartFile file: files) {
                 String fileName = file.getOriginalFilename();
                 String s3Url = s3Service.upload(file, "approvalDoc"); //댓글은  reply

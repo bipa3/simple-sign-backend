@@ -43,7 +43,7 @@
         select c.comp_id as id, c.comp_name as name from company c
         join organization_user ou on c.comp_name = ou.comp_name
         join user u on u.user_id = ou.user_id
-        where u.user_id = #{userId}
+        where u.user_id = #{orgUserId}
     </select>
 
     <select id="getUserCompId" resultType="int">
@@ -55,7 +55,7 @@
     <select id="getUserEstId" resultType="int">
         select e.est_id from establishment  e
         join organization_user ou on e.est_name = ou.est_name
-        where ou.user_id =#{userId};
+        where ou.org_user_id =#{orgUserId};
     </select>
     <select id="getCustomBoxList" resultType="bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO">
         SELECT ab.approval_box_id, ab.approval_box_name
@@ -102,7 +102,8 @@
         SET
         ab.approval_box_name = CASE WHEN #{approvalBoxName} IS NOT NULL THEN #{approvalBoxName} ELSE ab.approval_box_name END,
         ab.approval_box_used_status = CASE WHEN #{approvalBoxUsedStatus} IS NOT NULL THEN #{approvalBoxUsedStatus} ELSE ab.approval_box_used_status END,
-        ab.menu_using_range = CASE WHEN #{menuUsingRange} IS NOT NULL THEN #{menuUsingRange} ELSE ab.menu_using_range END
+        ab.menu_using_range = CASE WHEN #{menuUsingRange} IS NOT NULL THEN #{menuUsingRange} ELSE ab.menu_using_range END,
+        ab.sort_Order = CASE WHEN #{sortOrder} IS NOT NULL THEN #{sortOrder} ELSE ab.sort_Order END
         WHERE ab.approval_box_id = #{approvalBoxId}
         AND c.comp_id = #{compId};
     </update>

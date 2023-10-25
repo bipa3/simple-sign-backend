@@ -53,7 +53,7 @@ public class FormManageService {
     }
 
     public List<SequenceListDTO> showSeqList(int formCode) {
-        int orgUserId = (int)SessionUtils.getAttribute("userId");
+        int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
         return formManageDAO.selectSeqList(orgUserId, formCode);
     }
 
