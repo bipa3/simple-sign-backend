@@ -21,15 +21,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SeqManageService {
 
     SeqManageDAO seqManageDAO;
+    CommonService commonService;
 
-    public SeqManageService (SeqManageDAO seqManageDAO) {
+    public SeqManageService (SeqManageDAO seqManageDAO, CommonService commonService) {
         this.seqManageDAO = seqManageDAO;
+        this.commonService = commonService;
     }
 
     public List<SeqAndCompDTO> searchSeqAndCompList(SeqAndCompDTO seqAndCompDTO) {
-        if (!SessionUtils.hasIdAttribute("compId", Integer.parseInt(seqAndCompDTO.getCompId()))) {
-            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
-        }
+        commonService.checkDeptMasterAthority(Integer.parseInt(seqAndCompDTO.getCompId()));
         List<SeqAndCompDTO> seqAndCompList = new ArrayList<SeqAndCompDTO>();
         try{
             seqAndCompList = seqManageDAO.selectSeqAndComp(seqAndCompDTO);
@@ -48,9 +48,8 @@ public class SeqManageService {
         SeqDetailDTO seqDetail = new SeqDetailDTO();
         try {
             seqDetail = seqManageDAO.selectSeqDetail(code);
-            if (!SessionUtils.hasIdAttribute("compId", Integer.parseInt(seqDetail.getCompId()))) {
-                throw new RestApiException(CustomErrorCode.INACTIVE_USER);
-            }
+            commonService.checkDeptMasterAthority(Integer.parseInt(seqDetail.getCompId()));
+
             List<SeqScopeDTO> deptScopeList = seqManageDAO.selectDeptScope(code);
             List<SeqScopeDTO> formScopeList = seqManageDAO.selectFormScope(code);
             seqDetail.setDeptScope(deptScopeList);
@@ -74,9 +73,8 @@ public class SeqManageService {
         SeqDetailDTO seqDetail = new SeqDetailDTO();
         try {
             seqDetail = seqManageDAO.selectSeqDetail(code);
-            if (!SessionUtils.hasIdAttribute("compId", Integer.parseInt(seqDetail.getCompId()))) {
-                throw new RestApiException(CustomErrorCode.INACTIVE_USER);
-            }
+            commonService.checkDeptMasterAthority(Integer.parseInt(seqDetail.getCompId()));
+
             seqManageDAO.deleteSeq(code);
         } catch (Exception e){
             e.printStackTrace();
@@ -87,9 +85,8 @@ public class SeqManageService {
 
     @Transactional
     public Boolean seqDetailRegist(SeqDetailDTO seqDetail) {
-        if (!SessionUtils.hasIdAttribute("compId", Integer.parseInt(seqDetail.getCompId()))) {
-            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
-        }
+        commonService.checkDeptMasterAthority(Integer.parseInt(seqDetail.getCompId()));
+
         try {
             seqManageDAO.insertSeqDetail(seqDetail);
             int seqCode = seqManageDAO.getSeqDetailId();
@@ -133,9 +130,8 @@ public class SeqManageService {
 
     @Transactional
     public Boolean seqDetailChange(SeqDetailDTO seqDetailDTO) {
-        if (!SessionUtils.hasIdAttribute("compId", Integer.parseInt(seqDetailDTO.getCompId()))) {
-            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
-        }
+        commonService.checkDeptMasterAthority(Integer.parseInt(seqDetailDTO.getCompId()));
+
         try {
             int seqCode = Integer.parseInt(seqDetailDTO.getCode());
             seqManageDAO.updateSeqDetail(seqDetailDTO);
