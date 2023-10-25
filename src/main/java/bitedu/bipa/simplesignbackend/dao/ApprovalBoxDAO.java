@@ -87,8 +87,8 @@ public class ApprovalBoxDAO {
         }
     }
 
-    public int selectEstId(int userId) {
-        return approvalBoxManageMapper.getUserEstId(userId);
+    public int selectEstId(int orgUserId) {
+        return approvalBoxManageMapper.getUserEstId(orgUserId);
     }
 
     public void createApprovalBox(int compId, String approvalBoxName, ArrayList<String> viewItems, int approvalBoxUsedStatus, String menuUsingRange, ArrayList<BoxUseDepartmentDTO> boxUseDept, int sortOrder) {

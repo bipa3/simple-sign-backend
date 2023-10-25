@@ -36,12 +36,12 @@ public class ApprovalBoxController {
             @RequestParam(name = "offset") int offset,
             @RequestParam(name = "searchInput") String searchInput
     ) {
-        int estId = approvalBoxDAO.selectEstId(userId);
+        int estId = approvalBoxDAO.selectEstId(orgUserId);
 
         Map<String, Object> result = new HashMap<>();
 
         if (!searchInput.equals("")) {
-            result=approvalBoxService.selectSearchDocuments(viewItems, userId, deptId, estId, compId, itemsPerPage, offset, searchInput);
+            result=approvalBoxService.selectSearchDocuments(viewItems, orgUserId, deptId, estId, compId, itemsPerPage, offset, searchInput);
         }else{
             result = approvalBoxService.selectDocuments(viewItems, orgUserId, deptId,estId,compId, itemsPerPage, offset);
         }
@@ -55,7 +55,7 @@ public class ApprovalBoxController {
                                                                @SessionAttribute(name = "orgUserId") int orgUserId,
                                                                @SessionAttribute(name = "compId") int compId,
                                                                @SessionAttribute(name = "deptId") int deptId, @RequestBody SearchRequestDTO criteria) {
-        int estId = approvalBoxDAO.selectEstId(userId);
+        int estId = approvalBoxDAO.selectEstId(orgUserId);
 
 
         Map<String, Object> result = approvalBoxService.searchDocuments( orgUserId,deptId,estId,compId,criteria);
@@ -131,7 +131,7 @@ public class ApprovalBoxController {
                                    @SessionAttribute(name = "orgUserId") int orgUserId,
                                    @SessionAttribute(name = "compId") int compId,
                                    @SessionAttribute(name = "deptId") int deptId, @RequestParam String boxName){
-        int estId = approvalBoxDAO.selectEstId(userId);
+        int estId = approvalBoxDAO.selectEstId(orgUserId);
 
         int count = approvalBoxService.selectDocumentsCount(orgUserId,deptId,estId,compId,boxName);
         return count;
