@@ -4,10 +4,13 @@ import bitedu.bipa.simplesignbackend.interceptor.Authority;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalDocDetailDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalDocReqDTO;
 import bitedu.bipa.simplesignbackend.service.ApproveService;
+import bitedu.bipa.simplesignbackend.service.S3Service;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.util.List;
 
 
 @RestController
@@ -15,15 +18,27 @@ import javax.validation.Valid;
 public class ApproveController {
 
     private final ApproveService approveService;
+    private final S3Service s3Service;
 
-    public ApproveController(ApproveService approveService) {
+    public ApproveController(ApproveService approveService, S3Service s3Service) {
         this.approveService = approveService;
+        this.s3Service = s3Service;
     }
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
-    @PostMapping("/register")
-    public ResponseEntity<String> approveRegister(@Valid @RequestBody ApprovalDocReqDTO approvalDocReqDTO) {
-        approveService.registerApprovalDoc(approvalDocReqDTO);
+    @PostMapping(value = "/register" )
+    public ResponseEntity<String> approveRegister(@Valid @RequestPart ApprovalDocReqDTO approvalDocReqDTO,
+                                                  @RequestPart(required = false) List<MultipartFile> files
+                                                  ) throws IOException {
+        //System.out.println(files.get(0).getOriginalFilename());
+        int approvalDocId = approveService.registerApprovalDoc(approvalDocReqDTO);
+        if(!files.isEmpty()){
+            for(MultipartFile file: files) {
+                String fileName = file.getOriginalFilename();
+                String s3Url = s3Service.upload(file, "approvalDoc"); //댓글은  reply
+                approveService.insertApprovalAttachment(s3Url,fileName, approvalDocId);
+            }
+        }
         return ResponseEntity.ok("ok");
     }
 
@@ -104,5 +119,7 @@ public class ApproveController {
         approveService.updateTemporalApprovalDoc(approvalDocId, approvalDocReqDTO);
         return ResponseEntity.ok("ok");
     }
+
+
 
 }

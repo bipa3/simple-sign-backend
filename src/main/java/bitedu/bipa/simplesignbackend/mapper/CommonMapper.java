@@ -7,7 +7,7 @@ import java.util.List;
 @Mapper
 public interface CommonMapper {
 
-    List<CompanyDTO> getCompanyList();
+    List<CompanyDTO> getCompanyList(int compId);
 
     BelongOrganizationDTO getBelongs(int userId);
     int getLastInsertId();

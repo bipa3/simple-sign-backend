@@ -91,8 +91,7 @@ public class FormManageController {
     @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN, Authority.Role.USER})
     @GetMapping("/seqTitleList")
     public ResponseEntity<List<SequenceListDTO>> seqTitleList(@RequestParam int formCode){
-        int userId = 1;
-        return ResponseEntity.ok(formManageService.showSeqList(userId, formCode));
+        return ResponseEntity.ok(formManageService.showSeqList(formCode));
     }
 
     @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})

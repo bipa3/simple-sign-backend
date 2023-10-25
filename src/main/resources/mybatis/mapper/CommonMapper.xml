@@ -6,7 +6,12 @@
 <mapper namespace="bitedu.bipa.simplesignbackend.mapper.CommonMapper">
 
     <select id="getCompanyList" resultType="bitedu.bipa.simplesignbackend.model.dto.CompanyDTO">
-        select comp_id as id, comp_name as name from company;
+        select comp_id as id, comp_name as name from company
+        <where>
+            <if test="compId != 0">
+                AND comp_id=#{compId}
+            </if>
+        </where>
     </select>
 
     <!--해당 사용자의 소속 조직(부서,사업장,회사) 검색-->

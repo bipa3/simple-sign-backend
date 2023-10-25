@@ -209,4 +209,8 @@ public class ApproveDAO {
     public int updateTemporalApprovalDoc(ApprovalDocReqDTO approvalDocReqDTO) {
         return approveMapper.updateTemporalApprovalDoc(approvalDocReqDTO);
     }
+
+    public int insertApprovalAttachment(ApprovalAttachmentDTO approvalAttachmentDTO) {
+        return approveMapper.insertApprovalAttachment(approvalAttachmentDTO);
+    }
 }

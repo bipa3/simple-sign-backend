@@ -31,6 +31,7 @@ public class UserDTO {
     private String salt;
 
     //개인정보
+    private int orgUserId;
     private String compName;
     private String estName;
     private String deptString;

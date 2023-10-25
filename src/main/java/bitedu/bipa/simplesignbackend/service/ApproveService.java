@@ -31,8 +31,8 @@ public class ApproveService {
     }
 
     @Transactional
-    public void  registerApprovalDoc(ApprovalDocReqDTO approvalDocReqDTO) {
-        int orgUserId = (int) SessionUtils.getAttribute("userId");
+    public int  registerApprovalDoc(ApprovalDocReqDTO approvalDocReqDTO) {
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         List<Integer> approverList = approvalDocReqDTO.getApproverList();
         int approvalCount = approverList.size();
 
@@ -67,13 +67,14 @@ public class ApproveService {
         if(totalCount !=receiveCount) {
             throw new RestApiException(CustomErrorCode.RECEIVED_REF_INSERT_FAIL);
         }
+        return approvalDocId;
     }
 
     @Transactional
     public void approveApprovalDoc(int approvalDocId) {
         //결재하기
         //1. 결재테이블에서 결재할 문서가 있는지 가져오기, 없으면 bad request
-        int orgUserId = (int)SessionUtils.getAttribute("userId");
+        int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
         ApprovalResDTO approvalResDTO =  approveDAO.selectApprovalByApprovalId(orgUserId,approvalDocId);
         if(approvalResDTO.getApprovalId() ==0 || approvalResDTO.getApprovalStatus() !=ApprovalStatus.PROGRESS.getCode()) {
             throw new RestApiException(CustomErrorCode.INAPPROPRIATE_USER);
@@ -138,7 +139,7 @@ public class ApproveService {
     public void returnApprovalDoc( int approvalDocId) {
         //1. 결재테이블에서 결재할 문서가 있는지 가져오기, 없으면 bad request
         //결재하기
-        int orgUserId = (int)SessionUtils.getAttribute("userId");
+        int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
         ApprovalResDTO approvalResDTO =  approveDAO.selectApprovalByApprovalId(orgUserId,approvalDocId);
         if(approvalResDTO.getApprovalId() ==0 || approvalResDTO.getApprovalStatus() !=ApprovalStatus.PROGRESS.getCode()) {
             throw  new RestApiException(CustomErrorCode.INAPPROPRIATE_USER);
@@ -173,7 +174,10 @@ public class ApproveService {
     }
 
     public ApprovalDocDetailDTO showDetailApprovalDoc(int approvalDocId) {
-        int orgUserId = (int)SessionUtils.getAttribute("userId");
+        int userId = (int)SessionUtils.getAttribute("userId");
+        int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
+        System.out.println(userId);
+        System.out.println(orgUserId);
         ApprovalDocDetailDTO approvalDocDetailDTO =  approveDAO.selectApprovalDocById(approvalDocId);
         //System.out.println(approvalDocDetailDTO);
         if(approvalDocDetailDTO ==null) {
@@ -320,7 +324,7 @@ public class ApproveService {
     @Transactional
     public void removeApprovalDoc(int approvalDocId) {
         //삭제하고 싶은 결재문서의 작성자 확인
-        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         int approvalDocRegisterId = approveDAO.selectUserIdByApprovalDoc(approvalDocId);
 
         //권한에 따른 삭제 -> 본인이거나, 부서관리자거나 시스템관리자거나?
@@ -335,7 +339,7 @@ public class ApproveService {
     }
 
     public boolean hasPermission(int approvalDocId) {
-        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         List<ApprovalPermissionResDTO> list =  approveDAO.selectApprovalUserIdByApprovalDocId(approvalDocId);
         for(ApprovalPermissionResDTO dto: list) {
             if(dto.getOrgUserId() == orgUserId && dto.getApprovalStatus() ==ApprovalStatus.PROGRESS.getCode()) {
@@ -348,7 +352,7 @@ public class ApproveService {
     @Transactional
     public void cancelApproval(int approvalDocId) {
         //1.결재문서에서 결재라인에 해당 사용자가 있는지 확인
-        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         List<ApprovalLineListDTO> approvalLineLists = approveDAO.selectApprovalLineByApprovalDocId(approvalDocId);
         boolean hasApprovalLine = approvalLineLists.stream().anyMatch(approvalLineListDTO ->
             approvalLineListDTO.getOrgUserId() == orgUserId
@@ -393,7 +397,7 @@ public class ApproveService {
 
     public boolean getHasApproval(int approvalDocId) {
         //1.결재문서에서 결재라인에 해당 사용자가 있는지 확인
-        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         List<ApprovalLineListDTO> approvalLineLists = approveDAO.selectApprovalLineByApprovalDocId(approvalDocId);
         boolean hasApprovalLine = approvalLineLists.stream().anyMatch(approvalLineListDTO ->
                 approvalLineListDTO.getOrgUserId() == orgUserId
@@ -423,7 +427,7 @@ public class ApproveService {
     }
 
     public boolean getHasUpdate(int approvalDocId) {
-        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         //1.본인이 상신자인지 확인
         Integer approverId = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
         if(approverId ==null) {
@@ -472,7 +476,7 @@ public class ApproveService {
     }
 
     public boolean getHasDelete(int approvalDocId) {
-        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         //해당 사용자가 문서작성자이면서 결재라인에 있는 첫 결재자가 결재하지 않았을 때에만 삭제가능
         Integer approver = approveDAO.selectOrgUserIdFromApprovalDoc(approvalDocId);
         if(approver ==null) {
@@ -492,7 +496,7 @@ public class ApproveService {
 
     @Transactional
     public void updateTemporalApprovalDoc(int approvalDocId, ApprovalDocReqDTO approvalDocReqDTO) {
-        int orgUserId = (int) SessionUtils.getAttribute("userId");
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         List<Integer> approverList = approvalDocReqDTO.getApproverList();
         int approvalCount = approverList.size();
 
@@ -513,4 +517,17 @@ public class ApproveService {
         }
 
     }
+
+    @Transactional
+    public void insertApprovalAttachment(String S3Url, String fileName, int approvalDocId) {
+        ApprovalAttachmentDTO approvalAttachmentDTO = new ApprovalAttachmentDTO();
+        approvalAttachmentDTO.setApprovalDocId(approvalDocId);
+        approvalAttachmentDTO.setApprovalFilePath(S3Url);
+        approvalAttachmentDTO.setFileName(fileName);
+        int affectedCount = approveDAO.insertApprovalAttachment(approvalAttachmentDTO);
+        if(affectedCount==0) {
+            throw new RestApiException(CustomErrorCode.APPROVAL_FAIL);
+        }
+    }
+
 }
