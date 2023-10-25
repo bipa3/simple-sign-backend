@@ -8,7 +8,12 @@
     <select id="getFormAndCompList" resultType="bitedu.bipa.simplesignbackend.model.dto.FormAndCompDTO">
         SELECT form_code AS id, comp_name, form_name, form_used_status AS status FROM form
         INNER JOIN company ON form.comp_id = company.comp_id
-        WHERE form.comp_id=#{compId} AND form_name like CONCAT('%', #{formName}, '%') AND form_used_status=#{status} AND form_del_status=0;
+        <where>
+            <if test="compId != 0">
+                AND form.comp_id=#{compId}
+            </if>
+            AND form_name like CONCAT('%', #{formName}, '%') AND form_used_status=#{status} AND form_del_status=0;
+        </where>
     </select>
 
     <select id="getFormDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.FormDetailResDTO">
