@@ -5,10 +5,13 @@ import bitedu.bipa.simplesignbackend.interceptor.Authority;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.service.ApprovalBoxService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +56,7 @@ public class ApprovalBoxController {
     public ResponseEntity<Map<String, Object>> searchDocuments(@SessionAttribute(name = "userId") int userId,
                                                                @SessionAttribute(name = "orgUserId") int orgUserId,
                                                                @SessionAttribute(name = "compId") int compId,
-                                                               @SessionAttribute(name = "deptId") int deptId, @RequestBody SearchRequestDTO criteria) {
+                                                               @SessionAttribute(name = "deptId") int deptId, @Valid @RequestBody SearchRequestDTO criteria) {
         int estId = approvalBoxDAO.selectEstId(orgUserId);
 
 
@@ -63,7 +66,7 @@ public class ApprovalBoxController {
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/list")
-    public ArrayList<ApprovalBoxDTO> viewDocBoxList(@RequestParam(name="company", required=false)int company){
+    public ArrayList<ApprovalBoxDTO> viewDocBoxList(@NotNull @RequestParam(name="company", required=false)int company){
         ArrayList<ApprovalBoxDTO> boxList = approvalBoxService.selectApprovalBox(company);
         return boxList;
     }
@@ -71,9 +74,17 @@ public class ApprovalBoxController {
 
     @Authority(role = {Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/box/detail")
-    public ArrayList<ApprovalBoxDetailDTO> viewDocBoxDetail(@RequestParam(name="boxId")int boxId){
+//    public ArrayList<ApprovalBoxDetailDTO> viewDocBoxDetail(@RequestParam(name="boxId")int boxId){
+//        ArrayList<ApprovalBoxDetailDTO> detail = approvalBoxService.selectApprovalBoxDetail(boxId);
+//
+//        return detail;
+//    }
+    public ResponseEntity<List<ApprovalBoxDetailDTO>> viewDocBoxDetail(@RequestParam(name="boxId")int boxId){
         ArrayList<ApprovalBoxDetailDTO> detail = approvalBoxService.selectApprovalBoxDetail(boxId);
-        return detail;
+        if(detail != null && !detail.isEmpty()){
+            return new ResponseEntity(detail,HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
@@ -92,9 +103,13 @@ public class ApprovalBoxController {
 
     @Authority(role = {Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PutMapping("/box/delete")
-    public ResponseEntity<Void> viewDocBoxDelete(@RequestParam(name="boxId") int boxId) {
-        approvalBoxService.deleteApprovalBox(boxId);
-        return ResponseEntity.ok().build();  // 200 OK
+    public ResponseEntity viewDocBoxDelete(@NotNull @RequestParam(name="boxId") int boxId) {
+        Boolean removeBox = approvalBoxService.deleteApprovalBox(boxId);
+        if(removeBox){
+            return new ResponseEntity<>(HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
@@ -112,14 +127,19 @@ public class ApprovalBoxController {
 
     @Authority(role = {Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PutMapping("/update")
-    public ResponseEntity<Void> modifyApprovalBox(@RequestBody ApprovalBoxReqDTO criteria) {
-        approvalBoxService.updateApprovalBox(criteria);
-        return ResponseEntity.ok().build();
+    public ResponseEntity modifyApprovalBox(@Valid @RequestBody ApprovalBoxReqDTO criteria) {
+
+        Boolean updateBox = approvalBoxService.updateApprovalBox(criteria);
+        if(updateBox){
+            return new ResponseEntity<>(HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @Authority(role = {Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/insert")
-    public ResponseEntity<Void> createApprovalBox(@RequestBody ApprovalBoxReqDTO criteria) {
+    public ResponseEntity<Void> createApprovalBox( @RequestBody ApprovalBoxReqDTO criteria) {
         approvalBoxService.createApprovalBox(criteria);
         return ResponseEntity.ok().build();
     }
@@ -129,7 +149,7 @@ public class ApprovalBoxController {
     public int viewDocumentsCount (@SessionAttribute(name = "userId") int userId,
                                    @SessionAttribute(name = "orgUserId") int orgUserId,
                                    @SessionAttribute(name = "compId") int compId,
-                                   @SessionAttribute(name = "deptId") int deptId, @RequestParam String boxName){
+                                   @SessionAttribute(name = "deptId") int deptId, @NotNull @RequestParam String boxName){
         int estId = approvalBoxDAO.selectEstId(orgUserId);
 
         int count = approvalBoxService.selectDocumentsCount(orgUserId,deptId,estId,compId,boxName);
@@ -138,7 +158,7 @@ public class ApprovalBoxController {
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/doc/read")
-    public void checkReadDoc (@SessionAttribute(name = "orgUserId") int orgUserId, @RequestParam int docId){
+    public void checkReadDoc (@SessionAttribute(name = "orgUserId") int orgUserId, @NotNull @RequestParam int docId){
         approvalBoxService.insertReadDoc(orgUserId, docId);
     }
 

@@ -21,7 +21,7 @@
                 and a.org_user_id =#{orgUserId}
             </if>
         </foreach>
-        JOIN organization_user ou ON ou.org_user_id = #{orgUserId}
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
         left join approval a2 on (ad.approval_doc_id = a2.approval_doc_id and ad.approval_count = a2.approval_order and end_at is not null)
         left join approval a3 on (ad.approval_doc_id = a3.approval_doc_id and a3.approval_date = (select max(a3.approval_date) from approval) and end_at is null )
         LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
@@ -79,7 +79,7 @@
                 and a.org_user_id =#{orgUserId}
             </if>
         </foreach>
-        JOIN organization_user ou ON ou.org_user_id = #{orgUserId}
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
         left join approval a2 on (ad.approval_doc_id = a2.approval_doc_id and ad.approval_count = a2.approval_order and end_at is not null)
         left join approval a3 on (ad.approval_doc_id = a3.approval_doc_id and a3.approval_date = (select max(a3.approval_date) from approval) and end_at is null )
         LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
@@ -140,7 +140,7 @@
                 and a.org_user_id =#{orgUserId}
             </if>
         </foreach>
-        JOIN organization_user ou ON ou.org_user_id = #{orgUserId}
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
         left join approval a2 on (ad.approval_doc_id = a2.approval_doc_id and ad.approval_count = a2.approval_order and end_at is not null)
         left join approval a3 on (ad.approval_doc_id = a3.approval_doc_id and a3.approval_date = (select max(a3.approval_date) from approval) and end_at is null )
         LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
@@ -204,7 +204,7 @@
                 and a.org_user_id =#{orgUserId}
             </if>
         </foreach>
-        JOIN organization_user ou ON ou.org_user_id = #{orgUserId}
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
         left join approval a2 on (ad.approval_doc_id = a2.approval_doc_id and ad.approval_count = a2.approval_order and end_at is not null)
         left join approval a3 on (ad.approval_doc_id = a3.approval_doc_id and a3.approval_date = (select max(a3.approval_date) from approval) and end_at is null )
         LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
@@ -331,7 +331,7 @@
                 and a.org_user_id =#{orgUserId}
             </if>
         </foreach>
-        JOIN organization_user ou ON ou.org_user_id = #{orgUserId}
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
         left join approval a2 on (ad.approval_doc_id = a2.approval_doc_id and ad.approval_count = a2.approval_order and end_at is not null)
         left join approval a3 on (ad.approval_doc_id = a3.approval_doc_id and a3.approval_date = (select max(a3.approval_date) from approval) and end_at is null )
         LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
@@ -387,7 +387,7 @@
                 and a.org_user_id =#{orgUserId}
             </if>
         </foreach>
-        JOIN organization_user ou ON ou.org_user_id = #{orgUserId}
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
         left join approval a2 on (ad.approval_doc_id = a2.approval_doc_id and ad.approval_count = a2.approval_order and end_at is not null)
         left join approval a3 on (ad.approval_doc_id = a3.approval_doc_id and a3.approval_date = (select max(a3.approval_date) from approval) and end_at is null )
         LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)

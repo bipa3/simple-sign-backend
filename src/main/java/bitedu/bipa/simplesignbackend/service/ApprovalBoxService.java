@@ -1,7 +1,11 @@
 package bitedu.bipa.simplesignbackend.service;
 import bitedu.bipa.simplesignbackend.dao.ApprovalBoxDAO;
 import bitedu.bipa.simplesignbackend.model.dto.*;
+import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
+import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -59,11 +63,22 @@ public class ApprovalBoxService {
     }
 
     public ArrayList<ApprovalBoxDetailDTO> selectApprovalBoxDetail(int boxId) {
-        return approvalBoxDAO.selectBoxDetail(boxId);
+        ArrayList<ApprovalBoxDetailDTO> boxDetail = approvalBoxDAO.selectBoxDetail(boxId);
+        if(boxDetail.size()<1){
+            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+        }
+        return boxDetail;
+
     }
 
-    public void deleteApprovalBox(int boxId) {
-        approvalBoxDAO.deleteApprovalBox(boxId);
+    public Boolean deleteApprovalBox(int boxId) {
+        try{
+            approvalBoxDAO.deleteApprovalBox(boxId);
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+        return true;
     }
 
     public ArrayList<ViewItemDTO> selectViewItems(int boxId) {
@@ -74,7 +89,7 @@ public class ApprovalBoxService {
         return approvalBoxDAO.selectCustomBoxList(company, orgUserId, deptId);
     }
 
-    public void updateApprovalBox(ApprovalBoxReqDTO criteria) {
+    public Boolean updateApprovalBox(ApprovalBoxReqDTO criteria) {
         ArrayList<String> viewItems = criteria.getViewItems();
         int approvalBoxId = criteria.getApprovalBoxId();
         int compId = criteria.getCompId();
@@ -88,7 +103,13 @@ public class ApprovalBoxService {
         String menuUsingRange = criteria.getMenuUsingRange();
         ArrayList<BoxUseDepartmentDTO> boxUseDept = criteria.getBoxUseDept();
         int sortOrder = criteria.getSortOrder();
-        approvalBoxDAO.updateApprovalBox(approvalBoxId, compId, approvalBoxName, viewItems,approvalBoxUsedStatus,menuUsingRange,boxUseDept,sortOrder);
+       try{
+           approvalBoxDAO.updateApprovalBox(approvalBoxId, compId, approvalBoxName, viewItems,approvalBoxUsedStatus,menuUsingRange,boxUseDept,sortOrder);
+       }catch(Exception e){
+            e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+       return true;
     }
 
     public void createApprovalBox(ApprovalBoxReqDTO criteria) {

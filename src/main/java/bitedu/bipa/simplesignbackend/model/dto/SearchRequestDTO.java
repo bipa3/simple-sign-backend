@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.PastOrPresent;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -22,19 +23,18 @@ public class SearchRequestDTO {
     private int itemsPerPage;
     private int offset;
     private String searchDate;
-
+    @PastOrPresent(message = "기간이 유효하지 않습니다.")
     @JsonDeserialize(using = IsoToTimestampDeserializer.class)
     private Timestamp startDate;
-
+    @PastOrPresent(message = "기간이 유효하지 않습니다.")
     @JsonDeserialize(using = IsoToTimestampDeserializer.class)
     private Timestamp endDate;
-
     private String searchTitle;
     private String searchContent;
     private String searchDept;
     private String searchWriter;
     private String searchApprovUser;
-    private int searchApprovState;
+    private String searchApprovState;
     private String searchDocForm;
     private String searchDocNumber;
 
