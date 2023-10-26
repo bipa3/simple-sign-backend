@@ -87,4 +87,12 @@ public class ReplyDAO {
     public int selectReplierId(int replyId) {
         return replyMapper.selectReplierId(replyId);
     }
+
+    public ReplyResDTO selectReplierAndDepth(int replyId) {
+        return replyMapper.selectReplierAndDepth(replyId);
+    }
+
+    public int deleteLowerReply(int replyId) {
+        return replyMapper.deleteLowerReply(replyId);
+    }
 }

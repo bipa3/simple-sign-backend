@@ -7,7 +7,15 @@
 
     <!--댓글조회-->
     <select id="selectAllReplyList" parameterType="int" resultType="ReplyResDTO">
-        select * from reply where approval_doc_id = #{approvalDocId} and reply_del_status = 0;
+        select reply_id, reply_content, approval_doc_id, upper_reply_id, reg_date, depth, group_no, group_ord, t2.org_user_id, user_name, approval_file_path, file_code
+        from reply t1
+        left join
+        organization_user t2 on t1.org_user_id = t2.org_user_id
+        left join user t3
+        on t2.user_id = t3.user_id
+        left join attatchment_file t4
+        on t3.user_id = t4.use_id
+        where approval_doc_id = #{approvalDocId} and reply_del_status = 0;
     </select>
 
     <!--댓글 작성-->
@@ -50,6 +58,16 @@
         select org_user_id from reply
         where reply_id = #{replyId};
     </select>
+
+    <select id="selectReplierAndDepth" parameterType="int" resultType="ReplyResDTO">
+        select org_user_id, depth from reply
+        where reply_id = #{replyId};
+    </select>
+
+    <update id="deleteLowerReply" parameterType="int">
+        update reply set reply_del_status = 1
+            where group_no =#{replyId};
+    </update>
 
 
 </mapper>
