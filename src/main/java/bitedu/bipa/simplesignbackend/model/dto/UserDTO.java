@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.List;
 
@@ -14,7 +17,9 @@ import java.util.List;
 public class UserDTO {
     private int userId;
     private String userName;
+    @Pattern(regexp = "^(010)-\\d{3,4}-\\d{4}$", message = "올바른 전화번호 형식이 아닙니다.")
     private String phone;
+    @Size(min = 1, max = 100, message = "주소는 1자 이상 100자 이하로 입력해주세요.")
     private String address;
     private String password;
     private String email;
