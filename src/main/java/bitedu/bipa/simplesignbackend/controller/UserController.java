@@ -7,6 +7,8 @@ import bitedu.bipa.simplesignbackend.model.dto.UserPasswordDTO;
 import bitedu.bipa.simplesignbackend.service.S3Service;
 import bitedu.bipa.simplesignbackend.service.UserService;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
+import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
+import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
@@ -68,7 +71,7 @@ public class UserController {
         if(userId != 0){
             return new ResponseEntity(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity (HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/logout")
@@ -86,7 +89,7 @@ public class UserController {
     // 비밀번호 변경 + 암호화
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/user/password/change")
-    public ResponseEntity chanePassword(@RequestBody UserPasswordDTO userPasswordDTO){
+    public ResponseEntity chanePassword(@Valid @RequestBody UserPasswordDTO userPasswordDTO){
         int userId = (int) SessionUtils.getAttribute("userId");
         userPasswordDTO.setUserId(userId);
         boolean flag = userService.passwordChange(userPasswordDTO);
@@ -101,14 +104,20 @@ public class UserController {
     @GetMapping("/userinfo")
     public UserDTO userDetail(){
         int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
+        if(orgUserId == 0){
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
         return userService.detailUser(orgUserId);
     }
 
     // 개인정보 수정
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PutMapping("/updateinfo")
-    public ResponseEntity userUpdate(@RequestBody UserDTO userDTO){
+    public ResponseEntity userUpdate(@Valid @RequestBody UserDTO userDTO){
         int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
+        if(orgUserId == 0){
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
         userDTO.setOrgUserId(orgUserId);
         boolean flag = userService.updateUser(userDTO);
         if(flag){
