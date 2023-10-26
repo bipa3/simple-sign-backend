@@ -100,4 +100,8 @@
         select count(*) from user
         where user_id = #{userId} and password = #{password};
     </select>
+
+    <select id="selectUserIdByOrgUserId" parameterType="int" resultType="int">
+        select user_id from organization_user where org_user_id = #{approverId};
+    </select>
 </mapper>

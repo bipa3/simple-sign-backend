@@ -92,4 +92,8 @@ public class UserDAO {
         map.put("password", currentPwHash);
         return userMapper.selectPasswordByInput(map);
     }
+
+    public int getUserIdByOrgUserId(int approverId) {
+        return userMapper.selectUserIdByOrgUserId(approverId);
+    }
 }

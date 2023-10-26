@@ -74,11 +74,6 @@ public class ApprovalBoxController {
 
     @Authority(role = {Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/box/detail")
-//    public ArrayList<ApprovalBoxDetailDTO> viewDocBoxDetail(@RequestParam(name="boxId")int boxId){
-//        ArrayList<ApprovalBoxDetailDTO> detail = approvalBoxService.selectApprovalBoxDetail(boxId);
-//
-//        return detail;
-//    }
     public ResponseEntity<List<ApprovalBoxDetailDTO>> viewDocBoxDetail(@RequestParam(name="boxId")int boxId){
         ArrayList<ApprovalBoxDetailDTO> detail = approvalBoxService.selectApprovalBoxDetail(boxId);
         if(detail != null && !detail.isEmpty()){

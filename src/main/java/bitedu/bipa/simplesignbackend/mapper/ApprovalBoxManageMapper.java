@@ -30,10 +30,9 @@ public interface ApprovalBoxManageMapper {
 
     int getUserEstId(@Param("orgUserId")int orgUserId);
 
-    void insertApprovalBox( @Param("approvalBoxName")String approvalBoxName, @Param("approvalBoxUsedStatus")int approvalBoxUsedStatus, @Param("menuUsingRange")String menuUsingRange, @Param("sortOrder")int sortOrder);
+    void insertApprovalBox( @Param("compId") int compId,@Param("approvalBoxName")String approvalBoxName, @Param("approvalBoxUsedStatus")int approvalBoxUsedStatus, @Param("menuUsingRange")String menuUsingRange, @Param("sortOrder")int sortOrder);
 
     int getLastInsertId();
-    void insertBoxUseCompany(@Param("approvalBoxId")int approvalBoxId, @Param("compId")int compId);
 
     String selectCompName(@Param("compId")int compId);
 
