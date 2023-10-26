@@ -87,4 +87,5 @@ public interface ApproveMapper {
     int updateTemporalApprovalDoc(ApprovalDocReqDTO approvalDocReqDTO);
 
     int insertApprovalAttachment(ApprovalAttachmentDTO approvalAttachmentDTO);
+
 }

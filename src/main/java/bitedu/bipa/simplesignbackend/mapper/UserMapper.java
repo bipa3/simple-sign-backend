@@ -47,4 +47,6 @@ public interface UserMapper {
     List<UserOrgDTO> getOrgList(int userId);
 
     int selectPasswordByInput(Map<String, Object> map);
+
+    int selectUserIdByOrgUserId(int approverId);
 }
