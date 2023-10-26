@@ -163,7 +163,7 @@
         t6.comp_id, t6.comp_name as company , t1.category
         from received_ref t1
         join organization_user t2
-        on t1.use_id = t2.user_id
+        on t1.use_id = t2.org_user_id
         join user t3
         on t2.user_id = t3.user_id
         join department t4
@@ -175,7 +175,7 @@
         where approval_doc_id = #{approvalDocId};
     </select>
 
-    <!--수신참조자 조회-->
+    <!--활성화된 수신참조자 조회-->
     <select id="selectRecievedRefUserId" parameterType="int" resultType="int">
         select org_user_id from received_ref t1
             join organization_user t2
@@ -316,5 +316,6 @@
         insert attatchment_file (file_name, approval_file_path, file_code, use_id)
             values (#{fileName}, #{approvalFilePath}, '03', #{approvalDocId});
     </insert>
+
 
 </mapper>
