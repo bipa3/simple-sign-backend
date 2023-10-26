@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ReplyService {
@@ -21,7 +22,11 @@ public class ReplyService {
     }
 
     public List<ReplyResDTO> showReplyList(int approvalDocId) {
-        return replyDAO.selectAllReplyList(approvalDocId);
+        List<ReplyResDTO> list = replyDAO.selectAllReplyList(approvalDocId);
+        List<ReplyResDTO> filteredList = list.stream()
+                .filter(reply -> !"02".equals(reply.getFileCode()))
+                .collect(Collectors.toList());
+        return filteredList;
     }
 
     @Transactional
