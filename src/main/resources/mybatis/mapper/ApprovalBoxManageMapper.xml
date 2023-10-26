@@ -21,10 +21,9 @@
         </choose>
     </select>
     <select id="getApprovalBoxDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDetailDTO">
-        SELECT ab.approval_box_id, c.comp_id,c.comp_name, ab.approval_box_name, ab.approval_box_used_status, ab.menu_using_range, ab.sort_order
+        SELECT ab.approval_box_id, ab.comp_id, c.comp_name, ab.approval_box_name, ab.approval_box_used_status, ab.menu_using_range, ab.sort_order
         FROM approval_box ab
-        JOIN box_use_department bud ON bud.approval_box_id = ab.approval_box_id
-        JOIN company c ON (c.comp_id = bud.use_id AND using_category = 'C')
+        JOIN company c ON (c.comp_id = ab.comp_id)
         AND ab.approval_box_id =#{boxId};
     </select>
 
@@ -108,17 +107,14 @@
         AND c.comp_id = #{compId};
     </update>
     <insert id="insertApprovalBox">
-        INSERT IGNORE into approval_box (approval_box_name,approval_box_used_status, sort_order, menu_using_range,box_delete_status)
-        values(#{approvalBoxName},#{approvalBoxUsedStatus},#{sortOrder},#{menuUsingRange},0);
+        INSERT IGNORE into approval_box (approval_box_name,approval_box_used_status, sort_order, menu_using_range,box_delete_status,comp_Id)
+        values(#{approvalBoxName},#{approvalBoxUsedStatus},#{sortOrder},#{menuUsingRange},0,#{compId});
     </insert>
 
     <select id="getLastInsertId" resultType="int">
         select last_insert_id();
     </select>
 
-    <insert id="insertBoxUseCompany">
-        INSERT IGNORE into box_use_department(approval_box_id,using_category,use_id) values (#{approvalBoxId},'C',#{compId});
-    </insert>
     <select id="selectCompName" resultType="String">
         select comp_name from company where comp_id = #{compId}
     </select>
@@ -179,8 +175,8 @@
         u.user_name as user
         FROM
         box_use_department
-        JOIN user u ON u.user_id = use_id
-        JOIN organization_user ou ON ou.user_id = u.user_id
+        JOIN organization_user ou ON ou.org_user_id = use_id
+        JOIN user u ON ou.user_id = u.user_id
         JOIN company c ON c.comp_name = ou.comp_name
         JOIN establishment e ON e.comp_id = c.comp_id
         JOIN department d ON d.dept_id = ou.dept_id
