@@ -18,14 +18,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FormManageService {
     FormManageDAO formManageDAO;
     CommonMapper commonMapper;
+    CommonService commonService;
 
-    public FormManageService (FormManageDAO formManageDAO, CommonMapper commonMapper) {
+    public FormManageService (FormManageDAO formManageDAO, CommonMapper commonMapper, CommonService commonService) {
         this.commonMapper = commonMapper;
         this.formManageDAO = formManageDAO;
+        this.commonService = commonService;
     }
 
     public List<FormAndCompDTO> selectFormAndCompList(FormAndCompDTO formAndCompDTO) {
+        commonService.checkDeptMasterAthority(Integer.parseInt(formAndCompDTO.getCompId()));
         List<FormAndCompDTO> formAndCompList = formManageDAO.selectFormAndComp(formAndCompDTO);
+
         if(formAndCompList.size() < 1){
             throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
         }
@@ -36,6 +40,8 @@ public class FormManageService {
         FormDetailResDTO formDetail = new FormDetailResDTO();
         try{
             formDetail = formManageDAO.selectFormDetail(code);
+            commonService.checkDeptMasterAthority(formDetail.getCompId());
+
             ArrayList<FormDetailScopeDTO> formDetailScopeList = formManageDAO.selectFormScope(code);
             formDetail.setScope(formDetailScopeList);
             if(formDetail.getCode() == 0){
@@ -73,7 +79,10 @@ public class FormManageService {
     @Transactional
     public Boolean formDetailRegist(FormDetailResDTO formDetail) {
         try {
+            commonService.checkDeptMasterAthority(formDetail.getCompId());
+
             formManageDAO.insertFormDetail(formDetail);
+
             int formCode = commonMapper.getLastInsertId();
             if(formCode == 0){
                 throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
@@ -118,6 +127,8 @@ public class FormManageService {
     @Transactional
     public Boolean formDetailChange(FormDetailResDTO formDetail) {
         try {
+            commonService.checkDeptMasterAthority(formDetail.getCompId());
+
             formManageDAO.updateFormDetail(formDetail);
             int formCode = formDetail.getCode();
             if(formCode == 0){
@@ -202,7 +213,11 @@ public class FormManageService {
     }
 
     public Boolean removeForm(int code) {
+        FormDetailResDTO formDetail = new FormDetailResDTO();
         try {
+            formDetail = formManageDAO.selectFormDetail(code);
+            commonService.checkDeptMasterAthority(formDetail.getCompId());
+
             formManageDAO.deleteForm(code);
         }catch (Exception e){
             e.printStackTrace();

@@ -3,7 +3,9 @@ import bitedu.bipa.simplesignbackend.dao.SeqManageDAO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqAndCompDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqDetailDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqScopeDTO;
+import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
+import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,12 +21,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SeqManageService {
 
     SeqManageDAO seqManageDAO;
+    CommonService commonService;
 
-    public SeqManageService (SeqManageDAO seqManageDAO) {
+    public SeqManageService (SeqManageDAO seqManageDAO, CommonService commonService) {
         this.seqManageDAO = seqManageDAO;
+        this.commonService = commonService;
     }
 
     public List<SeqAndCompDTO> searchSeqAndCompList(SeqAndCompDTO seqAndCompDTO) {
+        commonService.checkDeptMasterAthority(Integer.parseInt(seqAndCompDTO.getCompId()));
         List<SeqAndCompDTO> seqAndCompList = new ArrayList<SeqAndCompDTO>();
         try{
             seqAndCompList = seqManageDAO.selectSeqAndComp(seqAndCompDTO);
@@ -43,6 +48,8 @@ public class SeqManageService {
         SeqDetailDTO seqDetail = new SeqDetailDTO();
         try {
             seqDetail = seqManageDAO.selectSeqDetail(code);
+            commonService.checkDeptMasterAthority(Integer.parseInt(seqDetail.getCompId()));
+
             List<SeqScopeDTO> deptScopeList = seqManageDAO.selectDeptScope(code);
             List<SeqScopeDTO> formScopeList = seqManageDAO.selectFormScope(code);
             seqDetail.setDeptScope(deptScopeList);
@@ -63,7 +70,11 @@ public class SeqManageService {
     }
 
     public Boolean removeSeq(int code) {
-        try{
+        SeqDetailDTO seqDetail = new SeqDetailDTO();
+        try {
+            seqDetail = seqManageDAO.selectSeqDetail(code);
+            commonService.checkDeptMasterAthority(Integer.parseInt(seqDetail.getCompId()));
+
             seqManageDAO.deleteSeq(code);
         } catch (Exception e){
             e.printStackTrace();
@@ -74,6 +85,8 @@ public class SeqManageService {
 
     @Transactional
     public Boolean seqDetailRegist(SeqDetailDTO seqDetail) {
+        commonService.checkDeptMasterAthority(Integer.parseInt(seqDetail.getCompId()));
+
         try {
             seqManageDAO.insertSeqDetail(seqDetail);
             int seqCode = seqManageDAO.getSeqDetailId();
@@ -117,6 +130,8 @@ public class SeqManageService {
 
     @Transactional
     public Boolean seqDetailChange(SeqDetailDTO seqDetailDTO) {
+        commonService.checkDeptMasterAthority(Integer.parseInt(seqDetailDTO.getCompId()));
+
         try {
             int seqCode = Integer.parseInt(seqDetailDTO.getCode());
             seqManageDAO.updateSeqDetail(seqDetailDTO);
