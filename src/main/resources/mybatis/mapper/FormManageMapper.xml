@@ -16,7 +16,7 @@
     </select>
 
     <select id="getFormDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.FormDetailResDTO">
-        SELECT form_code AS code, form_name AS formName, default_form AS defaultForm, main_form AS mainForm, form_used_status AS status, comp_id, NVL(form_explain, "") AS formExplain
+        SELECT form_code AS code, form_name AS formName, default_form AS defaultForm, main_form AS mainForm, form_used_status AS status, comp_id, NVL(form_explain, "") AS formExplain, default_approval_line_status AS approvalLineStatus
         FROM form WHERE form_code=#{code};
     </select>
 
@@ -66,8 +66,8 @@
     </select>
 
     <insert id="createFormDetail" >
-        INSERT INTO form(comp_id, form_name, default_form, main_form, form_used_status, form_explain)
-        VALUES(#{compId}, #{formName}, #{defaultForm}, #{mainForm}, #{status}, #{formExplain});
+        INSERT INTO form(comp_id, form_name, default_form, main_form, form_used_status, form_explain, default_approval_line_status)
+        VALUES(#{compId}, #{formName}, #{defaultForm}, #{mainForm}, #{status}, #{formExplain}, #{approvalLineStatus});
     </insert>
 
     <insert id="createFormScope" parameterType="map">
@@ -80,7 +80,8 @@
         default_form = #{defaultForm},
         main_form = #{mainForm},
         form_used_status = #{status},
-        form_explain = #{formExplain}
+        form_explain = #{formExplain},
+        default_approval_line_status=#{approvalLineStatus}
         WHERE form_code = #{code}
     </update>
 
@@ -103,11 +104,15 @@
     </select>
 
     <select id="selectDefaultApprovalLine">
-        SELECT dl.line_order, dl.org_user_id, ou.comp_name, ou.est_name, ou.user_id, ou.dept_id, dept.dept_name, u.user_name
+        SELECT dl.line_order, dl.org_user_id, comp.comp_id, ou.comp_name, est.est_id, est.est_name, ou.user_id, ou.dept_id, dept.dept_name, u.user_name, grade.grade_code, position.position_code, grade.grade_name, position.position_name
         FROM (SELECT * FROM default_approval_line WHERE form_code=#{code}) AS dl
         INNER JOIN organization_user AS ou ON dl.org_user_id=ou.org_user_id
         INNER JOIN department AS dept ON ou.dept_id=dept.dept_id
+        INNER JOIN establishment AS est ON dept.est_id=est.est_id
+        INNER JOIN company AS comp ON comp.comp_id=est.comp_id
         INNER JOIN user AS u ON u.user_id=ou.user_id
+        INNER JOIN position on ou.position_code=position.position_code
+        INNER JOIN grade on grade.grade_code=ou.grade_code
         ORDER BY dl.line_order;
     </select>
 
