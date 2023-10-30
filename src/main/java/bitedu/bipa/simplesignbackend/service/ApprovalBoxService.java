@@ -85,8 +85,8 @@ public class ApprovalBoxService {
         return approvalBoxDAO.selectViewItems(boxId);
     }
 
-    public ArrayList<ApprovalBoxDTO> selectCustomBoxList(int company, int orgUserId, int deptId) {
-        return approvalBoxDAO.selectCustomBoxList(company, orgUserId, deptId);
+    public ArrayList<ApprovalBoxDTO> selectCustomBoxList(int compId, int orgUserId) {
+        return approvalBoxDAO.selectCustomBoxList(compId, orgUserId);
     }
 
     public Boolean updateApprovalBox(ApprovalBoxReqDTO criteria) {

@@ -110,7 +110,7 @@ public class ApprovalBoxController {
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/boxlist")
     public Map<String, Object> viewApprovalBoxList(@SessionAttribute(name = "orgUserId") int orgUserId, @SessionAttribute(name = "compId") int compId, @SessionAttribute(name = "deptId") int deptId){
-        ArrayList<ApprovalBoxDTO> boxList = approvalBoxService.selectCustomBoxList(compId,orgUserId,deptId);
+        ArrayList<ApprovalBoxDTO> boxList = approvalBoxService.selectCustomBoxList(compId,orgUserId);
         ArrayList<ViewItemDTO> viewItems = approvalBoxDAO.selectCustomBoxViewItems(compId,orgUserId,deptId);
 
         Map<String, Object> result = new HashMap<>();
