@@ -109,4 +109,9 @@ public class UserService {
     public List<UserOrgDTO> orgUser(int userId) {
         return userDAO.getOrgList(userId);
     }
+
+    public String getApproverImage(int approverId) {
+        int userId = userDAO.getUserIdByOrgUserId(approverId);
+        return userDAO.getSignImage(userId);
+    }
 }

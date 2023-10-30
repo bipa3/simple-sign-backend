@@ -10,11 +10,14 @@ import bitedu.bipa.simplesignbackend.utils.PasswordUtil;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ApproveService {
@@ -160,6 +163,7 @@ public class ApproveService {
         ApprovalDocResDTO approvalDocResDTO = new ApprovalDocResDTO();
         approvalDocResDTO.setDocStatus(ApprovalStatus.RETURN.getCode());
         approvalDocResDTO.setApprovalDocId(approvalDocId);
+        approvalDocResDTO.setEndAt(LocalDateTime.now());
         int affectedCount = approveDAO.updateApprovalDoc(approvalDocResDTO);
         if(affectedCount ==0) {
             throw new RestApiException(CustomErrorCode.RETURN_FAIL);
@@ -177,13 +181,9 @@ public class ApproveService {
         }
     }
 
-    public ApprovalDocDetailDTO showDetailApprovalDoc(int approvalDocId) {
-        int userId = (int)SessionUtils.getAttribute("userId");
+    public boolean getHasDetailView(int approvalDocId, ApprovalDocDetailDTO approvalDocDetailDTO) {
         int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
-        System.out.println(userId);
-        System.out.println(orgUserId);
-        ApprovalDocDetailDTO approvalDocDetailDTO =  approveDAO.selectApprovalDocById(approvalDocId);
-        //System.out.println(approvalDocDetailDTO);
+
         if(approvalDocDetailDTO ==null) {
             throw new RestApiException(CustomErrorCode.APPROVAL_DOC_DELETED);
         }
@@ -197,23 +197,41 @@ public class ApproveService {
         if(approverId == orgUserId) {
             sameApprover = true;
         }
-        //2.결재문서에서 결재라인에 해당 사용자가 있는지 확인 + 해당 사용자 전 결재자들이 전부 결재했는지 확인???
+        //2.결재문서에서 결재라인에 해당 사용자가 있는지 확인 + 해당 사용자 전 결재자들이 전부 결재했는지 확인
         List<ApprovalLineListDTO> approvalLineLists = approveDAO.selectApprovalLineByApprovalDocId(approvalDocId);
-        boolean hasApprovalLine = approvalLineLists.stream().anyMatch(approvalLineListDTO ->
-                approvalLineListDTO.getOrgUserId() == orgUserId
-        );
+        List<ApprovalLineListDTO> filteredList = approvalLineLists.stream().filter(approvalLineListDTO ->
+            approvalLineListDTO.getOrgUserId() ==orgUserId
+        ).collect(Collectors.toList());
+        boolean hasApprovalLine = true;
+        if(filteredList.isEmpty()) {
+            hasApprovalLine = false;
+        }else {
+            int approverOrder = filteredList.get(0).getApprovalOrder();
+            for(int i=0;i<approverOrder-1;i++){
+                if(approvalLineLists.get(i).getApprovalStatus() !=ApprovalStatus.APPROVAL.getCode()) {
+                    throw new RestApiException(CustomErrorCode.INACTIVE_USER);
+                }
+            }
+        }
         //3.수신참조자 조회
         List<Integer> receivedRefList = approveDAO.selectRecievedRefUserId(approvalDocId);
         boolean hasReceivedRef = receivedRefList.stream().anyMatch(receiveUser ->
-              receiveUser == orgUserId
+                receiveUser == orgUserId
         );
         if(!hasApprovalLine && !sameApprover && !hasReceivedRef) {
             throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
 
+        return true;
+    }
+
+    public ApprovalDocDetailDTO showDetailApprovalDoc(int approvalDocId) {
+        ApprovalDocDetailDTO approvalDocDetailDTO =  approveDAO.selectApprovalDocById(approvalDocId);
+        this.getHasDetailView(approvalDocId, approvalDocDetailDTO);
+
         approvalDocDetailDTO.setApprovalLineList(approveDAO.selectApprovalDetailLineByApprovalDocId(approvalDocId));
         approvalDocDetailDTO.setReceivedRefList(approveDAO.selectReceivedRefList(approvalDocId));
-        //System.out.println(approveDAO.selectReceivedRefList(approvalDocId));
+
         return approvalDocDetailDTO;
     }
 
@@ -327,19 +345,14 @@ public class ApproveService {
 
     @Transactional
     public void removeApprovalDoc(int approvalDocId) {
-        //삭제하고 싶은 결재문서의 작성자 확인
-        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
-        int approvalDocRegisterId = approveDAO.selectUserIdByApprovalDoc(approvalDocId);
-
-        //권한에 따른 삭제 -> 본인이거나, 부서관리자거나 시스템관리자거나?
-        if(approvalDocRegisterId == orgUserId) {
-            //있으면 del_status 업데이트 하기
-            int affectedCount = approveDAO.deleteApprovalDoc(approvalDocId);
-            if(affectedCount ==0) {
-                throw new RestApiException(CustomErrorCode.APPROVAL_DOC_DELETE_FAIL);
-            }
+        boolean hasDelete = this.getHasDelete(approvalDocId);
+        if(!hasDelete) {
+            throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
-
+        int affectedCount = approveDAO.deleteApprovalDoc(approvalDocId);
+        if(affectedCount ==0) {
+            throw new RestApiException(CustomErrorCode.APPROVAL_DOC_DELETE_FAIL);
+        }
     }
 
     public boolean hasPermission(int approvalDocId) {
@@ -543,4 +556,5 @@ public class ApproveService {
             throw  new RestApiException(CustomErrorCode.INAPPROPIRATE_PASSWORD);
         }
     }
+
 }

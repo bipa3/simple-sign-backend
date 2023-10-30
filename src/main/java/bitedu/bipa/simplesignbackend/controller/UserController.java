@@ -139,7 +139,6 @@ public class UserController {
     @GetMapping("/userinfo/sign")
     public ResponseEntity<String> userSignGet(){
         boolean flag = userService.getSignState();
-
         if(flag){
             String sign = userService.getSignImage();
             return ResponseEntity.ok(sign);
@@ -197,6 +196,13 @@ public class UserController {
                 return new ResponseEntity(HttpStatus.OK);
             }
         }
+    }
+
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @GetMapping("/userinfo/sign/{num}")
+    public ResponseEntity<String> getApproverSign(@PathVariable("num") int approverId){
+        String sign = userService.getApproverImage(approverId);
+        return ResponseEntity.ok(sign);
     }
 
 }
