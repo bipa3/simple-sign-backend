@@ -343,5 +343,27 @@
         where t1.form_code = #{formCode};
     </select>
 
+    <!--즐겨찾기-->
+    <insert id="insertFavorites" parameterType="FavoritesReqDTO">
+        insert into favorites (org_user_id, form_code)
+            values(#{orgUserId}, #{formCode});
+    </insert>
+
+    <delete id="deleteFavorites" parameterType="FavoritesReqDTO">
+        delete from favorites where form_code = #{formCode} and org_user_id = #{orgUserId};
+    </delete>
+
+    <select id="selectFavorites" parameterType="int" resultType="FavoritesResDTO">
+        select t1.form_code, form_name
+        from favorites t1
+            left join form t2
+            on t1.form_code = t2.form_code
+        where org_user_id = #{orgUserId};
+    </select>
+
+    <select id="selectFavoritesByFormCode" parameterType="FavoritesReqDTO" resultType="int">
+        select count(*) from favorites where org_user_id = #{orgUserId} and form_code = #{formCode};
+    </select>
+
 
 </mapper>

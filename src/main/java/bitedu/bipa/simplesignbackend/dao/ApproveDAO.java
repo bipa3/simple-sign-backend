@@ -218,4 +218,24 @@ public class ApproveDAO {
     public List<ApprovalLineDetailListDTO> getDefaultApprovalLine(int formCode) {
         return  approveMapper.selectDefaultApprovalLine(formCode);
     }
+
+    public int insertFavorites(FavoritesReqDTO favoritesReqDTO) {
+        return approveMapper.insertFavorites(favoritesReqDTO);
+    }
+
+    public int deleteFavorites(FavoritesReqDTO favoritesReqDTO) {
+        return approveMapper.deleteFavorites(favoritesReqDTO);
+    }
+
+    public List<FavoritesResDTO> getFavorites(int orgUserId) {
+        return approveMapper.selectFavorites(orgUserId);
+    }
+
+    public boolean selectFavorites(FavoritesReqDTO favoritesReqDTO) {
+        int favoritesCount =  approveMapper.selectFavoritesByFormCode(favoritesReqDTO);
+        if(favoritesCount ==0) {
+            return false;
+        }
+        return true;
+    }
 }

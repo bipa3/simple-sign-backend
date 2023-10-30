@@ -4,6 +4,7 @@ import bitedu.bipa.simplesignbackend.interceptor.Authority;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalDocDetailDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalDocReqDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ApprovalLineDetailListDTO;
+import bitedu.bipa.simplesignbackend.model.dto.FavoritesResDTO;
 import bitedu.bipa.simplesignbackend.service.ApproveService;
 import bitedu.bipa.simplesignbackend.service.S3Service;
 import bitedu.bipa.simplesignbackend.service.UserService;
@@ -137,6 +138,27 @@ public class ApproveController {
     public ResponseEntity<List<ApprovalLineDetailListDTO>> getDefaultApprovalLine(@PathVariable("num") int formCode) {
         List<ApprovalLineDetailListDTO> approvalLineDetailListDTOList = approveService.getDefaultApprovalLine(formCode);
         return ResponseEntity.ok(approvalLineDetailListDTOList);
+    }
+
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @PostMapping("/favorites/{num}")
+    public ResponseEntity<String> registerFavorites(@PathVariable("num") int formCode) {
+        approveService.registerFavorites(formCode);
+        return ResponseEntity.ok("ok");
+    }
+
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @DeleteMapping("/favorites/{num}")
+    public ResponseEntity<String> deleteFavorites(@PathVariable("num") int formCode) {
+        approveService.removeFavorites(formCode);
+        return ResponseEntity.ok("ok");
+    }
+
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @GetMapping("/favorites")
+    public ResponseEntity<List<FavoritesResDTO>> getFavorites() {
+        List<FavoritesResDTO> formCodeList = approveService.getFavorites();
+        return ResponseEntity.ok(formCodeList);
     }
 
 

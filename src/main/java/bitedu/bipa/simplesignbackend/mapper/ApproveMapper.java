@@ -89,4 +89,12 @@ public interface ApproveMapper {
     int insertApprovalAttachment(ApprovalAttachmentDTO approvalAttachmentDTO);
 
     List<ApprovalLineDetailListDTO> selectDefaultApprovalLine(int formCode);
+
+    int insertFavorites(FavoritesReqDTO favoritesReqDTO);
+
+    int deleteFavorites(FavoritesReqDTO favoritesReqDTO);
+
+    List<FavoritesResDTO> selectFavorites(int orgUserId);
+
+    int selectFavoritesByFormCode(FavoritesReqDTO favoritesReqDTO);
 }

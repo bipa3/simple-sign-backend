@@ -562,4 +562,37 @@ public class ApproveService {
         List<ApprovalLineDetailListDTO> approvalLineDetailListDTOList = approveDAO.getDefaultApprovalLine(formCode);
         return approvalLineDetailListDTOList;
     }
+
+    @Transactional
+    public void registerFavorites(int formCode) {
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
+        FavoritesReqDTO favoritesReqDTO = new FavoritesReqDTO();
+        favoritesReqDTO.setFormCode(formCode);
+        favoritesReqDTO.setOrgUserId(orgUserId);
+        boolean isFavoritesExist = approveDAO.selectFavorites(favoritesReqDTO);
+        if(isFavoritesExist) {
+            return;
+        }
+        int affectedCount = approveDAO.insertFavorites(favoritesReqDTO);
+        if(affectedCount ==0) {
+            throw  new RestApiException(CustomErrorCode.FAVORITE_INSERT_FAIL);
+        }
+    }
+
+    @Transactional
+    public void removeFavorites(int formCode) {
+        int orgUsersId = (int) SessionUtils.getAttribute("orgUserId");
+        FavoritesReqDTO favoritesReqDTO = new FavoritesReqDTO();
+        favoritesReqDTO.setOrgUserId(orgUsersId);
+        favoritesReqDTO.setFormCode(formCode);
+        int affectedCount = approveDAO.deleteFavorites(favoritesReqDTO);
+        if(affectedCount ==0) {
+            throw new RestApiException(CustomErrorCode.FAVORITE_DELETE_FAIL);
+        }
+    }
+
+    public List<FavoritesResDTO> getFavorites() {
+        int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
+        return approveDAO.getFavorites(orgUserId);
+    }
 }
