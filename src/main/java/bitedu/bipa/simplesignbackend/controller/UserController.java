@@ -200,8 +200,8 @@ public class UserController {
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/userinfo/sign/{num}")
-    public ResponseEntity<String> getApproverSign(@PathVariable("num") int approverId){
-        String sign = userService.getApproverImage(approverId);
+    public ResponseEntity<String> getApproverSign(@PathVariable("num") int signFileId){
+        String sign = userService.getApproverImage(signFileId);
         return ResponseEntity.ok(sign);
     }
 

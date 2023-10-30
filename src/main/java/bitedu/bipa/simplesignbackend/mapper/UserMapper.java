@@ -49,4 +49,8 @@ public interface UserMapper {
     int selectPasswordByInput(Map<String, Object> map);
 
     int selectUserIdByOrgUserId(int approverId);
+
+    int selectSignFileIdByUserId(int userId);
+
+    String selectSignImageBySignFileId(int signFileId);
 }

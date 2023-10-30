@@ -16,4 +16,5 @@ public class ApprovalResDTO {
     private int orgUserId;
     private String gradeName;
     private String positionName;
+    private int signFileId;
 }
