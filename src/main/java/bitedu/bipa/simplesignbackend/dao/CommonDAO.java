@@ -46,4 +46,8 @@ public class CommonDAO {
     }
 
     public List<FormRecommendResDTO> getRecommendedForm(int orgUserId) { return commonMapper.getRecommendedForm(orgUserId); }
+
+    public List<CommonDTO> getApprovalKindList() {
+        return commonMapper.getApprovalKindList();
+    }
 }

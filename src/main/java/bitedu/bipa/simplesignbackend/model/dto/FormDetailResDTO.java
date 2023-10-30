@@ -27,4 +27,6 @@ public class FormDetailResDTO {
     @Size(max=50, message = "양식설명은 최대 50자까지 입력 가능합니다.")
     private String formExplain;
     private Boolean approvalLineStatus;
+    private String approvalKind;
+    private String approvalKindName;
 }
