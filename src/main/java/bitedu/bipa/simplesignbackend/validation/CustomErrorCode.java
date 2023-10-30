@@ -26,7 +26,9 @@ public enum CustomErrorCode implements ErrorCode{
     APPROVAL_DOC_DELETED(HttpStatus.BAD_REQUEST, "존재하지 않는 문서입니다."),
     INAPPROPIRATE_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다"),
     FAVORITE_INSERT_FAIL(HttpStatus.BAD_REQUEST,"즐겨찾기 등록 실패"),
-    FAVORITE_DELETE_FAIL(HttpStatus.BAD_REQUEST, "즐겨찾기 삭제 실패")
+    FAVORITE_DELETE_FAIL(HttpStatus.BAD_REQUEST, "즐겨찾기 삭제 실패"),
+    ALARM_SCHEDULING_INSERT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "스케줄링 알람복사 실패"),
+    ALARM_SCHEDULING_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "스케줄링 알람삭제 실패")
     //
 
     ;
