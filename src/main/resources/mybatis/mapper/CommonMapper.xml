@@ -73,6 +73,12 @@
         LEFT JOIN form ON ad.form_code=form.form_code WHERE form_used_status=1 AND form_del_status=0 ORDER BY count DESC LIMIT 0, 4;
     </select>
 
+    <!--    getApprovalKindList-->
+
+    <select id="getApprovalKindList" resultType="bitedu.bipa.simplesignbackend.model.dto.CommonDTO">
+        SELECT code_id AS id, code_value AS name FROM common_code WHERE section_id = "006" AND code_status=1;
+    </select>
+
 <!--    <select id="getMember" resultType="Member">-->
 <!--        select * from member where id = #{id}-->
 <!--    </select>-->

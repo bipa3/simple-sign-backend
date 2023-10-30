@@ -22,6 +22,8 @@ public interface CommonMapper {
 
     List<FormRecommendResDTO> getRecommendedForm(int OrgUserId);
 
+    List<CommonDTO> getApprovalKindList();
+
 //    List<Member> getMemberList();
 //
 //    int createMember(Member member);
