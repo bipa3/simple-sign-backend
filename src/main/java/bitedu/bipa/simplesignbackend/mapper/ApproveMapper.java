@@ -88,4 +88,5 @@ public interface ApproveMapper {
 
     int insertApprovalAttachment(ApprovalAttachmentDTO approvalAttachmentDTO);
 
+    List<ApprovalLineDetailListDTO> selectDefaultApprovalLine(int formCode);
 }

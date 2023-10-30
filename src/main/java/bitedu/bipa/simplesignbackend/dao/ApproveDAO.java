@@ -215,4 +215,7 @@ public class ApproveDAO {
     }
 
 
+    public List<ApprovalLineDetailListDTO> getDefaultApprovalLine(int formCode) {
+        return  approveMapper.selectDefaultApprovalLine(formCode);
+    }
 }

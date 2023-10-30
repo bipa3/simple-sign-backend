@@ -96,4 +96,12 @@ public class UserDAO {
     public int getUserIdByOrgUserId(int approverId) {
         return userMapper.selectUserIdByOrgUserId(approverId);
     }
+
+    public int getSignFileIdByUserId(int userId) {
+        return userMapper.selectSignFileIdByUserId(userId);
+    }
+
+    public String getSignImageBySignFileId(int signFileId) {
+        return userMapper.selectSignImageBySignFileId(signFileId);
+    }
 }
