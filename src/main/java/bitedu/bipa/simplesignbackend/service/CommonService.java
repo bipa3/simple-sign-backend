@@ -1,6 +1,7 @@
 package bitedu.bipa.simplesignbackend.service;
 
 import bitedu.bipa.simplesignbackend.dao.CommonDAO;
+import bitedu.bipa.simplesignbackend.model.dto.CommonDTO;
 import bitedu.bipa.simplesignbackend.model.dto.CompanyDTO;
 import bitedu.bipa.simplesignbackend.model.dto.FormRecommendResDTO;
 import bitedu.bipa.simplesignbackend.model.dto.SeqItemListDTO;
@@ -53,5 +54,16 @@ public class CommonService {
         if (authority != 1 && !SessionUtils.hasIdAttribute("compId", id)) {
             throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
+    }
+
+    public List<CommonDTO> selectApprovalKindList() {
+        List<CommonDTO> approvalKindList = new ArrayList<CommonDTO>();
+        try{
+            approvalKindList = commonDAO.getApprovalKindList();
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+        return approvalKindList;
     }
 }

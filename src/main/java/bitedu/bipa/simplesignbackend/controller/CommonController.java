@@ -1,8 +1,5 @@
 package bitedu.bipa.simplesignbackend.controller;
-import bitedu.bipa.simplesignbackend.model.dto.CompanyDTO;
-import bitedu.bipa.simplesignbackend.model.dto.FormRecommendResDTO;
-import bitedu.bipa.simplesignbackend.model.dto.SeqItemListDTO;
-import bitedu.bipa.simplesignbackend.model.dto.UserOrgDTO;
+import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.service.CommonService;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import org.springframework.http.HttpStatus;
@@ -49,6 +46,17 @@ public class CommonController {
 
         if (formRecommendList != null && !formRecommendList.isEmpty()) {
             return new ResponseEntity<>(formRecommendList, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/approval/kind")
+    public ResponseEntity<List<CommonDTO>> approvalKindListSelect() {
+        List<CommonDTO> approvalKindList = commonService.selectApprovalKindList();
+
+        if (approvalKindList != null && !approvalKindList.isEmpty()) {
+            return new ResponseEntity<>(approvalKindList, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
