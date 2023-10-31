@@ -26,8 +26,7 @@ public class DocumentListDTO {
     private LocalDateTime endDate;
     private int orgUserId;
     private String userName;
-    private String approver;
-    private String endUser;
+    private String lastUser;
     private int deptId;
     private String deptName;
     private int docDelStatus;

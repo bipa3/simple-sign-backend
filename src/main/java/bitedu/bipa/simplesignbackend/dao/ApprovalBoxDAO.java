@@ -17,8 +17,8 @@ public class ApprovalBoxDAO {
     @Autowired
     ApprovalBoxManageMapper approvalBoxManageMapper;
 
-    public ArrayList<DocumentListDTO> selectDocsList(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, int offset) {
-        return approvalBoxMapper.getDocumentsByViewItems(orgUserId,itemsPerPage,offset,deptId, estId, compId, viewItems);
+    public ArrayList<DocumentListDTO> selectDocsList(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, int offset, String sortStatus) {
+        return approvalBoxMapper.getDocumentsByViewItems(orgUserId,itemsPerPage,offset,deptId, estId, compId, viewItems,sortStatus);
     }
 
 
@@ -63,12 +63,12 @@ public class ApprovalBoxDAO {
         return companyList;
     }
 
-    public ArrayList<ApprovalBoxDTO> selectCustomBoxList(int company, int orgUserId, int deptId) {
-        return approvalBoxManageMapper.getCustomBoxList(company,orgUserId,deptId);
+    public ArrayList<ApprovalBoxDTO> selectCustomBoxList(int compId, int orgUserId) {
+        return approvalBoxManageMapper.getCustomBoxList(compId,orgUserId);
     }
 
-    public ArrayList<ViewItemDTO> selectCustomBoxViewItems(int company, int orgUserId, int deptId) {
-        return approvalBoxManageMapper.getCustomBoxViewItems(company,orgUserId,deptId);
+    public ArrayList<ViewItemDTO> selectCustomBoxViewItems(int compId, int orgUserId, int deptId) {
+        return approvalBoxManageMapper.getCustomBoxViewItems(compId,orgUserId,deptId);
     }
 
     public void updateApprovalBox(int approvalBoxId, int compId, String approvalBoxName, ArrayList<String> viewItems, int approvalBoxUsedStatus, String menuUsingRange, ArrayList<BoxUseDepartmentDTO> boxUseDept, int sortOrder) {
@@ -94,7 +94,9 @@ public class ApprovalBoxDAO {
     public void createApprovalBox(int compId, String approvalBoxName, ArrayList<String> viewItems, int approvalBoxUsedStatus, String menuUsingRange, ArrayList<BoxUseDepartmentDTO> boxUseDept, int sortOrder) {
         approvalBoxManageMapper.insertApprovalBox(compId,approvalBoxName,approvalBoxUsedStatus,menuUsingRange,sortOrder);
         int approvalBoxId = approvalBoxManageMapper.getLastInsertId();
-
+        if(menuUsingRange.equals("T")){
+            System.out.println("조건 통과");
+            approvalBoxManageMapper.insertBoxUseCompany(approvalBoxId,compId);}
         if (viewItems.size()>0){
             for (String item : viewItems) {
                 approvalBoxManageMapper.insertBoxViewItem(approvalBoxId,item);

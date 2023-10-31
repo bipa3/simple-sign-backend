@@ -16,7 +16,8 @@ public interface ApprovalBoxMapper {
             @Param("deptId") int deptId,
             @Param("estId") int estId,
             @Param("compId") int compId,
-            @Param("viewItems") List<String> viewItems
+            @Param("viewItems") List<String> viewItems,
+            @Param("sortStatus") String sortStatus
     );
 
     int getDocCountByViewItems(@Param("orgUserId") int orgUserId,

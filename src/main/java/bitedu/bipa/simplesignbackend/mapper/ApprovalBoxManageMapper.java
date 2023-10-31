@@ -18,15 +18,16 @@ public interface ApprovalBoxManageMapper {
 
     int getUserCompId(@Param("userId") int userId);
 
-    ArrayList<ApprovalBoxDTO> getCustomBoxList(@Param("company")int company, @Param("userId")int userId, @Param("deptId")int deptId);
+    ArrayList<ApprovalBoxDTO> getCustomBoxList(@Param("compId")int compId, @Param("orgUserId")int orgUserId);
 
-    ArrayList<ViewItemDTO> getCustomBoxViewItems(@Param("company")int company, @Param("orgUserId")int userId, @Param("deptId")int deptId);
+    ArrayList<ViewItemDTO> getCustomBoxViewItems(@Param("compId")int compId, @Param("orgUserId")int userId, @Param("deptId")int deptId);
 
     void updateApprovalBox(@Param("approvalBoxId")int approvalBoxId, @Param("compId")int compId, @Param("approvalBoxName")String approvalBoxName, @Param("approvalBoxUsedStatus")int approvalBoxUsedStatus, @Param("menuUsingRange")String menuUsingRange, @Param("sortOrder")int sortOrder);
 
     void deleteBoxViewItem(@Param("approvalBoxId")int approvalBoxId);
 
     void insertBoxViewItem(@Param("approvalBoxId")int approvalBoxId, @Param("item") String item);
+    void insertBoxUseCompany(@Param("approvalBoxId")int approvalBoxId, @Param("compId")int compId);
 
     int getUserEstId(@Param("orgUserId")int orgUserId);
 

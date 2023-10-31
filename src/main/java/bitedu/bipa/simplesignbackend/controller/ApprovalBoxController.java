@@ -37,7 +37,8 @@ public class ApprovalBoxController {
             @RequestParam(name = "viewItems") List<String> viewItems,
             @RequestParam(name = "itemsPerPage") int itemsPerPage,
             @RequestParam(name = "offset") int offset,
-            @RequestParam(name = "searchInput") String searchInput
+            @RequestParam(name = "searchInput") String searchInput,
+            @RequestParam(name = "sortStatus") String sortStatus
     ) {
         int estId = approvalBoxDAO.selectEstId(orgUserId);
         Map<String, Object> result = new HashMap<>();
@@ -45,7 +46,7 @@ public class ApprovalBoxController {
         if (!searchInput.equals("")) {
             result=approvalBoxService.selectSearchDocuments(viewItems, orgUserId, deptId, estId, compId, itemsPerPage, offset, searchInput);
         }else{
-            result = approvalBoxService.selectDocuments(viewItems, orgUserId, deptId,estId,compId, itemsPerPage, offset);
+            result = approvalBoxService.selectDocuments(viewItems, orgUserId, deptId,estId,compId, itemsPerPage, offset,sortStatus);
         }
 
         return result;
@@ -110,7 +111,7 @@ public class ApprovalBoxController {
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/boxlist")
     public Map<String, Object> viewApprovalBoxList(@SessionAttribute(name = "orgUserId") int orgUserId, @SessionAttribute(name = "compId") int compId, @SessionAttribute(name = "deptId") int deptId){
-        ArrayList<ApprovalBoxDTO> boxList = approvalBoxService.selectCustomBoxList(compId,orgUserId,deptId);
+        ArrayList<ApprovalBoxDTO> boxList = approvalBoxService.selectCustomBoxList(compId,orgUserId);
         ArrayList<ViewItemDTO> viewItems = approvalBoxDAO.selectCustomBoxViewItems(compId,orgUserId,deptId);
 
         Map<String, Object> result = new HashMap<>();
