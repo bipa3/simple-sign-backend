@@ -18,8 +18,8 @@ public class ApprovalBoxService {
     @Autowired
     ApprovalBoxDAO approvalBoxDAO;
 
-    public Map<String, Object> selectDocuments(List<String> viewItems, int orgUserId, int deptId,int estId, int compId, int itemsPerPage, int offset) {
-        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDocsList(viewItems,orgUserId,deptId,estId,compId,itemsPerPage,offset);
+    public Map<String, Object> selectDocuments(List<String> viewItems, int orgUserId, int deptId,int estId, int compId, int itemsPerPage, int offset, String sortStatus) {
+        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDocsList(viewItems,orgUserId,deptId,estId,compId,itemsPerPage,offset,sortStatus);
         int count= approvalBoxDAO.selectDocsCount(viewItems,orgUserId,deptId,estId,compId);
 
 

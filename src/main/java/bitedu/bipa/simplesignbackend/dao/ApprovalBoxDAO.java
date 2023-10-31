@@ -17,8 +17,8 @@ public class ApprovalBoxDAO {
     @Autowired
     ApprovalBoxManageMapper approvalBoxManageMapper;
 
-    public ArrayList<DocumentListDTO> selectDocsList(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, int offset) {
-        return approvalBoxMapper.getDocumentsByViewItems(orgUserId,itemsPerPage,offset,deptId, estId, compId, viewItems);
+    public ArrayList<DocumentListDTO> selectDocsList(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, int offset, String sortStatus) {
+        return approvalBoxMapper.getDocumentsByViewItems(orgUserId,itemsPerPage,offset,deptId, estId, compId, viewItems,sortStatus);
     }
 
 

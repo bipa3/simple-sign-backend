@@ -61,7 +61,15 @@
             </if>
         </foreach>
         )
-        ORDER BY ad.approval_date DESC
+        ORDER BY ad.approval_date
+        <choose>
+            <when test="sortStatus == 'asc'">
+                ASC
+            </when>
+            <when test="sortStatus == 'desc'">
+                DESC
+            </when>
+        </choose>
         LIMIT #{itemsPerPage} OFFSET #{offset};
     </select>
 
