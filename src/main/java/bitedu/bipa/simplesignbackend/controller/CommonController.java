@@ -2,6 +2,8 @@ package bitedu.bipa.simplesignbackend.controller;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.service.CommonService;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
+import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
+import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,9 +47,12 @@ public class CommonController {
         List<FormRecommendResDTO> formRecommendList = commonService.selectRecommendedForm();
 
         if (formRecommendList != null && !formRecommendList.isEmpty()) {
+            if(formRecommendList.size() < 1){
+                return new ResponseEntity<>(formRecommendList, HttpStatus.NO_CONTENT);
+            }
             return new ResponseEntity<>(formRecommendList, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
     }
 
