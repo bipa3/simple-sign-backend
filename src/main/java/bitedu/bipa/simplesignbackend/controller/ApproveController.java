@@ -1,14 +1,15 @@
 package bitedu.bipa.simplesignbackend.controller;
 
 import bitedu.bipa.simplesignbackend.interceptor.Authority;
-import bitedu.bipa.simplesignbackend.model.dto.ApprovalDocDetailDTO;
-import bitedu.bipa.simplesignbackend.model.dto.ApprovalDocReqDTO;
-import bitedu.bipa.simplesignbackend.model.dto.ApprovalLineDetailListDTO;
-import bitedu.bipa.simplesignbackend.model.dto.FavoritesResDTO;
+import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.service.ApproveService;
 import bitedu.bipa.simplesignbackend.service.S3Service;
 import bitedu.bipa.simplesignbackend.service.UserService;
+import bitedu.bipa.simplesignbackend.utils.FileCommonUtils;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,8 +41,9 @@ public class ApproveController {
         if(files !=null){
             for(MultipartFile file: files) {
                 String fileName = file.getOriginalFilename();
-                String s3Url = s3Service.upload(file, "approvalDoc"); //댓글은  reply
-                approveService.insertApprovalAttachment(s3Url,fileName, approvalDocId);
+                String uniqueFileName = s3Service.makeUniqueFileName(file, "approvalDoc");
+                String s3Url = s3Service.upload(file, uniqueFileName); //댓글은  reply
+                approveService.insertApprovalAttachment(s3Url,fileName, approvalDocId, uniqueFileName);
             }
         }
         return ResponseEntity.ok("ok");
@@ -161,6 +163,34 @@ public class ApproveController {
         return ResponseEntity.ok(formCodeList);
     }
 
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @GetMapping("/download")
+    public ResponseEntity<ByteArrayResource> downloadFile(@RequestParam ("filePath") String resourcePath) {
+        byte[] data = s3Service.downloadFile(resourcePath);
+        ByteArrayResource resource = new ByteArrayResource(data);
+        HttpHeaders headers = buildHeaders(resourcePath, data);
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(resource);
+    }
+
+    private HttpHeaders buildHeaders(String resourcePath, byte[] data) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentLength(data.length);
+        //headers.setContentType(MediaType.IMAGE_JPEG);
+        headers.setContentType(MediaType.IMAGE_PNG);
+        headers.setContentDisposition(FileCommonUtils.createContentDisposition(resourcePath));
+        return headers;
+    }
+
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @GetMapping("/fileNames/{num}")
+    public ResponseEntity<List<FileResDTO>> getFileNames(@PathVariable("num") int approvalDocId) {
+        List<FileResDTO> list = approveService.getFileNames(approvalDocId);
+        return ResponseEntity.ok(list);
+    }
 
 
 

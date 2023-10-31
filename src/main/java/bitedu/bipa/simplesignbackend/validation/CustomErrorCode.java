@@ -28,7 +28,9 @@ public enum CustomErrorCode implements ErrorCode{
     FAVORITE_INSERT_FAIL(HttpStatus.BAD_REQUEST,"즐겨찾기 등록 실패"),
     FAVORITE_DELETE_FAIL(HttpStatus.BAD_REQUEST, "즐겨찾기 삭제 실패"),
     ALARM_SCHEDULING_INSERT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "스케줄링 알람복사 실패"),
-    ALARM_SCHEDULING_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "스케줄링 알람삭제 실패")
+    ALARM_SCHEDULING_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "스케줄링 알람삭제 실패"),
+    FILE_DOWNLOAD_FAIL(HttpStatus.BAD_REQUEST, "파일 다운로드 실패"),
+    FILE_NOT_FOUND(HttpStatus.NOT_FOUND,"파일 찾기 실패")
     //
 
     ;

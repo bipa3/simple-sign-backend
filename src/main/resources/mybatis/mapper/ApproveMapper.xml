@@ -314,8 +314,8 @@
 
     <!--파일 경로 저장-->
     <insert id="insertApprovalAttachment" parameterType="ApprovalAttachmentDTO">
-        insert attatchment_file (file_name, approval_file_path, file_code, use_id)
-            values (#{fileName}, #{approvalFilePath}, '03', #{approvalDocId});
+        insert attatchment_file (file_name, approval_file_path, file_code, use_id, download_file_path)
+            values (#{fileName}, #{approvalFilePath}, '03', #{approvalDocId} , #{downloadFilePath});
     </insert>
 
     <!--기본 결재라인 가져오기-->
@@ -363,6 +363,12 @@
 
     <select id="selectFavoritesByFormCode" parameterType="FavoritesReqDTO" resultType="int">
         select count(*) from favorites where org_user_id = #{orgUserId} and form_code = #{formCode};
+    </select>
+
+    <!--해당 문서에 맞는 파일이름 가져오기-->
+    <select id="selectFileNamesAndFilePath" parameterType="int" resultType="FileResDTO">
+        select file_name, download_file_path from attatchment_file
+        where use_id = #{approvalDocId} and file_code = '03';
     </select>
 
 
