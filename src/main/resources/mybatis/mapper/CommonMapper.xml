@@ -73,6 +73,17 @@
         LEFT JOIN form ON ad.form_code=form.form_code WHERE form_used_status=1 AND form_del_status=0 ORDER BY count DESC LIMIT 0, 4;
     </select>
 
+    <select id="getRecommendedFormByComp" parameterType="int">
+        SELECT form.form_code, form.form_name, count FROM
+        (SELECT form_code, count(form_code) AS count, comp_id FROM approval_doc ad
+        LEFT JOIN organization_user ou ON ad.org_user_id=ou.org_user_id
+        LEFT JOIN department AS dept ON dept.dept_id=ou.dept_id
+        LEFT JOIN establishment AS est ON est.est_id=dept.est_id
+        WHERE comp_id=#{compId} AND created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
+        GROUP BY form_code) AS ad
+        LEFT JOIN form ON ad.form_code=form.form_code WHERE form_used_status=1 AND form_del_status=0 ORDER BY count DESC LIMIT 0, 4;
+    </select>
+
     <!--    getApprovalKindList-->
 
     <select id="getApprovalKindList" resultType="bitedu.bipa.simplesignbackend.model.dto.CommonDTO">
