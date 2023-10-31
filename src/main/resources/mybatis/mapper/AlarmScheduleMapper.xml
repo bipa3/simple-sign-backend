@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.AlarmScheduleMapper">
+
+    <insert id="insertAlarmDeleteHistory">
+        insert into alarm_delete_history
+        (select * from alarm_history LIMIT #{pageSize} OFFSET #{offset});
+    </insert>
+
+    <delete id="deleteAlarmHistory">
+        delete from alarm_history LIMIT #{pageSize} OFFSET #{offset};
+    </delete>
+
+    <select id="selectAllCountAlarmHistory" resultType="int">
+        select count(*) from alarm_history LIMIT #{pageSize} OFFSET #{offset};
+    </select>
+
+</mapper>

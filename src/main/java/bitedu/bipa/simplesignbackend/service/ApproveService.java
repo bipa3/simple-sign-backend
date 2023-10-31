@@ -537,11 +537,12 @@ public class ApproveService {
     }
 
     @Transactional
-    public void insertApprovalAttachment(String S3Url, String fileName, int approvalDocId) {
+    public void insertApprovalAttachment(String S3Url, String fileName, int approvalDocId, String uniqueFileName) {
         ApprovalAttachmentDTO approvalAttachmentDTO = new ApprovalAttachmentDTO();
         approvalAttachmentDTO.setApprovalDocId(approvalDocId);
         approvalAttachmentDTO.setApprovalFilePath(S3Url);
         approvalAttachmentDTO.setFileName(fileName);
+        approvalAttachmentDTO.setDownloadFilePath(uniqueFileName);
         int affectedCount = approveDAO.insertApprovalAttachment(approvalAttachmentDTO);
         if(affectedCount==0) {
             throw new RestApiException(CustomErrorCode.APPROVAL_FAIL);
@@ -594,5 +595,9 @@ public class ApproveService {
     public List<FavoritesResDTO> getFavorites() {
         int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
         return approveDAO.getFavorites(orgUserId);
+    }
+
+    public List<FileResDTO> getFileNames(int approvalDocId) {
+        return approveDAO.selectFileNamesAndFilePath(approvalDocId);
     }
 }

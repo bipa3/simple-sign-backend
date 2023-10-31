@@ -1,7 +1,12 @@
 package bitedu.bipa.simplesignbackend.service;
 
+import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
+import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,11 +25,15 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public String upload(MultipartFile file, String folderName) throws IOException {
+    public String upload(MultipartFile file, String uniqueFileName) throws IOException {
         File convertedFile = convert(file);
-        String uniqueFileName = folderName + "/" + UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
         return uploadToS3(convertedFile, uniqueFileName);
     }
+
+    public String makeUniqueFileName(MultipartFile file, String folderName) {
+        return folderName + "/" + UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+    }
+
 
     private File convert(MultipartFile file) throws IOException {
         File convertedFile = new File(file.getOriginalFilename());
@@ -37,8 +46,23 @@ public class S3Service {
     private String uploadToS3(File file, String fileName) {
         amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, file));
         file.delete();
-
         return amazonS3Client.getUrl(bucket, fileName).toString();
     }
 
+    public byte[] downloadFile(String resourcePath) {
+        validateFileExistsAtUrl(resourcePath);
+        S3Object s3Object = amazonS3Client.getObject(bucket, resourcePath);
+        S3ObjectInputStream inputStream = s3Object.getObjectContent();
+        try {
+            return IOUtils.toByteArray(inputStream);
+        } catch (IOException e) {
+            throw new RestApiException(CustomErrorCode.FILE_DOWNLOAD_FAIL);
+        }
+    }
+
+    private void validateFileExistsAtUrl(String resourcePath) {
+        if (!amazonS3Client.doesObjectExist(bucket, resourcePath)) {
+            throw new RestApiException(CustomErrorCode.FILE_NOT_FOUND);
+        }
+    }
 }
