@@ -9,6 +9,8 @@ import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
 import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -38,9 +40,12 @@ public class CommonService {
         int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         List<FormRecommendResDTO> recommendedForms = new ArrayList<FormRecommendResDTO>();
         try{
-            recommendedForms= commonDAO.getRecommendedForm(orgUserId);
+            // 사용자별 추천 양식
+            recommendedForms = commonDAO.getRecommendedForm(orgUserId);
             if(recommendedForms.size() < 1){
-                throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+                //회사별 추천 양식
+                int compId = (int) SessionUtils.getAttribute("compId");
+                recommendedForms = commonDAO.getRecommendedFormByComp(compId);
             }
         }catch(Exception e){
             e.printStackTrace();

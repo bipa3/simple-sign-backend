@@ -21,6 +21,7 @@ public interface CommonMapper {
     int selectCompIdBySeqCode(int seqCode);
 
     List<FormRecommendResDTO> getRecommendedForm(int OrgUserId);
+    List<FormRecommendResDTO> getRecommendedFormByComp(int compId);
 
     List<CommonDTO> getApprovalKindList();
 
