@@ -97,4 +97,6 @@ public interface ApproveMapper {
     List<FavoritesResDTO> selectFavorites(int orgUserId);
 
     int selectFavoritesByFormCode(FavoritesReqDTO favoritesReqDTO);
+
+    List<FileResDTO> selectFileNamesAndFilePath(int approvalDocId);
 }

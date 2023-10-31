@@ -157,7 +157,8 @@ public class UserController {
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/updateinfo/profile")
     public ResponseEntity uploadProfileFile(@RequestParam("file") MultipartFile file) throws IOException {
-        String s3Url = s3Service.upload(file, "profile");
+        String uniqueFileName = s3Service.makeUniqueFileName(file, "profile");
+        String s3Url = s3Service.upload(file, uniqueFileName);
         String profile = userService.getUserProfile();
         if(profile != null){
             boolean flag = userService.updateProfile(s3Url);
@@ -185,7 +186,8 @@ public class UserController {
             }
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         } else {
-            String s3Url = s3Service.upload(file, "sign");
+            String uniqueFileName = s3Service.makeUniqueFileName(file, "sign");
+            String s3Url = s3Service.upload(file, uniqueFileName);
             userService.updateSignState(signState);
             String sign = userService.getSignImage();
             if(sign != null) {
