@@ -238,4 +238,8 @@ public class ApproveDAO {
         }
         return true;
     }
+
+    public List<FileResDTO> selectFileNamesAndFilePath(int approvalDocId) {
+        return approveMapper.selectFileNamesAndFilePath(approvalDocId);
+    }
 }
