@@ -13,5 +13,7 @@ public class ReceivedRefDTO {
     private String category;
     private String name;
     private int approvalDocId;
+    private String positionName;
+    private String gradeName;
 
 }

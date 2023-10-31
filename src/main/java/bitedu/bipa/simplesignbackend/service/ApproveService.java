@@ -47,33 +47,15 @@ public class ApproveService {
         approvalDocReqDTO.setCreatedAt(LocalDateTime.now());
         int approvalDocId =approveDAO.insertApprovalDoc(approvalDocReqDTO, orgUserId);
 
-
-        //docStatus 가 상신인지 임시저장인지 확인
-        if(approvalDocReqDTO.getDocStatus() == ApprovalStatus.TEMPORARY.getCode()) {
-            //임시저장이면 첨부파일 insert
-
-        }else if(approvalDocReqDTO.getDocStatus() == ApprovalStatus.WAIT.getCode()) {
-            //상신이면 alarm, 첨부파일 insert
-
-        }
-
         //결재라인 삽입
         int count = this.insertApprovalList(approvalDocId,approverList,0);
             if(count-1 !=approvalCount) {
                 throw new RestApiException(CustomErrorCode.APPROVALLINE_INSERT_FAIL);
         }
 
-        //수신참조 insert ---> 활성화 여부를 넣고 활성화 된 것만 불러와서 보여주게하기
-        List<ReceivedRefDTO> receivedRef = approvalDocReqDTO.getReceiveRefList();
-        int totalCount = receivedRef.size();
-        int receiveCount = 0;
-        for(ReceivedRefDTO dto: receivedRef) {
-            dto.setApprovalDocId(approvalDocId);
-            receiveCount += approveDAO.insertReceivedRef(dto);
-        }
-        if(totalCount !=receiveCount) {
-            throw new RestApiException(CustomErrorCode.RECEIVED_REF_INSERT_FAIL);
-        }
+        //수신참조 insert
+        this.insertReceivedRefList(approvalDocReqDTO, approvalDocId);
+
         return approvalDocId;
     }
 
@@ -89,6 +71,14 @@ public class ApproveService {
             //2. 결재문서가 있다면 결재 상태를 '승인'으로 바꾸고 결재시간 삽입하기
             approvalResDTO.setApprovalStatus(ApprovalStatus.APPROVAL.getCode());
             approvalResDTO.setApprovalDate(LocalDateTime.now());
+
+            //custom 사인이 있으면 사인아이디 삽입
+            int userId = (int)SessionUtils.getAttribute("userId");
+            boolean isCustomSignExist = userDAO.getSignstate(userId);
+            if(isCustomSignExist) {
+                int fileId = userDAO.getSignFileIdByUserId(userId);
+                approvalResDTO.setSignFileId(fileId);
+            }
             int affectedCount = approveDAO.updateCurrentApproval(approvalResDTO);
             if(affectedCount ==0) {
                 throw new RestApiException(CustomErrorCode.APPROVAL_FAIL);
@@ -254,16 +244,7 @@ public class ApproveService {
 
         //3.원래 있던 수신참조 삭제 및 수신참조 재삽입
         approveDAO.deleteReceivedRef(approvalDocId);
-        List<ReceivedRefDTO> receivedRef = approvalDocReqDTO.getReceiveRefList();
-        int totalCount = receivedRef.size();
-        int receiveCount = 0;
-        for(ReceivedRefDTO dto: receivedRef) {
-            dto.setApprovalDocId(approvalDocId);
-            receiveCount += approveDAO.insertReceivedRef(dto);
-        }
-        if(totalCount !=receiveCount) {
-            throw new RestApiException(CustomErrorCode.RECEIVED_REF_INSERT_FAIL);
-        }
+        this.insertReceivedRefList(approvalDocReqDTO, approvalDocId);
 
         //4. 알림보내기(문서를 결재한 사람들, 문서를 수신한 사람)
         List<Integer> updateAlarmRecipientList = approveDAO.selectUpdateAlarmRecipient(approvalDocId);
@@ -339,6 +320,26 @@ public class ApproveService {
                 count++;
             }
             return count;
+    }
+
+    private void insertReceivedRefList(ApprovalDocReqDTO approvalDocReqDTO, int approvalDocId) {
+        List<ReceivedRefDTO> receivedRef = approvalDocReqDTO.getReceiveRefList();
+        int totalCount = receivedRef.size();
+        int receiveCount = 0;
+        PositionAndGradeDTO positionAndGradeDTO = new PositionAndGradeDTO();
+        for(ReceivedRefDTO dto: receivedRef) {
+            dto.setApprovalDocId(approvalDocId);
+            if(dto.getCategory().equals("U")) {
+                positionAndGradeDTO = commonDAO.getPositionAndGrade(dto.getId());
+                dto.setGradeName(positionAndGradeDTO.getGradeName());
+                dto.setPositionName(positionAndGradeDTO.getPositionName());
+            }
+            receiveCount += approveDAO.insertReceivedRef(dto);
+        }
+
+        if(totalCount !=receiveCount) {
+            throw new RestApiException(CustomErrorCode.RECEIVED_REF_INSERT_FAIL);
+        }
     }
 
 
@@ -557,4 +558,41 @@ public class ApproveService {
         }
     }
 
+    public List<ApprovalLineDetailListDTO> getDefaultApprovalLine(int formCode) {
+        List<ApprovalLineDetailListDTO> approvalLineDetailListDTOList = approveDAO.getDefaultApprovalLine(formCode);
+        return approvalLineDetailListDTOList;
+    }
+
+    @Transactional
+    public void registerFavorites(int formCode) {
+        int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
+        FavoritesReqDTO favoritesReqDTO = new FavoritesReqDTO();
+        favoritesReqDTO.setFormCode(formCode);
+        favoritesReqDTO.setOrgUserId(orgUserId);
+        boolean isFavoritesExist = approveDAO.selectFavorites(favoritesReqDTO);
+        if(isFavoritesExist) {
+            return;
+        }
+        int affectedCount = approveDAO.insertFavorites(favoritesReqDTO);
+        if(affectedCount ==0) {
+            throw  new RestApiException(CustomErrorCode.FAVORITE_INSERT_FAIL);
+        }
+    }
+
+    @Transactional
+    public void removeFavorites(int formCode) {
+        int orgUsersId = (int) SessionUtils.getAttribute("orgUserId");
+        FavoritesReqDTO favoritesReqDTO = new FavoritesReqDTO();
+        favoritesReqDTO.setOrgUserId(orgUsersId);
+        favoritesReqDTO.setFormCode(formCode);
+        int affectedCount = approveDAO.deleteFavorites(favoritesReqDTO);
+        if(affectedCount ==0) {
+            throw new RestApiException(CustomErrorCode.FAVORITE_DELETE_FAIL);
+        }
+    }
+
+    public List<FavoritesResDTO> getFavorites() {
+        int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
+        return approveDAO.getFavorites(orgUserId);
+    }
 }

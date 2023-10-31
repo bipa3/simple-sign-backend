@@ -12,6 +12,7 @@ public enum CommonErrorCode implements ErrorCode {
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "리소스가 존재하지 않습니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부서버 문제가 있습니다."),
     UNEXPECTED_TYPE(HttpStatus.BAD_REQUEST, "적절한 요청이 아닙니다"),
+    NO_CONTENT(HttpStatus.NO_CONTENT, "요청한 컨텐츠가 없습니다."),
     ;
 
     private final HttpStatus httpStatus;

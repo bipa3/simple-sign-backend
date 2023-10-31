@@ -104,4 +104,16 @@
     <select id="selectUserIdByOrgUserId" parameterType="int" resultType="int">
         select user_id from organization_user where org_user_id = #{approverId};
     </select>
+
+    <!--파일아이디 가져오기-->
+    <select id="selectSignFileIdByUserId" parameterType="int" resultType="int">
+        select file_id from attatchment_file
+        where use_id = #{userId} and file_code = '02';
+    </select>
+
+    <!--파일아이디로 파일이미지 가져오기-->
+    <select id="selectSignImageBySignFileId" parameterType="int" resultType="String">
+        select approval_file_path from attatchment_file
+        where file_id = #{fileId};
+    </select>
 </mapper>

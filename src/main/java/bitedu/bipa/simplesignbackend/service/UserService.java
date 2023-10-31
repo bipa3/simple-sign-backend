@@ -110,8 +110,7 @@ public class UserService {
         return userDAO.getOrgList(userId);
     }
 
-    public String getApproverImage(int approverId) {
-        int userId = userDAO.getUserIdByOrgUserId(approverId);
-        return userDAO.getSignImage(userId);
+    public String getApproverImage(int signFileId) {
+        return userDAO.getSignImageBySignFileId(signFileId);
     }
 }
