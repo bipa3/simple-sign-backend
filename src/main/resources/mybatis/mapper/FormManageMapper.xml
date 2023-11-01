@@ -21,15 +21,15 @@
     </select>
 
     <select id="getFormDetailScope" resultType="bitedu.bipa.simplesignbackend.model.dto.FormDetailScopeDTO">
-        SELECT A.category, A.form_code, A.use_id, comp.comp_id, comp.comp_name AS company, est.est_id, NVL(est.est_name, "") AS establishment, dept.dept_id, NVL(dept.dept_name, "") AS department, user.user_id, NVL(user.user_name, "") AS user, NVL(user.grade_name, "") AS grade, NVL(user.position_name, "") AS position
-        FROM (SELECT * FROM form_use_department WHERE form_code=#{code}) A
-        LEFT JOIN (SELECT user.user_id, user.user_name, ou.dept_id, g.grade_name, p.position_name, ou.org_user_id FROM user
-        INNER JOIN organization_user AS ou ON user.user_id=ou.user_id
-        INNER JOIN grade AS g on ou.grade_code=g.grade_code
-        INNER JOIN position AS p on ou.position_code=p.position_code) AS user ON A.category = 'U' AND A.use_id = user.org_user_id
-        LEFT JOIN department AS dept ON A.category IN ('U', 'D') AND (A.use_id= dept.dept_id OR user.dept_id=dept.dept_id)
-        LEFT JOIN establishment AS est ON A.category IN ('U', 'D', 'E') AND (A.use_id= est.est_id OR dept.est_id=est.est_id)
-        LEFT JOIN company AS comp ON A.category IN ('U', 'D', 'E', 'C') AND (A.use_id= comp.comp_id OR est.comp_id=comp.comp_id);
+        SELECT fud.category, fud.form_code, fud.use_id, comp.comp_id, comp.comp_name AS company, est.est_id, NVL(est.est_name, "") AS establishment, dept.dept_id, NVL(dept.dept_name, "") AS department, fud.use_id AS user_id, NVL(u.user_name, "") AS user, NVL(g.grade_name, "") AS grade, NVL(p.position_name, "") AS position
+        from (SELECT * FROM form_use_department WHERE form_code=48) fud
+        LEFT JOIN organization_user AS ou ON fud.category IN ('U') AND fud.use_id=ou.org_user_id
+        LEFT JOIN department AS dept ON (fud.category IN ('D') AND (fud.use_id=dept.dept_id)) OR (fud.category IN ('U') AND (ou.dept_id=dept.dept_id))
+        LEFT JOIN establishment AS est ON (fud.category IN ('E') AND (fud.use_id=est.est_id)) OR (fud.category IN ('U', 'D') AND (dept.est_id=est.est_id))
+        LEFT JOIN company AS comp ON (fud.category IN ('C') AND (fud.use_id=comp.comp_id)) OR (fud.category IN ('U', 'D', 'E') AND (est.comp_id=comp.comp_id))
+        LEFT JOIN user AS u ON ou.user_id=u.user_id
+        LEFT JOIN grade AS g on ou.grade_code=g.grade_code
+        LEFT JOIN position AS p on ou.position_code=p.position_code;
     </select>
 
     <select id="selectFormListWithSearch" resultType="FormListDTO"
