@@ -21,15 +21,19 @@ public class OrgController {
 
     //TreeView
     @GetMapping("/orgTreeView")
-    public ResponseEntity<List<OrgCompanyDTO>> orgTreeView(@RequestParam(required = false) int compId){
+    public ResponseEntity<List<OrgCompanyDTO>> orgTreeView(@RequestParam(required = false) int comp){
 
         int authorityCode = (int) SessionUtils.getAttribute("authorityCode");
 
         List<OrgCompanyDTO> orgCompanyDTOList = null;
         if(authorityCode == 1){
-            orgCompanyDTOList = orgService.orgTreeView();
+            if(comp!=0){
+                orgCompanyDTOList = orgService.orgTreeViewComp(comp);
+            }else{
+                orgCompanyDTOList = orgService.orgTreeView();
+            }
         } else if (authorityCode == 2 || authorityCode == 3) {
-            orgCompanyDTOList = orgService.orgTreeViewComp(compId);    
+            orgCompanyDTOList = orgService.orgTreeViewComp(comp);
         }
         
         return ResponseEntity.ok(orgCompanyDTOList);
