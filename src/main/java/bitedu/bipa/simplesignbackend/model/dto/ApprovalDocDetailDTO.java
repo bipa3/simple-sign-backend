@@ -17,12 +17,14 @@ public class ApprovalDocDetailDTO {
     private LocalDateTime approvalDate;
     private String approvalDocTitle;
     private String contents;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime enforcementDate;
     private String productNum;
     private int formCode;
     private String defaultForm;
     private char docStatus;
+    private int seqCode;
+    private String seqName;
     private List<ApprovalLineDetailListDTO> approvalLineList;
     private List<ApprovalLineDetailListDTO> receivedRefList;
 }
