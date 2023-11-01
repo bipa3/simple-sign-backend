@@ -33,7 +33,8 @@ public interface ApprovalBoxMapper {
                                                              @Param("estId") int estId,
                                                              @Param("compId") int compId,
                                                              @Param("viewItems") List<String> viewItems,
-                                                             @Param("searchInput") String searchInput);
+                                                             @Param("searchInput") String searchInput,
+                                                            @Param("sortStatus") String sortStatus);
 
     int getSearchDocCountByViewItems(@Param("orgUserId") int orgUserId,
                                                             @Param("deptId") int deptId,

@@ -44,10 +44,11 @@ public class ApprovalBoxController {
         Map<String, Object> result = new HashMap<>();
 
         if (!searchInput.equals("")) {
-            result=approvalBoxService.selectSearchDocuments(viewItems, orgUserId, deptId, estId, compId, itemsPerPage, offset, searchInput);
+            result=approvalBoxService.selectSearchDocuments(viewItems, orgUserId, deptId, estId, compId, itemsPerPage, offset, searchInput,sortStatus);
         }else{
             result = approvalBoxService.selectDocuments(viewItems, orgUserId, deptId,estId,compId, itemsPerPage, offset,sortStatus);
         }
+        System.out.println(result);
 
         return result;
     }
