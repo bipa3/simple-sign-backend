@@ -27,9 +27,9 @@
         INNER JOIN organization_user AS ou ON user.user_id=ou.user_id
         INNER JOIN grade AS g on ou.grade_code=g.grade_code
         INNER JOIN position AS p on ou.position_code=p.position_code) AS user ON A.category = 'U' AND A.use_id = user.org_user_id
-        LEFT JOIN department AS dept ON A.category IN ('U', 'D') AND (A.use_id= dept.dept_id)
-        LEFT JOIN establishment AS est ON A.category IN ('U', 'D', 'E') AND (A.use_id= est.est_id)
-        LEFT JOIN company AS comp ON A.category IN ('U', 'D', 'E', 'C') AND (A.use_id= comp.comp_id);
+        LEFT JOIN department AS dept ON A.category IN ('U', 'D') AND (A.use_id= dept.dept_id OR user.dept_id=dept.dept_id)
+        LEFT JOIN establishment AS est ON A.category IN ('U', 'D', 'E') AND (A.use_id= est.est_id OR dept.est_id=est.est_id)
+        LEFT JOIN company AS comp ON A.category IN ('U', 'D', 'E', 'C') AND (A.use_id= comp.comp_id OR est.comp_id=comp.comp_id);
     </select>
 
     <select id="selectFormListWithSearch" resultType="FormListDTO"

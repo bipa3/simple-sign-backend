@@ -30,7 +30,7 @@ public class FormManageService {
         commonService.checkDeptMasterAthority(Integer.parseInt(formAndCompDTO.getCompId()));
         List<FormAndCompDTO> formAndCompList = formManageDAO.selectFormAndComp(formAndCompDTO);
         if(formAndCompList.size() < 1){
-            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+            throw new RestApiException(CommonErrorCode.NO_CONTENT);
         }
         return formAndCompList;
     }
