@@ -113,7 +113,7 @@
     <!--결재문서 상세조회-->
     <select id="selectApprovalDocById" parameterType="int" resultType="ApprovalDocDetailDTO">
         select approval_doc_id, t1.org_user_id, t3.user_name, t5.dept_name, approval_date, approval_doc_title, doc_status,
-            contents, enforcement_date, product_num, t1.form_code, t4.default_form
+            contents, enforcement_date, product_num, t1.form_code, t4.default_form, t1.seq_code, t6.seq_name
         from approval_doc t1
             left join organization_user t2
             on t1.org_user_id = t2.org_user_id
@@ -123,6 +123,8 @@
             on t1.form_code = t4.form_code
             left join department t5
             on t2.dept_id = t5.dept_id
+            left join sequence t6
+            on t1.seq_code = t6.seq_code
         where approval_doc_id = #{approvalDocId} and doc_del_status = 0;
 
     </select>
