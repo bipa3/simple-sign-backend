@@ -30,15 +30,15 @@
     </select>
 
     <select id="getSeqDeptScope" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqScopeDTO">
-        SELECT A.status AS category, A.seq_code, A.use_id, comp.comp_id, comp.comp_name AS company, est.est_id, IFNULL(est.est_name, "") AS establishment, dept.dept_id, IFNULL(dept.dept_name, "") AS department, user.user_id, IFNULL(user.user_name, "") AS user, IFNULL(user.grade_name, "") AS grade, IFNULL(user.position_name, "") AS position
-        FROM (SELECT * FROM sequence_use_department WHERE seq_code=#{code}) A
-        LEFT JOIN (SELECT user.user_id, user.user_name, ou.dept_id, g.grade_name, p.position_name FROM user
-        INNER JOIN organization_user AS ou ON user.user_id=ou.org_user_id
-        INNER JOIN grade AS g on ou.grade_code=g.grade_code
-        INNER JOIN position AS p on ou.position_code=p.position_code) AS user ON A.status = 'U' AND A.use_id = user.user_id
-        LEFT JOIN department AS dept ON A.status IN ('U', 'D') AND (A.use_id= dept.dept_id)
-        LEFT JOIN establishment AS est ON A.status IN ('U', 'D', 'E') AND (A.use_id= est.est_id)
-        LEFT JOIN company AS comp ON A.status IN ('U', 'D', 'E', 'C') AND (A.use_id= comp.comp_id);
+        SELECT fud.status AS category, fud.seq_code, fud.use_id, comp.comp_id, comp.comp_name AS company, est.est_id, NVL(est.est_name, "") AS establishment, dept.dept_id, NVL(dept.dept_name, "") AS department, fud.use_id AS user_id, NVL(u.user_name, "") AS user, NVL(g.grade_name, "") AS grade, NVL(p.position_name, "") AS position
+        from (SELECT * FROM sequence_use_department WHERE seq_code=#{code}) fud
+        LEFT JOIN organization_user AS ou ON fud.status IN ('U') AND fud.use_id=ou.org_user_id
+        LEFT JOIN department AS dept ON (fud.status IN ('D') AND (fud.use_id=dept.dept_id)) OR (fud.status IN ('U') AND (ou.dept_id=dept.dept_id))
+        LEFT JOIN establishment AS est ON (fud.status IN ('E') AND (fud.use_id=est.est_id)) OR (fud.status IN ('U', 'D') AND (dept.est_id=est.est_id))
+        LEFT JOIN company AS comp ON (fud.status IN ('C') AND (fud.use_id=comp.comp_id)) OR (fud.status IN ('U', 'D', 'E') AND (est.comp_id=comp.comp_id))
+        LEFT JOIN user AS u ON ou.user_id=u.user_id
+        LEFT JOIN grade AS g on ou.grade_code=g.grade_code
+        LEFT JOIN position AS p on ou.position_code=p.position_code;
     </select>
 
     <select id="getSeqFormScope" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqScopeDTO">
