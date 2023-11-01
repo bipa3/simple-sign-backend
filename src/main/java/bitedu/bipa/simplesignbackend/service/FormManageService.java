@@ -35,7 +35,7 @@ public class FormManageService {
         return formAndCompList;
     }
 
-    public FormDetailResDTO searchFormDetail(int code) {
+    public FormDetailResDTO searchFormDetailForAdmin(int code) {
         FormDetailResDTO formDetail = new FormDetailResDTO();
         try{
             formDetail = formManageDAO.selectFormDetail(code);
@@ -46,6 +46,27 @@ public class FormManageService {
 
             if(formDetail.getCode() == 0){
                 throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+            }
+            List<DefaultApprovalLineDTO> defaultLineList = formManageDAO.searchDefaultApprovalLineAll(formDetail.getCode());
+            formDetail.setApprovalLine(defaultLineList);
+
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+        return formDetail;
+    }
+
+    public FormDetailResDTO searchFormDetail(int code) {
+        FormDetailResDTO formDetail = new FormDetailResDTO();
+        try{
+            formDetail = formManageDAO.selectFormDetail(code);
+
+            ArrayList<FormDetailScopeDTO> formDetailScopeList = formManageDAO.selectFormScope(code);
+            formDetail.setScope(formDetailScopeList);
+
+            if(formDetail.getCode() == 0){
+                throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
             }
             List<DefaultApprovalLineDTO> defaultLineList = formManageDAO.searchDefaultApprovalLineAll(formDetail.getCode());
             formDetail.setApprovalLine(defaultLineList);
