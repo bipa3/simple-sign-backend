@@ -27,7 +27,7 @@ public class ReplyDAO {
         return replyMapper.selectAllReplyList(approvalDocId);
     }
 
-    public void insertReply(ReplyReqDTO replyReqDTO) {
+    public int insertReply(ReplyReqDTO replyReqDTO) {
 
        int affectedCount = replyMapper.insertReply(replyReqDTO);
        if(affectedCount ==0) {
@@ -50,6 +50,7 @@ public class ReplyDAO {
        if(affectedCount ==0) {
            throw new RestApiException(CustomErrorCode.REPLY_INSERT_FAIL);
        }
+       return replyId;
     }
 
 
@@ -94,5 +95,13 @@ public class ReplyDAO {
 
     public int deleteLowerReply(int replyId) {
         return replyMapper.deleteLowerReply(replyId);
+    }
+
+    public int insertReplyAttachment(ReplyAttachmentDTO replyAttachmentDTO) {
+        return replyMapper.insertReplyAttachment(replyAttachmentDTO);
+    }
+
+    public List<FileResDTO> selectFileNamesAndFilePath(int replyId) {
+        return replyMapper.selectFileNamesAndFilePath(replyId);
     }
 }
