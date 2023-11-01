@@ -8,17 +8,22 @@
     <select id="getApprovalBoxList" resultType="bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO">
         <choose>
             <when test="company == 0">
-                SELECT approval_box_id,approval_box_name FROM approval_box
-                WHERE box_delete_status != 1;
+                SELECT approval_box_id, approval_box_name
+                FROM approval_box
+                WHERE box_delete_status != 1
+                ORDER BY sort_order ASC;
             </when>
             <otherwise>
-                SELECT ab.approval_box_id, ab.approval_box_name FROM approval_box ab
-                join company c ON ab.comp_id = c.comp_id
+                SELECT ab.approval_box_id, ab.approval_box_name
+                FROM approval_box ab
+                JOIN company c ON ab.comp_id = c.comp_id
                 WHERE ab.box_delete_status != 1
                 AND ab.comp_id = #{company}
+                ORDER BY ab.sort_order ASC;
             </otherwise>
         </choose>
     </select>
+
     <select id="getApprovalBoxDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDetailDTO">
         SELECT ab.approval_box_id, ab.comp_id, c.comp_name, ab.approval_box_name, ab.approval_box_used_status, ab.menu_using_range, ab.sort_order
         FROM approval_box ab
@@ -70,7 +75,8 @@
         OR c.comp_name = ou.comp_name
         OR d.dept_id = ou.dept_id
         OR u.user_id = ou.org_user_id
-        );
+        )
+        ORDER BY ab.sort_order ASC;
     </select>
     <select id="getCustomBoxViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.ViewItemDTO">
         SELECT distinct ab.approval_box_id as boxId, ab.approval_box_name as boxName, cc.code_id, cc.code_value
