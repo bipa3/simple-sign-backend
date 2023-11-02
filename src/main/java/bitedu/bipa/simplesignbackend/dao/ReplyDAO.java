@@ -34,19 +34,16 @@ public class ReplyDAO {
            throw new RestApiException(CustomErrorCode.REPLY_INSERT_FAIL);
        }
        int replyId = replyReqDTO.getReplyId();
-        //System.out.println("replyId"+ replyId);
        //그룹의 순서 가져오기
         int depth = 1;
         Map<String, Integer> map = new HashMap();
         map.put("depth", depth);
         map.put("approvalDocId", replyReqDTO.getApprovalDocId());
         int groupOrd = replyMapper.selectGroupOrd(map);
-        //System.out.println(groupOrd);
         Map<String, Integer> map2 = new HashMap<>();
         map2.put("replyId", replyId);
         map2.put("groupOrd", groupOrd);
         affectedCount = replyMapper.updateGroupNoAndOrder(map2);
-        //System.out.println(affectedCount);
        if(affectedCount ==0) {
            throw new RestApiException(CustomErrorCode.REPLY_INSERT_FAIL);
        }

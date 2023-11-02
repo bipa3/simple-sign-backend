@@ -8,6 +8,7 @@ import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,8 @@ public class ReplyService {
     public int registerReply(ReplyReqDTO replyReqDTO) {
         int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         replyReqDTO.setOrgUserId(orgUserId);
+        replyReqDTO.setRegDate(LocalDateTime.now());
+        System.out.println(LocalDateTime.now());
         //upperReplyId 가 0이면 댓글 아니면 대댓글
         int replyId = 0;
         if(replyReqDTO.getUpperReplyId() ==0) {

@@ -113,7 +113,7 @@
     <!--결재문서 상세조회-->
     <select id="selectApprovalDocById" parameterType="int" resultType="ApprovalDocDetailDTO">
         select approval_doc_id, t1.org_user_id, t3.user_name, t5.dept_name, approval_date, approval_doc_title, doc_status,
-            contents, enforcement_date, product_num, t1.form_code, t4.default_form, t1.seq_code, t6.seq_name
+            contents, enforcement_date, product_num, t1.form_code, t4.form_name, t4.default_form, t1.seq_code, t6.seq_name
         from approval_doc t1
             left join organization_user t2
             on t1.org_user_id = t2.org_user_id
@@ -360,7 +360,7 @@
         from favorites t1
             left join form t2
             on t1.form_code = t2.form_code
-        where org_user_id = #{orgUserId};
+        where org_user_id = #{orgUserId} and t2.form_del_status = 0 and t2.form_used_status =1;
     </select>
 
     <select id="selectFavoritesByFormCode" parameterType="FavoritesReqDTO" resultType="int">
