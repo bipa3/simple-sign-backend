@@ -277,16 +277,16 @@
     <sql id="commonIfConditions">
         <if test="criteria.startDate != null and criteria.endDate != null">
             <choose>
-                <when test="criteria.searchDate == 'sendDate'"  >
+                <when test="criteria.searchDate == 1"  >
                     AND (ad.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                 </when>
-                <when test="criteria.searchDate == 'arrivedDate'">
+                <when test="criteria.searchDate == 2">
                     AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                 </when>
-                <when test="criteria.searchDate == 'approvDate'">
-                    AND (approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                <when test="criteria.searchDate == 3">
+                    AND (a.approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                 </when>
-                <when test="criteria.searchDate == 'closedDate'">
+                <when test="criteria.searchDate == 4">
                     AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                 </when>
             </choose>
