@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.PastOrPresent;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -26,7 +27,6 @@ public class SearchRequestDTO {
     @PastOrPresent(message = "기간이 유효하지 않습니다.")
     @JsonDeserialize(using = IsoToTimestampDeserializer.class)
     private Timestamp startDate;
-    @PastOrPresent(message = "기간이 유효하지 않습니다.")
     @JsonDeserialize(using = IsoToTimestampDeserializer.class)
     private Timestamp endDate;
     private String searchTitle;
@@ -37,6 +37,15 @@ public class SearchRequestDTO {
     private String searchApprovState;
     private String searchDocForm;
     private String searchDocNumber;
+    private String sortStatus;
+
+    @AssertTrue(message = "시작일이 종료일보다 늦을 수 없습니다.")
+    public boolean isDatesValid() {
+        if (startDate == null || endDate == null) {
+            return true;
+        }
+        return !startDate.after(endDate);
+    }
 
     public static class IsoToTimestampDeserializer extends JsonDeserializer<Timestamp> {
         @Override
