@@ -61,7 +61,7 @@
         where ou.org_user_id =#{orgUserId};
     </select>
     <select id="getCustomBoxList" resultType="bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO">
-        SELECT distinct ab.approval_box_id, ab.approval_box_name
+        SELECT distinct ab.approval_box_id, ab.approval_box_name, ab.sort_order
         FROM approval_box ab
         JOIN organization_user ou on ou.org_user_id = #{orgUserId}
         left JOIN box_use_department bud ON bud.approval_box_id = ab.approval_box_id

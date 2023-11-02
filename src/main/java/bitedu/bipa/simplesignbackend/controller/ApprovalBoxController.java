@@ -48,7 +48,6 @@ public class ApprovalBoxController {
         }else{
             result = approvalBoxService.selectDocuments(viewItems, orgUserId, deptId,estId,compId, itemsPerPage, offset,sortStatus);
         }
-        System.out.println(result);
 
         return result;
     }
@@ -60,7 +59,6 @@ public class ApprovalBoxController {
                                                                @SessionAttribute(name = "compId") int compId,
                                                                @SessionAttribute(name = "deptId") int deptId, @Valid @RequestBody SearchRequestDTO criteria) {
         int estId = approvalBoxDAO.selectEstId(orgUserId);
-
 
         Map<String, Object> result = approvalBoxService.searchDocuments( orgUserId,deptId,estId,compId,criteria);
         return ResponseEntity.ok(result);
