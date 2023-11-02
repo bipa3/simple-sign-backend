@@ -34,7 +34,7 @@
 
     <select id="selectFormListWithSearch" resultType="FormListDTO"
             parameterType="Map">
-        select distinct  t1.form_code, form_name, form_explain
+        select distinct  t1.form_code, form_name, form_explain, form_approval_kind
         from form t1
             left join
             form_use_department t2 on t1.form_code = t2.form_code

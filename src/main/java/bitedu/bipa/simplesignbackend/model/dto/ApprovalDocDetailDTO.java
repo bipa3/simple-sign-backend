@@ -21,6 +21,7 @@ public class ApprovalDocDetailDTO {
     private LocalDateTime enforcementDate;
     private String productNum;
     private int formCode;
+    private String formName;
     private String defaultForm;
     private char docStatus;
     private int seqCode;
