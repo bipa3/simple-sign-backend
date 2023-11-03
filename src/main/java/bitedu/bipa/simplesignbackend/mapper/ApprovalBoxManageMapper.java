@@ -27,7 +27,6 @@ public interface ApprovalBoxManageMapper {
     void deleteBoxViewItem(@Param("approvalBoxId")int approvalBoxId);
 
     void insertBoxViewItem(@Param("approvalBoxId")int approvalBoxId, @Param("item") String item);
-    void insertBoxUseCompany(@Param("approvalBoxId")int approvalBoxId, @Param("compId")int compId);
 
     int getUserEstId(@Param("orgUserId")int orgUserId);
 
