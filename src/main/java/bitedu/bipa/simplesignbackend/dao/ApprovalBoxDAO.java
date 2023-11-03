@@ -94,9 +94,6 @@ public class ApprovalBoxDAO {
     public void createApprovalBox(int compId, String approvalBoxName, ArrayList<String> viewItems, int approvalBoxUsedStatus, String menuUsingRange, ArrayList<BoxUseDepartmentDTO> boxUseDept, int sortOrder) {
         approvalBoxManageMapper.insertApprovalBox(compId,approvalBoxName,approvalBoxUsedStatus,menuUsingRange,sortOrder);
         int approvalBoxId = approvalBoxManageMapper.getLastInsertId();
-        if(menuUsingRange.equals("T")){
-            System.out.println("조건 통과");
-            approvalBoxManageMapper.insertBoxUseCompany(approvalBoxId,compId);}
         if (viewItems.size()>0){
             for (String item : viewItems) {
                 approvalBoxManageMapper.insertBoxViewItem(approvalBoxId,item);
