@@ -44,6 +44,18 @@ public class FormManageController {
         }
     }
 
+    @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
+    @GetMapping("/admin/detail/{code}")
+    public ResponseEntity<FormDetailResDTO> formDetailSearchForAdmin(@PathVariable int code) {
+        FormDetailResDTO formDetail = formManageService.searchFormDetailForAdmin(code);
+
+        if (formDetail != null) {
+            return new ResponseEntity<>(formDetail, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN, Authority.Role.USER})
     @GetMapping("/detail/{code}")
     public ResponseEntity<FormDetailResDTO> formDetailSearch(@PathVariable int code) {
@@ -85,6 +97,7 @@ public class FormManageController {
     public ResponseEntity<List<FormListDTO>> formTitleList(@RequestParam(required = false) String searchContent){
         searchContent =  searchContent==null?"":searchContent;
         List<FormListDTO> dto = formManageService.showFormList(searchContent);
+        System.out.println(dto);
         return ResponseEntity.ok(dto);
     }
 

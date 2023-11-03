@@ -69,5 +69,17 @@
             where group_no =#{replyId};
     </update>
 
+    <!--댓글파일업로드-->
+    <insert id="insertReplyAttachment" parameterType="ReplyAttachmentDTO">
+        insert attatchment_file (file_name, approval_file_path, file_code, use_id, download_file_path)
+        values (#{fileName}, #{approvalFilePath}, '04', #{replyId} , #{downloadFilePath});
+    </insert>
+
+    <!--해당 댓글에 맞는 파일이름 가져오기-->
+    <select id="selectFileNamesAndFilePath" parameterType="int" resultType="FileResDTO">
+        select file_name, download_file_path from attatchment_file
+        where use_id = #{replyId} and file_code = '04';
+    </select>
+
 
 </mapper>

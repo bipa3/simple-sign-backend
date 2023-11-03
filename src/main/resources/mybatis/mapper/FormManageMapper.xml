@@ -22,7 +22,7 @@
 
     <select id="getFormDetailScope" resultType="bitedu.bipa.simplesignbackend.model.dto.FormDetailScopeDTO">
         SELECT fud.category, fud.form_code, fud.use_id, comp.comp_id, comp.comp_name AS company, est.est_id, NVL(est.est_name, "") AS establishment, dept.dept_id, NVL(dept.dept_name, "") AS department, fud.use_id AS user_id, NVL(u.user_name, "") AS user, NVL(g.grade_name, "") AS grade, NVL(p.position_name, "") AS position
-        from (SELECT * FROM form_use_department WHERE form_code=48) fud
+        from (SELECT * FROM form_use_department WHERE form_code=#{code}) fud
         LEFT JOIN organization_user AS ou ON fud.category IN ('U') AND fud.use_id=ou.org_user_id
         LEFT JOIN department AS dept ON (fud.category IN ('D') AND (fud.use_id=dept.dept_id)) OR (fud.category IN ('U') AND (ou.dept_id=dept.dept_id))
         LEFT JOIN establishment AS est ON (fud.category IN ('E') AND (fud.use_id=est.est_id)) OR (fud.category IN ('U', 'D') AND (dept.est_id=est.est_id))
@@ -34,7 +34,7 @@
 
     <select id="selectFormListWithSearch" resultType="FormListDTO"
             parameterType="Map">
-        select distinct  t1.form_code, form_name, form_explain
+        select distinct  t1.form_code, form_name, form_explain, form_approval_kind
         from form t1
             left join
             form_use_department t2 on t1.form_code = t2.form_code

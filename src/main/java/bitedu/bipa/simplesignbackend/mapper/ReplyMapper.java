@@ -31,4 +31,8 @@ public interface ReplyMapper {
     ReplyResDTO selectReplierAndDepth(int replyId);
 
     int deleteLowerReply(int replyId);
+
+    int insertReplyAttachment(ReplyAttachmentDTO replyAttachmentDTO);
+
+    List<FileResDTO> selectFileNamesAndFilePath(int replyId);
 }
