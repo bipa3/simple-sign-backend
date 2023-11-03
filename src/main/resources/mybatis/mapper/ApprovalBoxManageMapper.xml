@@ -8,13 +8,13 @@
     <select id="getApprovalBoxList" resultType="bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO">
         <choose>
             <when test="company == 0">
-                SELECT approval_box_id, approval_box_name
+                SELECT approval_box_id, approval_box_name, approval_box_used_status
                 FROM approval_box
                 WHERE box_delete_status != 1
                 ORDER BY sort_order ASC;
             </when>
             <otherwise>
-                SELECT ab.approval_box_id, ab.approval_box_name
+                SELECT ab.approval_box_id, ab.approval_box_name,approval_box_used_status
                 FROM approval_box ab
                 JOIN company c ON ab.comp_id = c.comp_id
                 WHERE ab.box_delete_status != 1
@@ -84,6 +84,8 @@
         SELECT ab.approval_box_id, ab.approval_box_name, ab.sort_order
         FROM approval_box ab
         WHERE ab.menu_using_range = 'T' AND ab.comp_id = 1
+        AND ab.box_delete_status != 1
+        AND ab.approval_box_used_status != 0
         ) AS combined_results
         ORDER BY sort_order ASC;
     </select>
@@ -93,6 +95,8 @@
         JOIN approval_box_view_item abvi ON (abvi.code_id = cc.code_id AND cc.section_id = '004')
         JOIN approval_box ab ON ab.approval_box_id = abvi.approval_box_id
         WHERE ab.menu_using_range = 'T' AND ab.comp_id = 1
+        AND ab.box_delete_status != 1
+        AND ab.approval_box_used_status != 0
 
         UNION
 
