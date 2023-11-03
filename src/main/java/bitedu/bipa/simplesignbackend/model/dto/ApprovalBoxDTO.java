@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class ApprovalBoxDTO {
     private int approvalBoxId;
     private String approvalBoxName;
+    private int approvalBoxUsedStatus;
 }
