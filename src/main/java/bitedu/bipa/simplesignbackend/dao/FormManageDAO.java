@@ -102,4 +102,8 @@ public class FormManageDAO {
     public List<DefaultApprovalLineDTO> searchDefaultApprovalLineAll(int code) {
         return formManageMapper.selectDefaultApprovalLine(code);
     }
+
+    public List<FormDTO> searchFormByCompId(Integer id) {
+        return formManageMapper.getFormByCompId(id);
+    }
 }

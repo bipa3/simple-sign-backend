@@ -12,7 +12,7 @@
             <if test="compId != 0">
                 AND sequence.comp_id=#{compId}
             </if>
-            AND seq_name like CONCAT('%', #{seqName}, '%') AND seq_code like CONCAT('%', #{code}, '%') AND seq_del_status=0 ORDER BY seq_sort_order;
+            AND seq_name like CONCAT('%', #{seqName}, '%') AND seq_code like CONCAT('%', #{code}, '%') AND seq_del_status=0 ORDER BY seq_sort_order, seq_code;
         </where>
     </select>
 

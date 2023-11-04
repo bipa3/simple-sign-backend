@@ -43,4 +43,6 @@ public interface FormManageMapper {
     void delDefaultLine(Map map);
     void insertIgnoreDefaultLine(Map map);
 
+    List<FormDTO> getFormByCompId(int compId);
+
 }
