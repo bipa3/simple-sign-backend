@@ -47,8 +47,9 @@ public class ApprovalBoxService {
         List<String> viewItems = criteria.getViewItems();
         int itemsPerPage = criteria.getItemsPerPage();
         int offset=criteria.getOffset();
+        String sortStatus = criteria.getSortStatus();
 
-        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDetailSearchDocsList(viewItems, orgUserId, deptId, estId, compId, itemsPerPage,offset, criteria);
+        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDetailSearchDocsList(viewItems, orgUserId, deptId, estId, compId, itemsPerPage,offset, criteria,sortStatus);
         int count =approvalBoxDAO.selectDetailSearchDocsCount(viewItems, orgUserId, deptId, estId, compId, criteria);
 
         Map<String, Object> result = new HashMap<>();

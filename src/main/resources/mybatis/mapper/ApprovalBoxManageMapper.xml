@@ -8,13 +8,13 @@
     <select id="getApprovalBoxList" resultType="bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO">
         <choose>
             <when test="company == 0">
-                SELECT approval_box_id, approval_box_name
+                SELECT approval_box_id, approval_box_name, approval_box_used_status
                 FROM approval_box
                 WHERE box_delete_status != 1
                 ORDER BY sort_order ASC;
             </when>
             <otherwise>
-                SELECT ab.approval_box_id, ab.approval_box_name
+                SELECT ab.approval_box_id, ab.approval_box_name,approval_box_used_status
                 FROM approval_box ab
                 JOIN company c ON ab.comp_id = c.comp_id
                 WHERE ab.box_delete_status != 1
@@ -61,10 +61,12 @@
         where ou.org_user_id =#{orgUserId};
     </select>
     <select id="getCustomBoxList" resultType="bitedu.bipa.simplesignbackend.model.dto.ApprovalBoxDTO">
-        SELECT distinct ab.approval_box_id, ab.approval_box_name
+        SELECT *
+        FROM (
+        SELECT DISTINCT ab.approval_box_id, ab.approval_box_name, ab.sort_order
         FROM approval_box ab
-        JOIN organization_user ou on ou.org_user_id = #{orgUserId}
-        left JOIN box_use_department bud ON bud.approval_box_id = ab.approval_box_id
+        JOIN organization_user ou ON ou.org_user_id = #{orgUserId}
+        LEFT JOIN box_use_department bud ON bud.approval_box_id = ab.approval_box_id
         LEFT JOIN company c ON (bud.use_id = c.comp_id AND bud.using_category = 'C')
         LEFT JOIN department d ON (bud.use_id = d.dept_id AND bud.using_category = 'D')
         LEFT JOIN user u ON (bud.use_id = ou.org_user_id AND bud.using_category = 'U')
@@ -76,21 +78,44 @@
         OR d.dept_id = ou.dept_id
         OR u.user_id = ou.org_user_id
         )
-        ORDER BY ab.sort_order ASC;
+
+        UNION
+
+        SELECT ab.approval_box_id, ab.approval_box_name, ab.sort_order
+        FROM approval_box ab
+        WHERE ab.menu_using_range = 'T' AND ab.comp_id = 1
+        AND ab.box_delete_status != 1
+        AND ab.approval_box_used_status != 0
+        ) AS combined_results
+        ORDER BY sort_order ASC;
     </select>
     <select id="getCustomBoxViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.ViewItemDTO">
-        SELECT distinct ab.approval_box_id as boxId, ab.approval_box_name as boxName, cc.code_id, cc.code_value
+        SELECT ab.approval_box_id as boxId, ab.approval_box_name as boxName, cc.code_id, cc.code_value
         FROM common_code cc
-        join approval_box_view_item abvi on (abvi.code_id = cc.code_id and cc.section_id=004)
-        join approval_box ab on ab.approval_box_id = abvi.approval_box_id
-        left JOIN box_use_department bud ON bud.approval_box_id = ab.approval_box_id
-        left JOIN company c ON bud.use_id = c.comp_id AND bud.using_category = 'C'
+        JOIN approval_box_view_item abvi ON (abvi.code_id = cc.code_id AND cc.section_id = '004')
+        JOIN approval_box ab ON ab.approval_box_id = abvi.approval_box_id
+        WHERE ab.menu_using_range = 'T' AND ab.comp_id = 1
+        AND ab.box_delete_status != 1
+        AND ab.approval_box_used_status != 0
+
+        UNION
+
+        SELECT DISTINCT ab.approval_box_id as boxId, ab.approval_box_name as boxName, cc.code_id, cc.code_value
+        FROM common_code cc
+        JOIN approval_box_view_item abvi ON (abvi.code_id = cc.code_id AND cc.section_id = '004')
+        JOIN approval_box ab ON ab.approval_box_id = abvi.approval_box_id
+        LEFT JOIN box_use_department bud ON bud.approval_box_id = ab.approval_box_id
+        LEFT JOIN company c ON bud.use_id = c.comp_id AND bud.using_category = 'C'
         LEFT JOIN department d ON bud.use_id = d.dept_id AND bud.using_category = 'D'
-        LEFT JOIN user u ON bud.use_id = u.user_id AND bud.using_category = 'U'
+        LEFT JOIN organization_user ou ON bud.use_id = ou.org_user_id AND bud.using_category = 'U'
         WHERE ab.box_delete_status != 1
         AND ab.approval_box_used_status != 0
-        AND ((ab.menu_using_range = 'T' AND ab.comp_id = #{compId}) or c.comp_id = #{compId} OR d.dept_id=#{deptId} OR u.user_id = #{orgUserId});
-
+        AND (
+        (ab.menu_using_range = 'T' AND ab.comp_id = #{compId})
+        OR c.comp_id = #{compId}
+        OR d.dept_id = #{deptId}
+        OR ou.org_user_id = #{orgUserId}
+        );
     </select>
 
     <delete id="deleteBoxViewItem">
@@ -106,23 +131,17 @@
 
     <update id="updateApprovalBox">
         UPDATE approval_box AS ab
-        JOIN box_use_department AS bud ON bud.using_category = 'C'
-        join company as c on bud.use_id = c.comp_id
         SET
         ab.approval_box_name = CASE WHEN #{approvalBoxName} IS NOT NULL THEN #{approvalBoxName} ELSE ab.approval_box_name END,
         ab.approval_box_used_status = CASE WHEN #{approvalBoxUsedStatus} IS NOT NULL THEN #{approvalBoxUsedStatus} ELSE ab.approval_box_used_status END,
         ab.menu_using_range = CASE WHEN #{menuUsingRange} IS NOT NULL THEN #{menuUsingRange} ELSE ab.menu_using_range END,
         ab.sort_Order = CASE WHEN #{sortOrder} IS NOT NULL THEN #{sortOrder} ELSE ab.sort_Order END
         WHERE ab.approval_box_id = #{approvalBoxId}
-        AND c.comp_id = #{compId};
+        AND ab.comp_id = #{compId};
     </update>
     <insert id="insertApprovalBox">
         INSERT IGNORE into approval_box (approval_box_name,approval_box_used_status, sort_order, menu_using_range,box_delete_status,comp_Id)
         values(#{approvalBoxName},#{approvalBoxUsedStatus},#{sortOrder},#{menuUsingRange},0,#{compId});
-    </insert>
-
-    <insert id="insertBoxUseCompany">
-        INSERT IGNORE into box_use_department(approval_box_id,using_category,use_id) values (#{approvalBoxId},'C',#{compId});
     </insert>
 
     <select id="getLastInsertId" resultType="int">

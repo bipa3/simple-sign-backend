@@ -34,8 +34,8 @@ public class ApprovalBoxDAO {
         return approvalBoxMapper.getDocCountByViewItems(orgUserId,deptId,estId,compId,viewItems);
     }
 
-    public ArrayList<DocumentListDTO> selectDetailSearchDocsList(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, int offset, SearchRequestDTO criteria) {
-        return approvalBoxMapper.getDetailSearchDocsList(orgUserId, deptId, estId, compId, viewItems, itemsPerPage, offset, criteria);
+    public ArrayList<DocumentListDTO> selectDetailSearchDocsList(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, int offset, SearchRequestDTO criteria, String sortStatus) {
+        return approvalBoxMapper.getDetailSearchDocsList(orgUserId, deptId, estId, compId, viewItems, itemsPerPage, offset, criteria,sortStatus);
     }
 
     public int selectDetailSearchDocsCount(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, SearchRequestDTO criteria) {
@@ -94,9 +94,6 @@ public class ApprovalBoxDAO {
     public void createApprovalBox(int compId, String approvalBoxName, ArrayList<String> viewItems, int approvalBoxUsedStatus, String menuUsingRange, ArrayList<BoxUseDepartmentDTO> boxUseDept, int sortOrder) {
         approvalBoxManageMapper.insertApprovalBox(compId,approvalBoxName,approvalBoxUsedStatus,menuUsingRange,sortOrder);
         int approvalBoxId = approvalBoxManageMapper.getLastInsertId();
-        if(menuUsingRange.equals("T")){
-            System.out.println("조건 통과");
-            approvalBoxManageMapper.insertBoxUseCompany(approvalBoxId,compId);}
         if (viewItems.size()>0){
             for (String item : viewItems) {
                 approvalBoxManageMapper.insertBoxViewItem(approvalBoxId,item);

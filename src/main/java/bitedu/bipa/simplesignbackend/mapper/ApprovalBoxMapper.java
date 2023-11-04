@@ -50,7 +50,8 @@ public interface ApprovalBoxMapper {
                                                         @Param("viewItems") List<String> viewItems,
                                                         @Param("itemsPerPage") int itemsPerPage,
                                                         @Param("offset") int offset,
-                                                        @Param("criteria") SearchRequestDTO criteria);
+                                                        @Param("criteria") SearchRequestDTO criteria,
+                                                       @Param("sortStatus") String sortStatus);
 
     int getDetailSearchDocsCount(@Param("orgUserId") int orgUserId,
                                                         @Param("deptId") int deptId,
