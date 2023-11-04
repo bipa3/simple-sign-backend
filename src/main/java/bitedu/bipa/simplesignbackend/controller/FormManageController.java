@@ -45,6 +45,18 @@ public class FormManageController {
     }
 
     @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
+    @PostMapping("/list/some")
+    public ResponseEntity<List<FormDTO>> formListSearchByIds(@RequestBody IdDTO idDTO) {
+        List<FormDTO> formList = formManageService.searchFormListByIds(idDTO);
+
+        if (formList != null) {
+            return new ResponseEntity<>(formList, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Authority(role = {Authority.Role.MASTER_ADMIN, Authority.Role.DEPT_ADMIN})
     @GetMapping("/admin/detail/{code}")
     public ResponseEntity<FormDetailResDTO> formDetailSearchForAdmin(@PathVariable int code) {
         FormDetailResDTO formDetail = formManageService.searchFormDetailForAdmin(code);

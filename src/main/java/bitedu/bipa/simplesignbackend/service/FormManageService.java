@@ -272,4 +272,23 @@ public class FormManageService {
         }
         return defaultApprovalLineDTOList;
     }
+
+    public List<FormDTO> searchFormListByIds(IdDTO idDTO) {
+        List<FormDTO> formList = new ArrayList<FormDTO>();
+        try{
+            List<Integer> idList = idDTO.getIdList();
+            if(idList.size() < 1) {
+                throw new RestApiException(CommonErrorCode.UNEXPECTED_TYPE);
+            }
+            for(Integer id : idList){
+                List<FormDTO> formSubList = formManageDAO.searchFormByCompId(id);
+                formList.addAll(formSubList);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        return formList;
+    }
 }

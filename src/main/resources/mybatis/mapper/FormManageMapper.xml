@@ -11,7 +11,7 @@
             <if test="compId != 0">
                 AND form.comp_id=#{compId}
             </if>
-            AND form_name like CONCAT('%', #{formName}, '%') AND form_used_status=#{status} AND form_del_status=0;
+            AND form_name like CONCAT('%', #{formName}, '%') AND form_used_status=#{status} AND form_del_status=0 ORDER BY form_code;
         </where>
     </select>
 
@@ -133,5 +133,10 @@
         default_approval_line(form_code, org_user_id, line_order)
         VALUES(#{formCode}, #{userId}, #{lineOrder});
     </insert>
+
+    <select id="getFormByCompId">
+        SELECT form_code AS id, form_name FROM form
+        WHERE comp_id = #{compId};
+    </select>
 
 </mapper>
