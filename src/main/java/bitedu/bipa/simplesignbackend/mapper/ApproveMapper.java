@@ -99,4 +99,10 @@ public interface ApproveMapper {
     int selectFavoritesByFormCode(FavoritesReqDTO favoritesReqDTO);
 
     List<FileResDTO> selectFileNamesAndFilePath(int approvalDocId);
+
+    ApprovalDocStatusDTO selectApproverIdAndDocStatusByApprovalDoc(int approvalDocId);
+
+    int updateApprovalDocToTemporal(int approvalDocId);
+
+    int updateApprovalLineToWait(int approvalDocId);
 }

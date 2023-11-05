@@ -373,5 +373,25 @@
         where use_id = #{approvalDocId} and file_code = '03';
     </select>
 
+    <!--상신자 아이디랑 결재상태 가져오기-->
+    <select id="selectApproverIdAndDocStatusByApprovalDoc" parameterType="int" resultType="ApprovalDocStatusDTO">
+        select org_user_id, doc_status from approval_doc
+        where approval_doc_id = #{approvalDocId};
+    </select>
+
+    <!--임시저장으로 바꾸기-->
+    <update id="updateApprovalDocToTemporal">
+        update approval_doc
+        set doc_status = 'T'
+        where approval_doc_id = #{approvalDocId};
+    </update>
+
+    <!--결재라인 모두 대기상태로 바꾸기-->
+    <update id="updateApprovalLineToWait">
+        update approval
+        set approval_status = 'W', receive_date = null
+        where approval_doc_id = #{approvalDocId};
+    </update>
+
 
 </mapper>
