@@ -12,6 +12,7 @@
         from company c
         left join establishment e on c.comp_id = e.comp_id
         left join department d on e.est_id = d.est_id
+        WHERE c.comp_name != 'Group'
         order by c.comp_id, e.est_id, d.dept_id;
     </select>
     <!-- 부서 마스터 or 사용자 일 때 - 자기 회사만 보여주기  -->

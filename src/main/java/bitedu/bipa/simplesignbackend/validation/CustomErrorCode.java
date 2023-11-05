@@ -30,7 +30,8 @@ public enum CustomErrorCode implements ErrorCode{
     ALARM_SCHEDULING_INSERT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "스케줄링 알람복사 실패"),
     ALARM_SCHEDULING_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "스케줄링 알람삭제 실패"),
     FILE_DOWNLOAD_FAIL(HttpStatus.BAD_REQUEST, "파일 다운로드 실패"),
-    FILE_NOT_FOUND(HttpStatus.NOT_FOUND,"파일 찾기 실패")
+    FILE_NOT_FOUND(HttpStatus.NOT_FOUND,"파일 찾기 실패"),
+    PASSWORD_CHANGE_FAILED(HttpStatus.BAD_REQUEST, "비밀번호 변경에 실패했습니다.")
     //
 
     ;

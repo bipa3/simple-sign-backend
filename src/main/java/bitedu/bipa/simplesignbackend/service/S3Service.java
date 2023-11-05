@@ -65,4 +65,17 @@ public class S3Service {
             throw new RestApiException(CustomErrorCode.FILE_NOT_FOUND);
         }
     }
+
+    public boolean isValidation(MultipartFile file){
+        String contentType = file.getContentType();
+        if(contentType == null) return false;
+        if(contentType.contains("image/jpeg")){
+            return true;
+        } else if (contentType.contains("image/png")) {
+            return true;
+        } else if (contentType.contains("image/gif")) {
+            return true;
+        }
+        return false;
+    }
 }
