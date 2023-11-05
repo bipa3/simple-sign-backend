@@ -503,7 +503,7 @@ public class ApproveService {
         if(approver !=orgUserId) {
             return false;
         }
-        Character firstApprovalStatus = approveDAO.selectApprovalDocStatus(approvalDocId);
+        Character firstApprovalStatus = approveDAO.selectFirstApprovalDocStatus(approvalDocId);
         if(firstApprovalStatus ==null) {
             return true;
         }  else if(firstApprovalStatus ==ApprovalStatus.APPROVAL.getCode() || firstApprovalStatus == ApprovalStatus.RETURN.getCode()) {

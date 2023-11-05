@@ -195,7 +195,7 @@ public class ApproveDAO {
         return approveMapper.selectOrgUserIdFromApprovalDoc(approvalDocId);
     }
 
-    public Character selectApprovalDocStatus(int approvalDocId) {
+    public Character selectFirstApprovalDocStatus(int approvalDocId) {
         return approveMapper.selectFirstApprovalStatus(approvalDocId);
     }
 
@@ -253,5 +253,9 @@ public class ApproveDAO {
 
     public int updateApprovalLineToWait(int approvalDocId) {
         return approveMapper.updateApprovalLineToWait(approvalDocId);
+    }
+
+    public char selectApprovalDocStatus(int approvalDocId) {
+        return approveMapper.selectApprovalDocStatus(approvalDocId);
     }
 }
