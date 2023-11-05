@@ -140,19 +140,19 @@ public class OrgService {
                 case 1:
                     if("dept".equals(type)){
                         return orgDAO.getBottomDeptComp(Integer.parseInt(ids[0]));
-                    } else if ("user".equals(type)) {
+                    } else if ("user".equals(type) || "approvalUser".equals(type)) {
                         return orgDAO.getBottomUserComp(Integer.parseInt(ids[0]));
                     }
                 case 2:
                     if("dept".equals(type)){
                         return orgDAO.getBottomEst(Integer.parseInt(ids[1]));
-                    }else if("user".equals(type)){
+                    }else if("user".equals(type) || "approvalUser".equals(type)){
                         return orgDAO.getBottomUserEst(Integer.parseInt(ids[1]));
                     }
                 case 3:
                     if("dept".equals(type)){
                         return orgDAO.getBottonDept(Integer.parseInt(ids[2]));
-                    } else if ("user".equals(type)) {
+                    } else if ("user".equals(type) || "approvalUser".equals(type)) {
                         return orgDAO.getBottonUser(Integer.parseInt(ids[2]));
                     }
                     break;
@@ -166,13 +166,13 @@ public class OrgService {
                 case 2:
                     if("dept".equals(type)){
                         return orgDAO.getDeptEst(Integer.parseInt(ids[1]));
-                    }else if("user".equals(type)){
+                    }else if("user".equals(type) || "approvalUser".equals(type)){
                         return orgDAO.getEst(Integer.parseInt(ids[1]));
                     }
                 case 3:
                     if("dept".equals(type)){
                         return orgDAO.getDept(Integer.parseInt(ids[2]));
-                    } else if ("user".equals(type)) {
+                    } else if ("user".equals(type) || "approvalUser".equals(type)) {
                         return orgDAO.getUser(Integer.parseInt(ids[2]));
                     }
                     break;
