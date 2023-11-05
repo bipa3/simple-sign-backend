@@ -600,4 +600,31 @@ public class ApproveService {
     public List<FileResDTO> getFileNames(int approvalDocId) {
         return approveDAO.selectFileNamesAndFilePath(approvalDocId);
     }
+
+    public boolean getHasCancelApproval(int approvalDocId) {
+        //결재문서의 상신자인지 확인
+        int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
+        ApprovalDocStatusDTO dto = approveDAO.selectApproverIdAndDocStatusByApprovalDoc(approvalDocId);
+        if(orgUserId !=dto.getOrgUserId()) {
+            return false;
+        }
+        //결재문서가 대기상태인지 확인
+        if(dto.getDocStatus() !=ApprovalStatus.WAIT.getCode()){
+            return false;
+        }
+        return true;
+    }
+
+    public void changeApprovalToTemporal(int approvalDocId) {
+        //결재상태 'T'로 바꾸기
+        int affectedCount = approveDAO.updateApprovalDocToTemporal(approvalDocId);
+        if(affectedCount ==0) {
+            throw new RestApiException(CustomErrorCode.APPROVAL_DOC_UPDATE_FAIL);
+        }
+        //결재라인 모두 대기로 바꾸기
+        int affectedCount2 = approveDAO.updateApprovalLineToWait(approvalDocId);
+        if(affectedCount2 ==0) {
+            throw  new RestApiException(CustomErrorCode.APPROVAL_DOC_UPDATE_FAIL);
+        }
+    }
 }
