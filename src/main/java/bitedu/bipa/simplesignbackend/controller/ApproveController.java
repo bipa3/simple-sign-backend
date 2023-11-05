@@ -192,7 +192,20 @@ public class ApproveController {
         return ResponseEntity.ok(list);
     }
 
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @GetMapping("/hasCancelApproval/{num}")
+    public ResponseEntity<Boolean> getHasCancelApproval(@PathVariable("num") int approvalDocId){
+        boolean hasApproval = approveService.getHasCancelApproval(approvalDocId);
+        return ResponseEntity.ok(hasApproval);
+    }
 
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @PostMapping("/cancelApproval/{num}")
+    public ResponseEntity<String> cancelApprovalToTemporal(@PathVariable("num") int approvalDocId){
+        System.out.println("cancel");
+        approveService.changeApprovalToTemporal(approvalDocId);
+        return ResponseEntity.ok("ok");
+    }
 
 
 }

@@ -242,4 +242,16 @@ public class ApproveDAO {
     public List<FileResDTO> selectFileNamesAndFilePath(int approvalDocId) {
         return approveMapper.selectFileNamesAndFilePath(approvalDocId);
     }
+
+    public ApprovalDocStatusDTO selectApproverIdAndDocStatusByApprovalDoc(int approvalDocId) {
+        return approveMapper.selectApproverIdAndDocStatusByApprovalDoc(approvalDocId);
+    }
+
+    public int updateApprovalDocToTemporal(int approvalDocId) {
+        return approveMapper.updateApprovalDocToTemporal(approvalDocId);
+    }
+
+    public int updateApprovalLineToWait(int approvalDocId) {
+        return approveMapper.updateApprovalLineToWait(approvalDocId);
+    }
 }
