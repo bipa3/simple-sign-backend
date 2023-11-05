@@ -8,6 +8,7 @@ import bitedu.bipa.simplesignbackend.service.S3Service;
 import bitedu.bipa.simplesignbackend.service.UserService;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
+import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +97,8 @@ public class UserController {
         if(flag){
             return new ResponseEntity(HttpStatus.OK);
         }
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+//        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        throw new RestApiException(CustomErrorCode.PASSWORD_CHANGE_FAILED);
     }
 
     // 개인정보 조회
@@ -157,6 +159,10 @@ public class UserController {
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/updateinfo/profile")
     public ResponseEntity uploadProfileFile(@RequestParam("file") MultipartFile file) throws IOException {
+        boolean check = s3Service.isValidation(file);
+        if(check == false){
+            throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
+        }
         String uniqueFileName = s3Service.makeUniqueFileName(file, "profile");
         String s3Url = s3Service.upload(file, uniqueFileName);
         String profile = userService.getUserProfile();
@@ -186,6 +192,10 @@ public class UserController {
             }
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         } else {
+            boolean check = s3Service.isValidation(file);
+            if(check == false){
+                throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
+            }
             String uniqueFileName = s3Service.makeUniqueFileName(file, "sign");
             String s3Url = s3Service.upload(file, uniqueFileName);
             userService.updateSignState(signState);
