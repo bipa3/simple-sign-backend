@@ -683,4 +683,16 @@ public class ApproveService {
         int upperApprover = approveDAO.selectFirstOrgUserIdFromApprovalLine(approvalDocId);
         alarmService.createNewAlarm(approvalDocId,upperApprover, AlarmStatus.APPROVAL_CANCEL_UPPER_APPROVER.getCode());
     }
+
+    public void approveAllApprovalDoc() {
+        int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
+        List<Integer> approvalDocList = approveDAO.selectAllUnApprovedDocList(orgUserId);
+        System.out.println(approvalDocList);
+        if(approvalDocList.size() ==0) {
+            throw new RestApiException(CustomErrorCode.NO_SEARCH_APPROVAL_DOC);
+        }
+        for(int approvalDocId: approvalDocList) {
+            this.approveApprovalDoc(approvalDocId);
+        }
+    }
 }

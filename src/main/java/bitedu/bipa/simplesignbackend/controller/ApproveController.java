@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,14 @@ public class ApproveController {
     @PostMapping("/approval/{num}")
     public ResponseEntity<String> approveApprovalDoc(@PathVariable("num") int approvalDocId) {
         approveService.approveApprovalDoc(approvalDocId);
+        return ResponseEntity.ok("ok");
+    }
+
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @PostMapping("/approvalAll")
+    public ResponseEntity<String> approveAllApprovalDoc() {
+        approveService.approveAllApprovalDoc();
+
         return ResponseEntity.ok("ok");
     }
 

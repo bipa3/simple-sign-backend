@@ -416,4 +416,13 @@
         where approval_doc_id = #{approvalDocId} and approval_order = #{approvalOrder};
     </update>
 
+    <!--해당 사용자가 결재안한 문서 리스트 가져오기-->
+    <select id="selectAllUnApprovedDocList" parameterType="int" resultType="int">
+        select t1.approval_doc_id
+        from approval t1
+        left join approval_doc t2
+        on t1.approval_doc_id = t2.approval_doc_id
+        where t1.org_user_id = #{orgUserId} and approval_status = 'P' and t2.doc_del_status = 0;
+    </select>
+
 </mapper>
