@@ -1,6 +1,8 @@
 package bitedu.bipa.simplesignbackend.service;
 
+import bitedu.bipa.simplesignbackend.dao.ApproveDAO;
 import bitedu.bipa.simplesignbackend.dao.ReplyDAO;
+import bitedu.bipa.simplesignbackend.enums.AlarmStatus;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
@@ -16,9 +18,13 @@ import java.util.stream.Collectors;
 public class ReplyService {
 
     private final ReplyDAO replyDAO;
+    private final AlarmService alarmService;
+    private final ApproveDAO approveDAO;
 
-    public ReplyService(ReplyDAO replyDAO) {
+    public ReplyService(ReplyDAO replyDAO, AlarmService alarmService, ApproveDAO approveDAO) {
         this.replyDAO = replyDAO;
+        this.alarmService = alarmService;
+        this.approveDAO = approveDAO;
     }
 
     public List<ReplyResDTO> showReplyList(int approvalDocId) {
@@ -42,6 +48,8 @@ public class ReplyService {
         }else {
             replyDAO.insertLowerReply(replyReqDTO);
         }
+        //알림생성
+        this.createAlarm(replyReqDTO, "insert");
         return replyId;
     }
 
@@ -57,6 +65,7 @@ public class ReplyService {
         if(affectedCount ==0) {
             throw new RestApiException(CustomErrorCode.REPLY_UPDATE_FAIL);
         }
+        this.createAlarm(replyReqDTO,"update");
     }
 
     @Transactional
@@ -102,5 +111,24 @@ public class ReplyService {
     public List<FileResDTO> getFileNames(int replyId) {
         FileResDTO fileResDTO = new FileResDTO();
         return replyDAO.selectFileNamesAndFilePath(replyId);
+    }
+
+    private void createAlarm(ReplyReqDTO replyReqDTO, String status) {
+        //해당 문서의 상신자와 하위결재자에게 알림 보내기
+        int approvalDocId = replyReqDTO.getApprovalDocId();
+        int approverId = approveDAO.selectRecipientId(approvalDocId);
+        List<Integer> approverIdList = approveDAO.selectApproverIdList(approvalDocId);
+
+        if(status.equals("insert")) {
+            alarmService.createNewAlarm(approvalDocId, approverId, AlarmStatus.REPLY.getCode());
+            for (int approver : approverIdList) {
+                alarmService.createNewAlarm(approvalDocId, approver, AlarmStatus.REPLY.getCode());
+            }
+        }else if(status.equals("update")) {
+            alarmService.createNewAlarm(approvalDocId, approverId, AlarmStatus.UPDATE_REPLY.getCode());
+            for (int approver : approverIdList) {
+                alarmService.createNewAlarm(approvalDocId, approver, AlarmStatus.UPDATE_REPLY.getCode());
+            }
+        }
     }
 }

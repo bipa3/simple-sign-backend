@@ -6,7 +6,10 @@ public enum AlarmStatus {
     RETURN("03"),
     REPLY("04"),
     RECEIVEDREF("05"),
-    UPDATE("06");
+    UPDATE("06"),
+    UPDATE_REPLY("07"),
+    APPROVAL_CANCEL("08"),
+    APPROVAL_CANCEL_UPPER_APPROVER("09");
 
     private final String code;
 
