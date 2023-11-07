@@ -82,7 +82,7 @@ public class ReplyDAO {
         return replyMapper.deleteReply(replyId);
     }
 
-    public int selectReplierId(int replyId) {
+    public ReplyResDTO selectReplierId(int replyId) {
         return replyMapper.selectReplierId(replyId);
     }
 

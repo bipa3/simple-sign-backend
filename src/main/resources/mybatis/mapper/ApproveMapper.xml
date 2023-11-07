@@ -160,7 +160,7 @@
             user t3 on t2.user_id = t3.user_id
             left join
             approval_doc t4 on t1.approval_doc_id = t4.approval_doc_id
-        where approval_doc_id = #{approvalDocId};
+        where t1.approval_doc_id = #{approvalDocId};
     </select>
 
     <select id="selectReceivedRefList" parameterType="int" resultType="ApprovalLineDetailListDTO">
@@ -408,5 +408,12 @@
         select org_user_id from approval
         where approval_doc_id = #{approvalDocId} and approval_order = 1;
     </select>
+
+    <!--결재라인 수정 시 지금 결재해야 할 사람이면 'P'로 바꿔주기-->
+    <update id="updateApprovalStatusAndReceiveDate" parameterType="Map">
+        update approval
+        set approval_status = 'P' , receive_date = now()
+        where approval_doc_id = #{approvalDocId} and approval_order = #{approvalOrder};
+    </update>
 
 </mapper>

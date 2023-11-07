@@ -26,7 +26,7 @@ public interface ReplyMapper {
 
     int deleteReply(int replyId);
     
-    int selectReplierId(int replyId);
+    ReplyResDTO selectReplierId(int replyId);
 
     ReplyResDTO selectReplierAndDepth(int replyId);
 

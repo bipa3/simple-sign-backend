@@ -57,14 +57,15 @@ public class ReplyService {
     public void updateReply(ReplyReqDTO replyReqDTO) {
         int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         //댓글이 본인이 작성한 것인지 확인
-        int replierId = replyDAO.selectReplierId(replyReqDTO.getReplyId());
-        if(replierId !=orgUserId) {
+        ReplyResDTO replyResDTO = replyDAO.selectReplierId(replyReqDTO.getReplyId());
+        if(replyResDTO.getOrgUserId() !=orgUserId) {
             throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
         int affectedCount = replyDAO.updateReply(replyReqDTO);
         if(affectedCount ==0) {
             throw new RestApiException(CustomErrorCode.REPLY_UPDATE_FAIL);
         }
+        replyReqDTO.setApprovalDocId(replyResDTO.getApprovalDocId());
         this.createAlarm(replyReqDTO,"update");
     }
 
@@ -88,8 +89,8 @@ public class ReplyService {
 
     public boolean showIsEditable(int replyId) {
         int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
-        int replier = replyDAO.selectReplierId(replyId);
-        if(orgUserId ==replier) {
+        ReplyResDTO replyResDTO = replyDAO.selectReplierId(replyId);
+        if(orgUserId ==replyResDTO.getOrgUserId()) {
             return true;
         }
         return false;

@@ -109,4 +109,6 @@ public interface ApproveMapper {
     List<Integer> selectApproverIdList(int approvalDocId);
 
     int selectFirstOrgUserIdFromApprovalLine(int approvalDocId);
+
+    int updateApprovalStatusAndReceiveDate(Map map);
 }
