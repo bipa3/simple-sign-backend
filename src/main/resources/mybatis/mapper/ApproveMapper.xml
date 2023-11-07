@@ -152,12 +152,14 @@
     </select>
 
     <select id="selectApprovalLineByApprovalDocId" parameterType="int" resultType="ApprovalLineListDTO">
-        select t1.org_user_id, user_name, approval_order, approval_status
+        select t1.org_user_id, user_name, approval_order, approval_status, approval_count
         from approval t1
             left join
             organization_user t2 on t1.org_user_id = t2.org_user_id
             left join
             user t3 on t2.user_id = t3.user_id
+            left join
+            approval_doc t4 on t1.approval_doc_id = t4.approval_doc_id
         where approval_doc_id = #{approvalDocId};
     </select>
 
@@ -342,7 +344,8 @@
             on t3.position_code = t8.position_code
             left join grade t9
             on t3.grade_code = t9.grade_code
-        where t1.form_code = #{formCode};
+        where t1.form_code = #{formCode}
+        and t2.default_approval_line_status = 1;
     </select>
 
     <!--즐겨찾기-->
@@ -393,5 +396,17 @@
         where approval_doc_id = #{approvalDocId};
     </update>
 
+    <!--결재상태가 'A'인 결재라인리스트 가져오기-->
+    <select id="selectApproverIdList" parameterType="int" resultType="int">
+        <![CDATA[
+            select org_user_id from approval where approval_doc_id = #{approvalDocId} and approval_status = 'A';
+        ]]>
+    </select>
+
+    <!--결재라인 첫 사람 아이디가져오기-->
+    <select id="selectFirstOrgUserIdFromApprovalLine" parameterType="int" resultType="int">
+        select org_user_id from approval
+        where approval_doc_id = #{approvalDocId} and approval_order = 1;
+    </select>
 
 </mapper>

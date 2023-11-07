@@ -258,4 +258,12 @@ public class ApproveDAO {
     public char selectApprovalDocStatus(int approvalDocId) {
         return approveMapper.selectApprovalDocStatus(approvalDocId);
     }
+
+    public List<Integer> selectApproverIdList(int approvalDocId) {
+        return approveMapper.selectApproverIdList(approvalDocId);
+    }
+
+    public int selectFirstOrgUserIdFromApprovalLine(int approvalDocId) {
+        return approveMapper.selectFirstOrgUserIdFromApprovalLine(approvalDocId);
+    }
 }

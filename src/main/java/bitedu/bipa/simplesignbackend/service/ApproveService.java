@@ -411,6 +411,27 @@ public class ApproveService {
         if(affectedCount ==0 || affecteeCount2 ==0 || affectedCount3 ==0) {
             throw new RestApiException(CustomErrorCode.APPROVAL_DOC_UPDATE_FAIL);
         }
+
+        //마지막 결재자면 상신자에게 알림, 중간결재자면 이후 결재자에게 알림
+        int alarmReceiver = 0;
+        int approvalOrder = 0;
+        for(ApprovalLineListDTO dto: approvalLineLists) {
+            if(dto.getOrgUserId() ==orgUserId && dto.getApprovalCount() ==dto.getApprovalOrder()) {
+                 alarmReceiver = approveDAO.selectRecipientId(approvalDocId);
+            }else if(dto.getOrgUserId() ==orgUserId) {
+                approvalOrder = dto.getApprovalOrder();
+            }
+        }
+        for(ApprovalLineListDTO dto: approvalLineLists) {
+            if(dto.getApprovalOrder() ==approvalOrder+1) {
+                alarmReceiver = dto.getOrgUserId();
+            }
+        }
+        if(alarmReceiver !=0 && approvalOrder !=0) {
+            alarmService.createNewAlarm(approvalDocId,alarmReceiver,AlarmStatus.APPROVAL_CANCEL_UPPER_APPROVER.getCode());
+        }else if(alarmReceiver !=0) {
+            alarmService.createNewAlarm(approvalDocId,alarmReceiver,AlarmStatus.APPROVAL_CANCEL.getCode());
+        }
     }
 
     public boolean getHasApproval(int approvalDocId) {
@@ -626,5 +647,9 @@ public class ApproveService {
         if(affectedCount2 ==0) {
             throw  new RestApiException(CustomErrorCode.APPROVAL_DOC_UPDATE_FAIL);
         }
+
+        //상신상위자에게 알림 보내기
+        int upperApprover = approveDAO.selectFirstOrgUserIdFromApprovalLine(approvalDocId);
+        alarmService.createNewAlarm(approvalDocId,upperApprover, AlarmStatus.APPROVAL_CANCEL_UPPER_APPROVER.getCode());
     }
 }

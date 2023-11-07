@@ -9,5 +9,6 @@ public class ApprovalLineListDTO {
     private String userName;
     private int approvalOrder;
     private char approvalStatus;
+    private int approvalCount;
 
 }
