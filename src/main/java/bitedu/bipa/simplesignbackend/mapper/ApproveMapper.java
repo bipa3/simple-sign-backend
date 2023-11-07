@@ -105,4 +105,8 @@ public interface ApproveMapper {
     int updateApprovalDocToTemporal(int approvalDocId);
 
     int updateApprovalLineToWait(int approvalDocId);
+
+    List<Integer> selectApproverIdList(int approvalDocId);
+
+    int selectFirstOrgUserIdFromApprovalLine(int approvalDocId);
 }
