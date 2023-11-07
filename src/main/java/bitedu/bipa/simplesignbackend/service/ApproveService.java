@@ -84,21 +84,17 @@ public class ApproveService {
                 throw new RestApiException(CustomErrorCode.APPROVAL_FAIL);
             }
         }
+        this.approvalApprovalDoc(approvalResDTO, approvalDocId);
+    }
 
+    @Transactional
+    private void approvalApprovalDoc(ApprovalResDTO approvalResDTO,int approvalDocId) {
         //3. 결재승인자의 결재순서와 결재문서의 결재 개수가 같은지 확인하고 같다면 결재문서도 '승인'상태로 바꿔주고 종결일자 넣어주고 결재 종결
         ApprovalDocResDTO approvalDocResDTO = approveDAO.selectApprovalCount(approvalDocId);
         boolean isApprovalDocEnd = approvalDocResDTO.getApprovalCount() == approvalResDTO.getApprovalOrder();
         int upperApproverId = 0;
         if(isApprovalDocEnd) {
-            approvalDocResDTO.setDocStatus(ApprovalStatus.APPROVAL.getCode());
-            approvalDocResDTO.setEndAt(LocalDateTime.now());
-            String productNumber = sequenceService.createProductNum(approvalDocResDTO.getSeqCode(), approvalDocResDTO.getOrgUserId());
-            approvalDocResDTO.setProductNum(productNumber);
-
-            //수신참조 활성화 업데이트
-            approveDAO.updateReceivedRefState(approvalDocId);
-
-
+           this.endApproval(approvalDocResDTO, approvalDocId);
         }else {
             //같지 않다면 '진행'으로 바꾸고 상신 상위자의 결재테이블 상태도 '진행'으로, 결재수신시간도 넣어주기
             approvalDocResDTO.setDocStatus(ApprovalStatus.PROGRESS.getCode());
@@ -110,25 +106,38 @@ public class ApproveService {
             if(affectedCount ==0) {
                 throw  new RestApiException(CustomErrorCode.APPROVAL_FAIL);
             }
+            //4. 알림보내기(결재승인알람 및 결재문서가 종결이라면 종결알람)
+            alarmService.createNewAlarm(approvalDocId,upperApproverId,AlarmStatus.SUBMIT.getCode());
         }
         int affectedCount = approveDAO.updateApprovalDoc(approvalDocResDTO);
         if(affectedCount ==0) {
             throw new RestApiException(CustomErrorCode.APPROVAL_FAIL);
         }
 
-        //4. 알림보내기(결재승인알람 및 결재문서가 종결이라면 종결알람)
-        if(isApprovalDocEnd) {
-            //종결일 경우는 상신자와 수신참조자에게 알림
-            alarmService.createNewAlarm(approvalDocId, approvalDocResDTO.getOrgUserId(),AlarmStatus.APPROVE.getCode());
-            List<Integer> receivedRefUserIdList = approveDAO.selectRecievedRefUserId(approvalDocId);
-            if(receivedRefUserIdList.size() !=0) {
-                for (int receiveUser : receivedRefUserIdList) {
-                    alarmService.createNewAlarm(approvalDocId, receiveUser, AlarmStatus.RECEIVEDREF.getCode());
-                }
+    }
+
+    @Transactional
+    private void endApproval(ApprovalDocResDTO approvalDocResDTO, int approvalDocId) {
+        approvalDocResDTO.setDocStatus(ApprovalStatus.APPROVAL.getCode());
+        approvalDocResDTO.setEndAt(LocalDateTime.now());
+        String productNumber = sequenceService.createProductNum(approvalDocResDTO.getSeqCode(), approvalDocResDTO.getOrgUserId());
+        approvalDocResDTO.setProductNum(productNumber);
+
+        //수신참조 활성화 업데이트
+        approveDAO.updateReceivedRefState(approvalDocId);
+
+        int affectedCount = approveDAO.updateApprovalDoc(approvalDocResDTO);
+        if(affectedCount ==0) {
+            throw new RestApiException(CustomErrorCode.APPROVAL_FAIL);
+        }
+
+        //종결일 경우는 상신자와 수신참조자에게 알림
+        alarmService.createNewAlarm(approvalDocId, approvalDocResDTO.getOrgUserId(),AlarmStatus.APPROVE.getCode());
+        List<Integer> receivedRefUserIdList = approveDAO.selectRecievedRefUserId(approvalDocId);
+        if(receivedRefUserIdList.size() !=0) {
+            for (int receiveUser : receivedRefUserIdList) {
+                alarmService.createNewAlarm(approvalDocId, receiveUser, AlarmStatus.RECEIVEDREF.getCode());
             }
-        }else {
-            //미종결일 경우는 상위자에게 알림
-            alarmService.createNewAlarm(approvalDocId,upperApproverId,AlarmStatus.SUBMIT.getCode());
         }
     }
 
@@ -256,6 +265,7 @@ public class ApproveService {
     //결재라인 수정 메서드
     @Transactional
     private void updateApprovalLine(int approvalDocId, List<Integer> approverList) {
+        System.out.println(approverList);
         int approvalCount = approverList.size();
         //결재라인 전부 가져오기
         List<ApprovalResDTO> approvalList = approveDAO.selectAllApproval(approvalDocId);
@@ -274,13 +284,24 @@ public class ApproveService {
                 isUpdateOrder = dto.getApprovalOrder();
             }
         }
-        //만약 P라면 결재자가 바뀌었는지 확인하고 바뀌었으면 삭제하고 다시 넣기, 안바뀌었으면 그대로 둘 것(receive_date) 때문에
-        if(approvalList.get(isUpdateOrder-1).getOrgUserId() == approverList.get(isUpdateOrder-1)) {
-            isUpdateOrder = isUpdateOrder+1;
-        }else {
-            //알람 보내기
-            alarmService.createNewAlarm(approvalDocId,approverList.get(isUpdateOrder-1),AlarmStatus.SUBMIT.getCode());
+        //결재라인을 삭제만
+        if(approverList.size()<isUpdateOrder) {
+            approveDAO.deleteApprovalLine(approvalDocId, isUpdateOrder);
+            int approver = approveDAO.selectRecipientId(approvalDocId);
+            ApprovalDocResDTO approvalDocResDTO = approveDAO.selectApprovalCount(approvalDocId);
+            this.endApproval(approvalDocResDTO, approvalDocId);
+            alarmService.createNewAlarm(approvalDocId,approver,AlarmStatus.APPROVE.getCode());
+            return;
         }
+        if(approverList.size()<approvalList.size()) {
+            approveDAO.deleteApprovalLine(approvalDocId, approverList.size()+1);
+        }
+        //만약 P라면 결재자가 바뀌었는지 확인하고 바뀌었으면 삭제하고 다시 넣기, 안바뀌었으면 그대로 둘 것(receive_date) 때문에
+        boolean progressApproverNotChanged = approvalList.get(isUpdateOrder-1).getOrgUserId() == approverList.get(isUpdateOrder-1);
+        if(progressApproverNotChanged) {
+            isUpdateOrder = isUpdateOrder+1;
+        }
+        System.out.println(isUpdateOrder);
         //수정가능한 순서가 전체 결재 개수를 넘어간다는 것은 수정할 것이 없다는 것
         if(isUpdateOrder >approvalCount) {
             return;
@@ -290,6 +311,16 @@ public class ApproveService {
 
         //재삽입
         this.insertApprovalList(approvalDocId,approverList,isUpdateOrder);
+        if(!progressApproverNotChanged) {
+            //재삽입한 첫 사람 receive_date랑 결재 상태 'P'로 바꿔줄 것
+            int affectedCount2 = approveDAO.updateApprovalStatusAndReceiveDate(approvalDocId,isUpdateOrder);
+            if(affectedCount2 ==0) {
+                throw  new RestApiException(CustomErrorCode.APPROVAL_DOC_UPDATE_FAIL);
+            }
+            //알람 삽입
+            alarmService.createNewAlarm(approvalDocId,approverList.get(isUpdateOrder-1),AlarmStatus.SUBMIT.getCode());
+
+        }
     }
 
     private int insertApprovalList(int approvalDocId, List<Integer> approverList, int updateOrder) {

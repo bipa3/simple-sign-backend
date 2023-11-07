@@ -266,4 +266,12 @@ public class ApproveDAO {
     public int selectFirstOrgUserIdFromApprovalLine(int approvalDocId) {
         return approveMapper.selectFirstOrgUserIdFromApprovalLine(approvalDocId);
     }
+
+    public int updateApprovalStatusAndReceiveDate(int approvalDocId, int isUpdateOrder) {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("approvalDocId", approvalDocId);
+        map.put("approvalOrder",isUpdateOrder);
+        return approveMapper.updateApprovalStatusAndReceiveDate(map);
+    }
+
 }

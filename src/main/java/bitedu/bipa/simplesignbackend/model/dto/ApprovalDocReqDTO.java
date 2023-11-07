@@ -22,7 +22,7 @@ public class ApprovalDocReqDTO {
     private int formCode;
     @NotEmpty(message = "제목은 필수입니다.")
     private String approvalDocTitle;
-    private String contents;
+    private String contents = "";
     private String searchContents;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

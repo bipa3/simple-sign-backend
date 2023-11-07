@@ -38,12 +38,12 @@ public class ApproveController {
                                                   ) throws IOException {
         //System.out.println(files.get(0).getOriginalFilename());
         int approvalDocId = approveService.registerApprovalDoc(approvalDocReqDTO);
-        if(files !=null){
-            for(MultipartFile file: files) {
+        if (files != null ) {
+            for (MultipartFile file : files) {
                 String fileName = file.getOriginalFilename();
                 String uniqueFileName = s3Service.makeUniqueFileName(file, "approvalDoc");
-                String s3Url = s3Service.upload(file, uniqueFileName); //댓글은  reply
-                approveService.insertApprovalAttachment(s3Url,fileName, approvalDocId, uniqueFileName);
+                String s3Url = s3Service.upload(file, uniqueFileName);
+                approveService.insertApprovalAttachment(s3Url, fileName, approvalDocId, uniqueFileName);
             }
         }
         return ResponseEntity.ok("ok");
