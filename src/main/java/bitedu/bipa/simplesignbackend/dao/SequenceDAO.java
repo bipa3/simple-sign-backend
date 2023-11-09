@@ -32,31 +32,18 @@ public class SequenceDAO {
         if(affectedCount==0) {
             throw  new RuntimeException();
         }
-        int productId = sequenceMapper.selectLastInsertedId();
-        Map<String, Object> map = new HashMap<>();
-        map.put("productId", productId);
-        map.put("seqCode",dto.getSeqCode());
-        map.put("productFullName", dto.getProductFullName());
-        affectedCount=  sequenceMapper.insertProductLog(map);
-        if(affectedCount ==0) {
-            throw  new RuntimeException();
-        }
         return 1;
     }
 
-    public int updateProductNumber(int productId, ProductNumberReqDTO dto) {
-        int affectedCount = sequenceMapper.updateProductNumber(productId);
+    public int updateProductNumber(String productFullName, ProductNumberReqDTO dto) {
+        int affectedCount = sequenceMapper.updateProductNumber(productFullName);
         if(affectedCount ==0) {
             throw  new RuntimeException();
         }
         Map<String, Object> map = new HashMap<>();
-        map.put("productId", productId);
         map.put("seqCode", dto.getSeqCode());
         map.put("productFullName", dto.getProductFullName());
-        affectedCount=  sequenceMapper.insertProductLog(map);
-        if(affectedCount ==0) {
-            throw  new RuntimeException();
-        }
+
         return sequenceMapper.selectProductNumber(map);
     }
 

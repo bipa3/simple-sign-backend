@@ -10,6 +10,7 @@ import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,6 +30,7 @@ public class AlarmService {
         this.messagingTemplate = messagingTemplate;
     }
 
+    @Transactional
     public void createNewAlarm(int approvalDocId, int orgUserId, String alarmCode) {
         PositionAndGradeDTO positionAndGradeDTO = commonDAO.getPositionAndGrade(orgUserId);
         AlarmReqDTO alarmReqDTO = new AlarmReqDTO();

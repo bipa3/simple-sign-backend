@@ -12,8 +12,10 @@ import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -234,7 +236,6 @@ public class ApproveService {
         return approvalDocDetailDTO;
     }
 
-    @Transactional
     public void updateApprovalDoc(int approvalDocId, ApprovalDocReqDTO approvalDocReqDTO) {
         boolean hasApproval = this.getHasUpdate(approvalDocId);
         if(!hasApproval) {
@@ -263,20 +264,12 @@ public class ApproveService {
     }
 
     //결재라인 수정 메서드
-    @Transactional
     private void updateApprovalLine(int approvalDocId, List<Integer> approverList) {
-        System.out.println(approverList);
         int approvalCount = approverList.size();
         //결재라인 전부 가져오기
         List<ApprovalResDTO> approvalList = approveDAO.selectAllApproval(approvalDocId);
 
-        //만약 리스트가 비어있으면 그냥 결재라인 삽입
-        if(approvalList.size() ==0) {
-            int insertedCount = this.insertApprovalList(approvalDocId,approverList,0);
-            if(insertedCount !=approvalCount) {
-                throw new RestApiException(CustomErrorCode.APPROVALLINE_INSERT_FAIL);
-            }
-        }
+
         //결재라인에서 approvalStatus 가 P나 W면 수정이 가능한 결재라인임
         int isUpdateOrder = 0; //수정을 시작할 순서
         for(ApprovalResDTO dto: approvalList){
@@ -301,7 +294,6 @@ public class ApproveService {
         if(progressApproverNotChanged) {
             isUpdateOrder = isUpdateOrder+1;
         }
-        System.out.println(isUpdateOrder);
         //수정가능한 순서가 전체 결재 개수를 넘어간다는 것은 수정할 것이 없다는 것
         if(isUpdateOrder >approvalCount) {
             return;
@@ -687,7 +679,6 @@ public class ApproveService {
     public void approveAllApprovalDoc() {
         int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
         List<Integer> approvalDocList = approveDAO.selectAllUnApprovedDocList(orgUserId);
-        System.out.println(approvalDocList);
         if(approvalDocList.size() ==0) {
             throw new RestApiException(CustomErrorCode.NO_SEARCH_APPROVAL_DOC);
         }
