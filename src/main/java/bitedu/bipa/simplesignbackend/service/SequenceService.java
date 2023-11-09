@@ -9,6 +9,7 @@ import bitedu.bipa.simplesignbackend.model.dto.BelongOrganizationDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ProductNumberReqDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ProductNumberResDTO;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -18,6 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @Service
 public class SequenceService {
@@ -30,7 +33,7 @@ public class SequenceService {
         this.commonDAO = commonDAO;
     }
 
-    @Transactional
+    @Transactional(propagation= MANDATORY)
     public String createProductNum(int seqCode, int userId) {
         //1. 채번코드에 맞는 양식문자열 가져오기(ex)'01,02,03')
         String productForm = sequenceDAO.selectProductForm(seqCode);
@@ -113,10 +116,10 @@ public class SequenceService {
         if(!isStringPresent) {
             productNum = sequenceDAO.insertProductNumber(productNumberReqDTO);
         }else {
-            int productId = productFullNameList.stream()
+            String productFullName = productFullNameList.stream()
                     .filter(s -> s.getProductFullName().equals(buffer.toString()))
-                    .collect(Collectors.toList()).get(0).getProductId();
-            productNum = sequenceDAO.updateProductNumber(productId,productNumberReqDTO);
+                    .collect(Collectors.toList()).get(0).getProductFullName();
+            productNum = sequenceDAO.updateProductNumber(productFullName,productNumberReqDTO);
         }
 
         //완전히 만든 품의번호 return

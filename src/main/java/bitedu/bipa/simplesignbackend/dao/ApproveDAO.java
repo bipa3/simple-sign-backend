@@ -37,7 +37,8 @@ public class ApproveDAO {
         if(affectedCount ==0) {
             throw new RuntimeException();
         }
-        int lastInsertedId = approveMapper.selectLastInserted();
+        //int lastInsertedId = approveMapper.selectLastInserted();
+        int lastInsertedId = approvalDocReqDTO.getApprovalDocId();
         return lastInsertedId;
     }
 
