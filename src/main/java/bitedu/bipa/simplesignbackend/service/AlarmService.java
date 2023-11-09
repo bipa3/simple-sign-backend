@@ -7,6 +7,7 @@ import bitedu.bipa.simplesignbackend.model.dto.PositionAndGradeDTO;
 import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +22,7 @@ public class AlarmService {
         this.commonDAO = commonDAO;
     }
 
+    @Transactional
     public void createNewAlarm(int approvalDocId, int orgUserId, String alarmCode) {
         PositionAndGradeDTO positionAndGradeDTO = commonDAO.getPositionAndGrade(orgUserId);
         AlarmReqDTO alarmReqDTO = new AlarmReqDTO();

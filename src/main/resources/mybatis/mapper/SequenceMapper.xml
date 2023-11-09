@@ -13,7 +13,7 @@
 
 
     <select id="selectProductFullNameList" resultType="ProductNumberResDTO" parameterType="int">
-        select product_id, product_full_name
+        select product_full_name
         from product_number
         where seq_code = #{seqCode};
     </select>
@@ -27,7 +27,7 @@
     <!--품의번호 업데이트-->
     <insert id="updateProductNumber" parameterType="int">
         update product_number set product_num = product_num + 1
-            where product_id = #{productId};
+            where product_full_name  = #{productFullName};
     </insert>
 
     <select id="selectLastInsertedId">
@@ -35,22 +35,10 @@
     </select>
 
     <select id = "selectProductNumber" parameterType="Map">
-        select distinct product_num from product_number t1
-        left join
-            product_log t2 on t1.product_id = t2.product_id
+        select distinct product_num from product_number
         where seq_code = #{seqCode} and product_full_name = #{productFullName};
     </select>
 
-    <insert id="insertProductLog" parameterType="Map">
-        insert into product_log (log_id, log_date, product_id)
-        values((select distinct product_num from product_number t1
-                left join
-                    product_log t2 on t1.product_id = t2.product_id
-                where seq_code = #{seqCode} and product_full_name = #{productFullName}),
-        now(),
-        #{productId}
-        );
-    </insert>
 
 
 

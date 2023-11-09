@@ -7,7 +7,7 @@
 
 
     <!--결재문서삽입-->
-   <insert id="insertApprovalDoc" parameterType="ApprovalDocReqDTO">
+   <insert id="insertApprovalDoc" parameterType="ApprovalDocReqDTO"  useGeneratedKeys="true" keyProperty="approvalDocId">
         insert into approval_doc (org_user_id, grade_name, position_name, form_code, approval_doc_title, contents,
             created_at, approval_count, doc_status, enforcement_date, doc_del_status, seq_code, approval_date)
         values (#{orgUserId}, #{gradeName}, #{positionName}, #{formCode}, #{approvalDocTitle}, #{contents},
