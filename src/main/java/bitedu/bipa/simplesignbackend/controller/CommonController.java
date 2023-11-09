@@ -1,6 +1,7 @@
 package bitedu.bipa.simplesignbackend.controller;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.service.CommonService;
+import bitedu.bipa.simplesignbackend.utils.RadisUtils;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
@@ -16,9 +17,11 @@ import java.util.List;
 public class CommonController {
 
     CommonService commonService;
+    RadisUtils radisUtils;
 
-    public CommonController (CommonService commonService) {
+    public CommonController (CommonService commonService, RadisUtils radisUtils) {
         this.commonService = commonService;
+        this.radisUtils = radisUtils;
     }
 
     @GetMapping("/comp")
@@ -34,7 +37,6 @@ public class CommonController {
     @GetMapping("/seq/item")
     public ResponseEntity<List<SeqItemListDTO>> seqItemListSelect() {
         List<SeqItemListDTO> seqItemList = commonService.selectSeqItemList();
-
         if (seqItemList != null && !seqItemList.isEmpty()) {
             return new ResponseEntity<>(seqItemList, HttpStatus.OK);
         } else {
