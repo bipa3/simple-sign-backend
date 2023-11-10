@@ -9,6 +9,7 @@ import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
 import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class CommonService {
         this.commonDAO = commonDAO;
     }
 
+    @Cacheable(value="compList", key="#compId")
     public ArrayList<CompanyDTO> selectCompList() {
         int authorityCode = (int) SessionUtils.getAttribute("authorityCode");
         int compId = 0;
@@ -34,6 +36,7 @@ public class CommonService {
         return commonDAO.selectCompany(compId);
     }
 
+    @Cacheable(value="seqItemList")
     public List<SeqItemListDTO> selectSeqItemList() { return commonDAO.selectSeqItemList(); }
 
     public List<FormRecommendResDTO> selectRecommendedForm() {

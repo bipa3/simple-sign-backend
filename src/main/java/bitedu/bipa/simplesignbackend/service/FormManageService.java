@@ -6,6 +6,7 @@ import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -87,6 +88,7 @@ public class FormManageService {
         return formManageDAO.selectSeqList(orgUserId, formCode);
     }
 
+    @Cacheable(value="formItemList")
     public List<FormItemDTO> searchFormItem() {
         List<FormItemDTO> formItemDTOList = new ArrayList<>();;
         try {
