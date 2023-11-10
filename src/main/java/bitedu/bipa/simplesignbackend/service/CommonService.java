@@ -26,7 +26,6 @@ public class CommonService {
         this.commonDAO = commonDAO;
     }
 
-    @Cacheable(value="compList", key="#compId")
     public ArrayList<CompanyDTO> selectCompList() {
         int authorityCode = (int) SessionUtils.getAttribute("authorityCode");
         int compId = 0;
