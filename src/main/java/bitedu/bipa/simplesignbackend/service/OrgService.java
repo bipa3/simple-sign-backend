@@ -3,6 +3,7 @@ package bitedu.bipa.simplesignbackend.service;
 import bitedu.bipa.simplesignbackend.dao.OrgDAO;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -14,6 +15,7 @@ public class OrgService {
     private OrgDAO orgDAO;
 
     // TreeView
+    @Cacheable(value="orgTreeView")
     public List<OrgCompanyDTO> orgTreeView() {
         List<OrgCompanyDTO> rawDataList = orgDAO.getOrgTreeView();
 
@@ -72,6 +74,7 @@ public class OrgService {
     }
 
     //회사별 트리뷰
+    @Cacheable(value="orgTreeViewComp", key="#compId")
     public List<OrgCompanyDTO> orgTreeViewComp(int compId) {
         List<OrgCompanyDTO> rawDataList = orgDAO.getOrgTreeViewComp(compId);
 
@@ -131,6 +134,7 @@ public class OrgService {
 
 
     // TopGridView
+    @Cacheable(value="getGrid", key="#nodeId + '_' + #type + '_' + #isChecked")
     public List<OrgRespDTO> getGrid(String nodeId, String type, boolean isChecked){
         String[] ids = nodeId.split("-");
 
