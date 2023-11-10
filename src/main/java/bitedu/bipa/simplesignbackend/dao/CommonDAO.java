@@ -2,6 +2,7 @@ package bitedu.bipa.simplesignbackend.dao;
 
 import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
 import bitedu.bipa.simplesignbackend.model.dto.*;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ public class CommonDAO {
     public BelongOrganizationDTO getBelongs(int userId) {
         return commonMapper.getBelongs(userId);
     }
+    @Cacheable(value="selectCompany", key="#compId")
     public ArrayList<CompanyDTO> selectCompany(int compId) {
         ArrayList<CompanyDTO> companyList = (ArrayList) commonMapper.getCompanyList(compId);
         return companyList;

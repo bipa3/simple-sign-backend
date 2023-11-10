@@ -17,6 +17,7 @@ public class OrgService {
     // TreeView
     @Cacheable(value="orgTreeView")
     public List<OrgCompanyDTO> orgTreeView() {
+
         List<OrgCompanyDTO> rawDataList = orgDAO.getOrgTreeView();
 
         Map<Integer, OrgCompanyDTO> companyMap = new HashMap<>();
@@ -76,6 +77,7 @@ public class OrgService {
     //회사별 트리뷰
     @Cacheable(value="orgTreeViewComp", key="#compId")
     public List<OrgCompanyDTO> orgTreeViewComp(int compId) {
+
         List<OrgCompanyDTO> rawDataList = orgDAO.getOrgTreeViewComp(compId);
 
         if (rawDataList == null || rawDataList.isEmpty()) {
@@ -137,8 +139,7 @@ public class OrgService {
     @Cacheable(value="getGrid", key="#nodeId + '_' + #type + '_' + #isChecked")
     public List<OrgRespDTO> getGrid(String nodeId, String type, boolean isChecked){
         String[] ids = nodeId.split("-");
-
-
+        
         if(isChecked){
             switch (ids.length){
                 case 1:
