@@ -201,11 +201,22 @@ public class FormManageService {
             List<DefaultApprovalLineDTO> updateLineList = formDetail.getApprovalLine();
             List<DefaultApprovalLineDTO> defaultLineList = formManageDAO.searchDefaultApprovalLineAll(formCode);
             List<DefaultApprovalLineDTO> missingLineList = new ArrayList<>();
-
+            System.out.println("updateLineList---------");
+            for(DefaultApprovalLineDTO line : updateLineList){
+                System.out.println("updateLineList:" + line.toString());
+            }
+            System.out.println("defaultLineList---------");
+            for(DefaultApprovalLineDTO line : defaultLineList){
+                System.out.println("defaultLineList:" + line.toString());
+            }
             for (DefaultApprovalLineDTO defaultLine : defaultLineList) {
                 if (!updateLineList.contains(defaultLine)) {
                     missingLineList.add(defaultLine);
                 }
+            }
+            System.out.println("missingLineList---------");
+            for(DefaultApprovalLineDTO line : missingLineList){
+                System.out.println("missingLineList:" + line.toString());
             }
 
             for (DefaultApprovalLineDTO delLine : missingLineList) {
@@ -216,6 +227,7 @@ public class FormManageService {
                 Map<String, Object> map = new ConcurrentHashMap<>();
                 map.put("formCode", formCode);
                 map.put("userId", userId);
+                System.out.println("del:" + formCode + " : " + userId);
                 formManageDAO.delDefaultLine(map);
             }
 
