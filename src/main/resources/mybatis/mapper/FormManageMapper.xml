@@ -105,7 +105,7 @@
     </select>
 
     <select id="selectDefaultApprovalLine">
-        SELECT dl.line_order, dl.org_user_id, comp.comp_id, ou.comp_name, est.est_id, est.est_name, ou.user_id, ou.dept_id, dept.dept_name, u.user_name, grade.grade_code, position.position_code, grade.grade_name, position.position_name
+        SELECT dl.line_order, dl.org_user_id AS userId, comp.comp_id, ou.comp_name, est.est_id, est.est_name, ou.dept_id, dept.dept_name, u.user_name, grade.grade_code, position.position_code, grade.grade_name, position.position_name
         FROM (SELECT * FROM default_approval_line WHERE form_code=#{code}) AS dl
         INNER JOIN organization_user AS ou ON dl.org_user_id=ou.org_user_id
         INNER JOIN department AS dept ON ou.dept_id=dept.dept_id

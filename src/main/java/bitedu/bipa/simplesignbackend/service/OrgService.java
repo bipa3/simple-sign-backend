@@ -139,7 +139,7 @@ public class OrgService {
     @Cacheable(value="getGrid", key="#nodeId + '_' + #type + '_' + #isChecked")
     public List<OrgRespDTO> getGrid(String nodeId, String type, boolean isChecked){
         String[] ids = nodeId.split("-");
-        
+
         if(isChecked){
             switch (ids.length){
                 case 1:
