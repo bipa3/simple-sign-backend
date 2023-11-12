@@ -108,14 +108,14 @@ public class ApproveService {
             if(affectedCount ==0) {
                 throw  new RestApiException(CustomErrorCode.APPROVAL_FAIL);
             }
+            affectedCount = approveDAO.updateApprovalDoc(approvalDocResDTO);
+            if(affectedCount ==0) {
+                throw new RestApiException(CustomErrorCode.APPROVAL_FAIL);
+            }
             //4. 알림보내기(결재승인알람 및 결재문서가 종결이라면 종결알람)
+            alarmService.createNewAlarm(approvalDocId,approvalResDTO.getOrgUserId(), AlarmStatus.APPROVE.getCode());
             alarmService.createNewAlarm(approvalDocId,upperApproverId,AlarmStatus.SUBMIT.getCode());
         }
-        int affectedCount = approveDAO.updateApprovalDoc(approvalDocResDTO);
-        if(affectedCount ==0) {
-            throw new RestApiException(CustomErrorCode.APPROVAL_FAIL);
-        }
-
     }
 
     @Transactional
