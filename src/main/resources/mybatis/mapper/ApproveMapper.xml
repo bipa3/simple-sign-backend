@@ -425,4 +425,14 @@
         where t1.org_user_id = #{orgUserId} and approval_status = 'P' and t2.doc_del_status = 0;
     </select>
 
+    <!-- searchContext 테이블에 파싱된 내용 넣기 -->
+    <insert id="insertSearchContents" >
+        insert into search_contents (approval_doc_id, contents)
+        values(#{approvalDocId}, #{parsedText});
+    </insert>
+    <update id="updateSearchContents">
+        update search_contents
+        set contents = #{parsedText}
+        where approval_doc_id = #{approvalDocId}
+    </update>
 </mapper>

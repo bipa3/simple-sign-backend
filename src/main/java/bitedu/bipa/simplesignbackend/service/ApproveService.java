@@ -6,6 +6,7 @@ import bitedu.bipa.simplesignbackend.dao.UserDAO;
 import bitedu.bipa.simplesignbackend.enums.AlarmStatus;
 import bitedu.bipa.simplesignbackend.enums.ApprovalStatus;
 import bitedu.bipa.simplesignbackend.model.dto.*;
+import bitedu.bipa.simplesignbackend.utils.HtmlParsingUtils;
 import bitedu.bipa.simplesignbackend.utils.PasswordUtil;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
@@ -48,6 +49,11 @@ public class ApproveService {
         approvalDocReqDTO.setApprovalCount(approvalCount);
         approvalDocReqDTO.setCreatedAt(LocalDateTime.now());
         int approvalDocId =approveDAO.insertApprovalDoc(approvalDocReqDTO, orgUserId);
+
+        //html 파싱
+        String htmlContent = approvalDocReqDTO.getContents();
+        String parsedText = HtmlParsingUtils.parseHtml(htmlContent);
+        approveDAO.insertSearchContents(approvalDocId,parsedText);
 
         //결재라인 삽입
         int count = this.insertApprovalList(approvalDocId,approverList,0);
@@ -249,6 +255,12 @@ public class ApproveService {
         if(affectedCount ==0) {
             throw  new RestApiException(CustomErrorCode.APPROVAL_DOC_UPDATE_FAIL);
         }
+
+        //html 파싱
+        String htmlContent = approvalDocReqDTO.getContents();
+        String parsedText = HtmlParsingUtils.parseHtml(htmlContent);
+        approveDAO.updateSearchContents(approvalDocId,parsedText);
+
         //2.결재라인 수정, 결재라인 중 결재가 안된 부분만 수정가능
         this.updateApprovalLine(approvalDocId, approvalDocReqDTO.getApproverList());
 
