@@ -40,7 +40,6 @@ public class ReplyService {
         int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         replyReqDTO.setOrgUserId(orgUserId);
         replyReqDTO.setRegDate(LocalDateTime.now());
-        System.out.println(LocalDateTime.now());
         //upperReplyId 가 0이면 댓글 아니면 대댓글
         int replyId = 0;
         if(replyReqDTO.getUpperReplyId() ==0) {
@@ -120,13 +119,19 @@ public class ReplyService {
         int approverId = approveDAO.selectRecipientId(approvalDocId);
         List<Integer> approverIdList = approveDAO.selectApproverIdList(approvalDocId);
 
+        boolean isApproverIdPresent = approverIdList.stream()
+                .anyMatch(id -> id == approverId);
         if(status.equals("insert")) {
-            alarmService.createNewAlarm(approvalDocId, approverId, AlarmStatus.REPLY.getCode());
+            if(!isApproverIdPresent) {
+                alarmService.createNewAlarm(approvalDocId, approverId, AlarmStatus.REPLY.getCode());
+            }
             for (int approver : approverIdList) {
                 alarmService.createNewAlarm(approvalDocId, approver, AlarmStatus.REPLY.getCode());
             }
         }else if(status.equals("update")) {
-            alarmService.createNewAlarm(approvalDocId, approverId, AlarmStatus.UPDATE_REPLY.getCode());
+            if(!isApproverIdPresent) {
+                alarmService.createNewAlarm(approvalDocId, approverId, AlarmStatus.UPDATE_REPLY.getCode());
+            }
             for (int approver : approverIdList) {
                 alarmService.createNewAlarm(approvalDocId, approver, AlarmStatus.UPDATE_REPLY.getCode());
             }
