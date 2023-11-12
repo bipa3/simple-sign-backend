@@ -37,14 +37,14 @@ public class SequenceDAO {
 
     public int updateProductNumber(String productFullName, ProductNumberReqDTO dto) {
         int affectedCount = sequenceMapper.updateProductNumber(productFullName);
-        if(affectedCount ==0) {
-            throw  new RuntimeException();
-        }
-        Map<String, Object> map = new HashMap<>();
-        map.put("seqCode", dto.getSeqCode());
-        map.put("productFullName", dto.getProductFullName());
 
-        return sequenceMapper.selectProductNumber(map);
+       return affectedCount;
     }
 
+    public int selectProductNumber(int seqCode, String productFullName) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("seqCode", seqCode);
+        map.put("productFullName", productFullName);
+        return sequenceMapper.selectProductNumber(map);
+    }
 }

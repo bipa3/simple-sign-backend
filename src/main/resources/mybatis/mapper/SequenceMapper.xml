@@ -25,7 +25,7 @@
     </insert>
 
     <!--품의번호 업데이트-->
-    <insert id="updateProductNumber" parameterType="int">
+    <insert id="updateProductNumber" parameterType="String">
         update product_number set product_num = product_num + 1
             where product_full_name  = #{productFullName};
     </insert>

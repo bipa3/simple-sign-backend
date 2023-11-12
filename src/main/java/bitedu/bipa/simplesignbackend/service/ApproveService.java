@@ -56,7 +56,7 @@ public class ApproveService {
         approveDAO.insertSearchContents(approvalDocId,parsedText);
 
         //결재라인 삽입
-        int count = this.insertApprovalList(approvalDocId,approverList,0);
+        int count = this.insertApprovalList(approvalDocId,approverList,0, "register");
             if(count-1 !=approvalCount) {
                 throw new RestApiException(CustomErrorCode.APPROVALLINE_INSERT_FAIL);
         }
@@ -242,11 +242,13 @@ public class ApproveService {
         return approvalDocDetailDTO;
     }
 
+    @Transactional
     public void updateApprovalDoc(int approvalDocId, ApprovalDocReqDTO approvalDocReqDTO) {
         boolean hasApproval = this.getHasUpdate(approvalDocId);
         if(!hasApproval) {
             throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
+        char docStatus = approveDAO.selectApprovalDocStatus(approvalDocId);
         //1. 결재문서 수정
         approvalDocReqDTO.setApprovalDocId(approvalDocId);
         approvalDocReqDTO.setUpdatedAt(LocalDateTime.now());
@@ -262,7 +264,8 @@ public class ApproveService {
         approveDAO.updateSearchContents(approvalDocId,parsedText);
 
         //2.결재라인 수정, 결재라인 중 결재가 안된 부분만 수정가능
-        this.updateApprovalLine(approvalDocId, approvalDocReqDTO.getApproverList());
+        this.updateApprovalLine(approvalDocId, approvalDocReqDTO.getApproverList(), "register");
+
 
         //3.원래 있던 수신참조 삭제 및 수신참조 재삽입
         approveDAO.deleteReceivedRef(approvalDocId);
@@ -276,12 +279,10 @@ public class ApproveService {
     }
 
     //결재라인 수정 메서드
-    private void updateApprovalLine(int approvalDocId, List<Integer> approverList) {
+    private void updateApprovalLine(int approvalDocId, List<Integer> approverList, String docStatus) {
         int approvalCount = approverList.size();
         //결재라인 전부 가져오기
         List<ApprovalResDTO> approvalList = approveDAO.selectAllApproval(approvalDocId);
-
-
         //결재라인에서 approvalStatus 가 P나 W면 수정이 가능한 결재라인임
         int isUpdateOrder = 0; //수정을 시작할 순서
         for(ApprovalResDTO dto: approvalList){
@@ -301,8 +302,14 @@ public class ApproveService {
         if(approverList.size()<approvalList.size()) {
             approveDAO.deleteApprovalLine(approvalDocId, approverList.size()+1);
         }
-        //만약 P라면 결재자가 바뀌었는지 확인하고 바뀌었으면 삭제하고 다시 넣기, 안바뀌었으면 그대로 둘 것(receive_date) 때문에
-        boolean progressApproverNotChanged = approvalList.get(isUpdateOrder-1).getOrgUserId() == approverList.get(isUpdateOrder-1);
+
+        boolean progressApproverNotChanged = false;
+        if(isUpdateOrder !=0) {
+            //만약 P라면 결재자가 바뀌었는지 확인하고 바뀌었으면 삭제하고 다시 넣기, 안바뀌었으면 그대로 둘 것(receive_date) 때문에
+             progressApproverNotChanged = approvalList.get(isUpdateOrder-1).getOrgUserId() == approverList.get(isUpdateOrder-1);
+        }else if(isUpdateOrder ==0) {
+            isUpdateOrder =1;
+        }
         if(progressApproverNotChanged) {
             isUpdateOrder = isUpdateOrder+1;
         }
@@ -314,7 +321,7 @@ public class ApproveService {
         int affectedCount = approveDAO.deleteApprovalLine(approvalDocId, isUpdateOrder);
 
         //재삽입
-        this.insertApprovalList(approvalDocId,approverList,isUpdateOrder);
+        this.insertApprovalList(approvalDocId,approverList,isUpdateOrder, docStatus);
         if(!progressApproverNotChanged) {
             //재삽입한 첫 사람 receive_date랑 결재 상태 'P'로 바꿔줄 것
             int affectedCount2 = approveDAO.updateApprovalStatusAndReceiveDate(approvalDocId,isUpdateOrder);
@@ -327,7 +334,7 @@ public class ApproveService {
         }
     }
 
-    private int insertApprovalList(int approvalDocId, List<Integer> approverList, int updateOrder) {
+    private int insertApprovalList(int approvalDocId, List<Integer> approverList, int updateOrder, String docStatus) {
             int count = 1;
             for (int approver : approverList) {
                 if(count < updateOrder) {
@@ -337,7 +344,7 @@ public class ApproveService {
                 PositionAndGradeDTO positionAndGradeDTO = commonDAO.getPositionAndGrade(approver);
                 ApprovalLineDTO approvalLineDTO = new ApprovalLineDTO();
                 approvalLineDTO.setApprovalOrder(count);
-                if (count == 1) {
+                if (count == 1  && docStatus =="register") {
                     approvalLineDTO.setApprovalStatus(ApprovalStatus.PROGRESS.getCode());
                     approvalLineDTO.setReceiveDate(LocalDateTime.now());
                     alarmService.createNewAlarm(approvalDocId, approver, AlarmStatus.SUBMIT.getCode());
@@ -393,6 +400,10 @@ public class ApproveService {
 
     public boolean hasPermission(int approvalDocId) {
         int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
+        char docStatus = approveDAO.selectApprovalDocStatus(approvalDocId);
+        if(docStatus =='T') {
+            return false;
+        }
         List<ApprovalPermissionResDTO> list =  approveDAO.selectApprovalUserIdByApprovalDocId(approvalDocId);
         for(ApprovalPermissionResDTO dto: list) {
             if(dto.getOrgUserId() == orgUserId && dto.getApprovalStatus() ==ApprovalStatus.PROGRESS.getCode()) {
@@ -470,6 +481,10 @@ public class ApproveService {
     }
 
     public boolean getHasApproval(int approvalDocId) {
+        char docStatus = approveDAO.selectApprovalDocStatus(approvalDocId);
+        if(docStatus =='T') {
+            return false;
+        }
         //1.결재문서에서 결재라인에 해당 사용자가 있는지 확인
         int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
         List<ApprovalLineListDTO> approvalLineLists = approveDAO.selectApprovalLineByApprovalDocId(approvalDocId);
@@ -585,10 +600,16 @@ public class ApproveService {
         approveDAO.deleteApprovalLine(approvalDocId,0);
 
         //결재라인 삽입
-        int count = this.insertApprovalList(approvalDocId,approverList,0);
+        int count = this.insertApprovalList(approvalDocId,approverList,0, "temporal");
         if(count-1 !=approvalCount) {
             throw new RestApiException(CustomErrorCode.APPROVALLINE_INSERT_FAIL);
         }
+
+        //수신참조 삭제
+        approveDAO.deleteReceivedRef(approvalDocId);
+
+        //수신참조 삽입
+        this.insertReceivedRefList(approvalDocReqDTO,approvalDocId);
 
     }
 
@@ -688,6 +709,7 @@ public class ApproveService {
         alarmService.createNewAlarm(approvalDocId,upperApprover, AlarmStatus.APPROVAL_CANCEL_UPPER_APPROVER.getCode());
     }
 
+    @Transactional
     public void approveAllApprovalDoc() {
         int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
         List<Integer> approvalDocList = approveDAO.selectAllUnApprovedDocList(orgUserId);

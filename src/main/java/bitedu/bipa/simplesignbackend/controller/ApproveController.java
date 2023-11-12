@@ -37,7 +37,6 @@ public class ApproveController {
     public ResponseEntity<String> approveRegister(@Valid @RequestPart ApprovalDocReqDTO approvalDocReqDTO,
                                                   @RequestPart(required = false) List<MultipartFile> files
                                                   ) throws IOException {
-        //System.out.println(files.get(0).getOriginalFilename());
         int approvalDocId = approveService.registerApprovalDoc(approvalDocReqDTO);
         if (files != null ) {
             for (MultipartFile file : files) {
@@ -139,7 +138,6 @@ public class ApproveController {
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/password")
     public ResponseEntity<String> validPassword(@RequestBody Map<String,String> map) {
-        //System.out.println("password: " + map.get("password"));
         approveService.validPassword(map.get("password"));
         return ResponseEntity.ok("ok");
     }
@@ -211,7 +209,6 @@ public class ApproveController {
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/cancelApproval/{num}")
     public ResponseEntity<String> cancelApprovalToTemporal(@PathVariable("num") int approvalDocId){
-        System.out.println("cancel");
         approveService.changeApprovalToTemporal(approvalDocId);
         return ResponseEntity.ok("ok");
     }
