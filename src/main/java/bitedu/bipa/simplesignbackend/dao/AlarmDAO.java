@@ -31,7 +31,6 @@ public class AlarmDAO {
 
     // 문서명 들고오기
     public UserApprovalDTO selectApprovalDocTitle(String alarmDate, int orgUserId, String alarmCode, int approvalDocId){
-        System.out.println(alarmDate);
         System.out.println(alarmMapper.selectApprovalDocTitle(alarmDate, orgUserId, alarmCode, approvalDocId));
         return alarmMapper.selectApprovalDocTitle(alarmDate, orgUserId, alarmCode, approvalDocId);
     }
