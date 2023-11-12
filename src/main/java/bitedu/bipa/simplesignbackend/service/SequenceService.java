@@ -3,22 +3,15 @@ package bitedu.bipa.simplesignbackend.service;
 import bitedu.bipa.simplesignbackend.dao.ApproveDAO;
 import bitedu.bipa.simplesignbackend.dao.CommonDAO;
 import bitedu.bipa.simplesignbackend.dao.SequenceDAO;
-import bitedu.bipa.simplesignbackend.enums.OrganizationStatus;
 import bitedu.bipa.simplesignbackend.enums.SequenceItem;
 import bitedu.bipa.simplesignbackend.model.dto.BelongOrganizationDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ProductNumberReqDTO;
-import bitedu.bipa.simplesignbackend.model.dto.ProductNumberResDTO;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
@@ -102,28 +95,20 @@ public class SequenceService {
                     break;
             }
         }
-
-        //만들어진 품의번호가 품의번호 테이블에 존재하는지 확인
-        List<ProductNumberResDTO> productFullNameList = sequenceDAO.selectProductFullNameList(seqCode);
-        boolean isStringPresent = productFullNameList.stream()
-                .anyMatch(s -> s.getProductFullName().contains(buffer.toString()));
-        //없다면 품의번호 테이블에 insert, 로그 insert
-        //있다면 품의번호 update, 로그 insert
         ProductNumberReqDTO productNumberReqDTO = new ProductNumberReqDTO();
         productNumberReqDTO.setSeqCode(seqCode);
         productNumberReqDTO.setProductFullName(buffer.toString());
-        int productNum = 0; // 최근 삽입된 품의번호
-        if(!isStringPresent) {
-            productNum = sequenceDAO.insertProductNumber(productNumberReqDTO);
-        }else {
-            String productFullName = productFullNameList.stream()
-                    .filter(s -> s.getProductFullName().equals(buffer.toString()))
-                    .collect(Collectors.toList()).get(0).getProductFullName();
-            productNum = sequenceDAO.updateProductNumber(productFullName,productNumberReqDTO);
+
+        String productFullName = buffer.toString();
+        int productNum = 0;
+        int affectedCount = sequenceDAO.updateProductNumber(productFullName,productNumberReqDTO);
+        if(affectedCount ==0) {
+            sequenceDAO.insertProductNumber(productNumberReqDTO);
         }
+        productNum = sequenceDAO.selectProductNumber(seqCode,productFullName);
+
 
         //완전히 만든 품의번호 return
-        String productFullName = buffer.toString();
         if(productFullName.contains("CODE2")) {
             productFullName = productFullName.replace("CODE2", String.format("%02d", productNum));
         } else if(productFullName.contains("CODE3")) {
@@ -133,10 +118,7 @@ public class SequenceService {
         }else if(productFullName.contains("CODE5")) {
             productFullName = productFullName.replace("CODE5", String.format("%05d", productNum));
         }
-
-        //System.out.println("완성 productName:" + productFullName);
         return productFullName;
-
     }
 
 
