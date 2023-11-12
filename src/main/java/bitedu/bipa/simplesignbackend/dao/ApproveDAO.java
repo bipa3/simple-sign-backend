@@ -278,4 +278,12 @@ public class ApproveDAO {
     public List<Integer> selectAllUnApprovedDocList(int orgUserId) {
         return approveMapper.selectAllUnApprovedDocList(orgUserId);
     }
+
+    public void insertSearchContents(int approvalDocId, String parsedText) {
+        approveMapper.insertSearchContents(approvalDocId, parsedText);
+    }
+
+    public void updateSearchContents(int approvalDocId, String parsedText) {
+        approveMapper.updateSearchContents(approvalDocId, parsedText);
+    }
 }

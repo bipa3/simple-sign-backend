@@ -2,6 +2,7 @@ package bitedu.bipa.simplesignbackend.mapper;
 
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.util.concurrent.ListenableFutureTask;
 
 import java.util.List;
@@ -113,4 +114,8 @@ public interface ApproveMapper {
     int updateApprovalStatusAndReceiveDate(Map map);
 
     List<Integer> selectAllUnApprovedDocList(int orgUserId);
+
+    void insertSearchContents(@Param("approvalDocId") int approvalDocId, @Param("parsedText")String parsedText);
+
+    void updateSearchContents(@Param("approvalDocId") int approvalDocId, @Param("parsedText")String parsedText);
 }
