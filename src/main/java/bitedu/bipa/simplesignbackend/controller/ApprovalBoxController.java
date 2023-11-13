@@ -38,15 +38,16 @@ public class ApprovalBoxController {
             @RequestParam(name = "itemsPerPage") int itemsPerPage,
             @RequestParam(name = "offset") int offset,
             @RequestParam(name = "searchInput") String searchInput,
-            @RequestParam(name = "sortStatus") String sortStatus
+            @RequestParam(name = "sortStatus") String sortStatus,
+            @RequestParam(name = "radioSortValue") String radioSortValue
     ) {
         int estId = approvalBoxDAO.selectEstId(orgUserId);
         Map<String, Object> result = new HashMap<>();
 
         if (!searchInput.equals("")) {
-            result=approvalBoxService.selectSearchDocuments(viewItems, orgUserId, deptId, estId, compId, itemsPerPage, offset, searchInput,sortStatus);
+            result=approvalBoxService.selectSearchDocuments(viewItems, orgUserId, deptId, estId, compId, itemsPerPage, offset, searchInput,sortStatus,radioSortValue);
         }else{
-            result = approvalBoxService.selectDocuments(viewItems, orgUserId, deptId,estId,compId, itemsPerPage, offset,sortStatus);
+            result = approvalBoxService.selectDocuments(viewItems, orgUserId, deptId,estId,compId, itemsPerPage, offset,sortStatus,radioSortValue);
         }
 
         return result;

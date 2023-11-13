@@ -28,4 +28,5 @@ public class ApprovalDocDetailDTO {
     private String seqName;
     private List<ApprovalLineDetailListDTO> approvalLineList;
     private List<ApprovalLineDetailListDTO> receivedRefList;
+    private int version;
 }
