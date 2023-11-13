@@ -18,9 +18,9 @@ public class ApprovalBoxService {
     @Autowired
     ApprovalBoxDAO approvalBoxDAO;
 
-    public Map<String, Object> selectDocuments(List<String> viewItems, int orgUserId, int deptId,int estId, int compId, int itemsPerPage, int offset, String sortStatus) {
-        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDocsList(viewItems,orgUserId,deptId,estId,compId,itemsPerPage,offset,sortStatus);
-        int count= approvalBoxDAO.selectDocsCount(viewItems,orgUserId,deptId,estId,compId);
+    public Map<String, Object> selectDocuments(List<String> viewItems, int orgUserId, int deptId,int estId, int compId, int itemsPerPage, int offset, String sortStatus,String radioSortValue) {
+        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDocsList(viewItems,orgUserId,deptId,estId,compId,itemsPerPage,offset,sortStatus,radioSortValue);
+        int count= approvalBoxDAO.selectDocsCount(viewItems,orgUserId,deptId,estId,compId,radioSortValue);
 
 
         Map<String, Object> result = new HashMap<>();
@@ -31,9 +31,9 @@ public class ApprovalBoxService {
         return result;
     }
 
-    public Map<String, Object> selectSearchDocuments(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, int offset, String searchInput,String sortStatus) {
-        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectSearchDocsList(viewItems,orgUserId,deptId, estId, compId, itemsPerPage,offset,searchInput,sortStatus);
-       int count =approvalBoxDAO.selectSearchDocsCount(viewItems,orgUserId,deptId, estId, compId, searchInput);
+    public Map<String, Object> selectSearchDocuments(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, int offset, String searchInput,String sortStatus, String radioSortValue) {
+        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectSearchDocsList(viewItems,orgUserId,deptId, estId, compId, itemsPerPage,offset,searchInput,sortStatus,radioSortValue);
+       int count =approvalBoxDAO.selectSearchDocsCount(viewItems,orgUserId,deptId, estId, compId, searchInput,radioSortValue);
 
         Map<String, Object> result = new HashMap<>();
         result.put("docList", docList);
@@ -48,9 +48,10 @@ public class ApprovalBoxService {
         int itemsPerPage = criteria.getItemsPerPage();
         int offset=criteria.getOffset();
         String sortStatus = criteria.getSortStatus();
+        String radioSortValue = criteria.getRadioSortValue();
 
-        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDetailSearchDocsList(viewItems, orgUserId, deptId, estId, compId, itemsPerPage,offset, criteria,sortStatus);
-        int count =approvalBoxDAO.selectDetailSearchDocsCount(viewItems, orgUserId, deptId, estId, compId, criteria);
+        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDetailSearchDocsList(viewItems, orgUserId, deptId, estId, compId, itemsPerPage,offset, criteria,sortStatus,radioSortValue);
+        int count =approvalBoxDAO.selectDetailSearchDocsCount(viewItems, orgUserId, deptId, estId, compId, criteria,radioSortValue);
 
         Map<String, Object> result = new HashMap<>();
         result.put("docList", docList);
