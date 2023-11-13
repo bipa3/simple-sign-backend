@@ -3,10 +3,12 @@ package bitedu.bipa.simplesignbackend.service;
 import bitedu.bipa.simplesignbackend.dao.ApproveDAO;
 import bitedu.bipa.simplesignbackend.dao.ReplyDAO;
 import bitedu.bipa.simplesignbackend.enums.AlarmStatus;
+import bitedu.bipa.simplesignbackend.event.ApprovalEvent;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +20,13 @@ import java.util.stream.Collectors;
 public class ReplyService {
 
     private final ReplyDAO replyDAO;
-    private final AlarmService alarmService;
     private final ApproveDAO approveDAO;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public ReplyService(ReplyDAO replyDAO, AlarmService alarmService, ApproveDAO approveDAO) {
+    public ReplyService(ReplyDAO replyDAO, ApproveDAO approveDAO, ApplicationEventPublisher eventPublisher) {
         this.replyDAO = replyDAO;
-        this.alarmService = alarmService;
         this.approveDAO = approveDAO;
+        this.eventPublisher = eventPublisher;
     }
 
     public List<ReplyResDTO> showReplyList(int approvalDocId) {
@@ -123,17 +125,17 @@ public class ReplyService {
                 .anyMatch(id -> id == approverId);
         if(status.equals("insert")) {
             if(!isApproverIdPresent) {
-                alarmService.createNewAlarm(approvalDocId, approverId, AlarmStatus.REPLY.getCode());
+                eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approverId,AlarmStatus.REPLY.getCode()));
             }
             for (int approver : approverIdList) {
-                alarmService.createNewAlarm(approvalDocId, approver, AlarmStatus.REPLY.getCode());
+                eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approver,AlarmStatus.REPLY.getCode()));
             }
         }else if(status.equals("update")) {
             if(!isApproverIdPresent) {
-                alarmService.createNewAlarm(approvalDocId, approverId, AlarmStatus.UPDATE_REPLY.getCode());
+                eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approverId,AlarmStatus.UPDATE_REPLY.getCode()));
             }
             for (int approver : approverIdList) {
-                alarmService.createNewAlarm(approvalDocId, approver, AlarmStatus.UPDATE_REPLY.getCode());
+                eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approver,AlarmStatus.UPDATE_REPLY.getCode()));
             }
         }
     }

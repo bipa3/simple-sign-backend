@@ -5,12 +5,14 @@ import bitedu.bipa.simplesignbackend.dao.CommonDAO;
 import bitedu.bipa.simplesignbackend.dao.UserDAO;
 import bitedu.bipa.simplesignbackend.enums.AlarmStatus;
 import bitedu.bipa.simplesignbackend.enums.ApprovalStatus;
+import bitedu.bipa.simplesignbackend.event.ApprovalEvent;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.utils.HtmlParsingUtils;
 import bitedu.bipa.simplesignbackend.utils.PasswordUtil;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -27,17 +29,17 @@ public class ApproveService {
 
     private final ApproveDAO approveDAO;
     private final CommonDAO commonDAO;
-    private final AlarmService alarmService;
     private final SequenceService sequenceService;
     private final UserDAO userDAO;
+    private final ApplicationEventPublisher eventPublisher;
 
 
-    public ApproveService(ApproveDAO approveDAO, CommonDAO commonDAO, AlarmService alarmService, SequenceService sequenceService, UserDAO userDAO) {
+    public ApproveService(ApproveDAO approveDAO, CommonDAO commonDAO, SequenceService sequenceService, UserDAO userDAO, ApplicationEventPublisher eventPublisher) {
         this.approveDAO = approveDAO;
         this.commonDAO = commonDAO;
-        this.alarmService = alarmService;
         this.sequenceService = sequenceService;
         this.userDAO = userDAO;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -119,8 +121,8 @@ public class ApproveService {
                 throw new RestApiException(CustomErrorCode.APPROVAL_FAIL);
             }
             //4. 알림보내기(결재승인알람 및 결재문서가 종결이라면 종결알람)
-            alarmService.createNewAlarm(approvalDocId,approvalResDTO.getOrgUserId(), AlarmStatus.APPROVE.getCode());
-            alarmService.createNewAlarm(approvalDocId,upperApproverId,AlarmStatus.SUBMIT.getCode());
+            eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approvalResDTO.getOrgUserId(),AlarmStatus.APPROVE.getCode()));
+            eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,upperApproverId,AlarmStatus.SUBMIT.getCode()));
         }
     }
 
@@ -140,11 +142,11 @@ public class ApproveService {
         }
 
         //종결일 경우는 상신자와 수신참조자에게 알림
-        alarmService.createNewAlarm(approvalDocId, approvalDocResDTO.getOrgUserId(),AlarmStatus.APPROVE.getCode());
+        eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approvalDocResDTO.getOrgUserId(),AlarmStatus.APPROVE.getCode()));
         List<Integer> receivedRefUserIdList = approveDAO.selectRecievedRefUserId(approvalDocId);
         if(receivedRefUserIdList.size() !=0) {
             for (int receiveUser : receivedRefUserIdList) {
-                alarmService.createNewAlarm(approvalDocId, receiveUser, AlarmStatus.RECEIVEDREF.getCode());
+                eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,receiveUser,AlarmStatus.RECEIVEDREF.getCode()));
             }
         }
     }
@@ -178,12 +180,12 @@ public class ApproveService {
 
         //4. 하위 결재자 모두에게 알림 보내기
         int recipientId = approveDAO.selectRecipientId(approvalDocId);
-        alarmService.createNewAlarm(approvalDocId,recipientId,AlarmStatus.RETURN.getCode());
+        eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,recipientId,AlarmStatus.RETURN.getCode()));
         if(approvalResDTO.getApprovalOrder() >1) {
             List<Integer> lowerApproverId = approveDAO.selectLowerApproverId(approvalDocId, approvalResDTO.getApprovalOrder());
             for(int lowerId : lowerApproverId) {
                 if(lowerId ==recipientId) continue;
-                alarmService.createNewAlarm(approvalDocId, lowerId, AlarmStatus.RETURN.getCode());
+                eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,lowerId,AlarmStatus.RETURN.getCode()));
             }
         }
     }
@@ -274,7 +276,7 @@ public class ApproveService {
         //4. 알림보내기(문서를 결재한 사람들, 문서를 수신한 사람)
         List<Integer> updateAlarmRecipientList = approveDAO.selectUpdateAlarmRecipient(approvalDocId);
         for(int recipient: updateAlarmRecipientList) {
-            alarmService.createNewAlarm(approvalDocId, recipient, AlarmStatus.UPDATE.getCode());
+            eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,recipient,AlarmStatus.UPDATE.getCode()));
         }
     }
 
@@ -296,7 +298,7 @@ public class ApproveService {
             int approver = approveDAO.selectRecipientId(approvalDocId);
             ApprovalDocResDTO approvalDocResDTO = approveDAO.selectApprovalCount(approvalDocId);
             this.endApproval(approvalDocResDTO, approvalDocId);
-            alarmService.createNewAlarm(approvalDocId,approver,AlarmStatus.APPROVE.getCode());
+            eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approver,AlarmStatus.APPROVE.getCode()));
             return;
         }
         if(approverList.size()<approvalList.size()) {
@@ -329,7 +331,7 @@ public class ApproveService {
                 throw  new RestApiException(CustomErrorCode.APPROVAL_DOC_UPDATE_FAIL);
             }
             //알람 삽입
-            alarmService.createNewAlarm(approvalDocId,approverList.get(isUpdateOrder-1),AlarmStatus.SUBMIT.getCode());
+            eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approverList.get(isUpdateOrder-1),AlarmStatus.SUBMIT.getCode()));
 
         }
     }
@@ -347,7 +349,7 @@ public class ApproveService {
                 if (count == 1  && docStatus =="register") {
                     approvalLineDTO.setApprovalStatus(ApprovalStatus.PROGRESS.getCode());
                     approvalLineDTO.setReceiveDate(LocalDateTime.now());
-                    alarmService.createNewAlarm(approvalDocId, approver, AlarmStatus.SUBMIT.getCode());
+                    eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approver,AlarmStatus.SUBMIT.getCode()));
                 } else {
                     approvalLineDTO.setApprovalStatus(ApprovalStatus.WAIT.getCode());
                 }
@@ -474,9 +476,9 @@ public class ApproveService {
             }
         }
         if(alarmReceiver !=0 && approvalOrder !=0) {
-            alarmService.createNewAlarm(approvalDocId,alarmReceiver,AlarmStatus.APPROVAL_CANCEL_UPPER_APPROVER.getCode());
+            eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,alarmReceiver,AlarmStatus.APPROVAL_CANCEL_UPPER_APPROVER.getCode()));
         }else if(alarmReceiver !=0) {
-            alarmService.createNewAlarm(approvalDocId,alarmReceiver,AlarmStatus.APPROVAL_CANCEL.getCode());
+            eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,alarmReceiver,AlarmStatus.APPROVAL_CANCEL.getCode()));
         }
     }
 
@@ -706,7 +708,7 @@ public class ApproveService {
 
         //상신상위자에게 알림 보내기
         int upperApprover = approveDAO.selectFirstOrgUserIdFromApprovalLine(approvalDocId);
-        alarmService.createNewAlarm(approvalDocId,upperApprover, AlarmStatus.APPROVAL_CANCEL_UPPER_APPROVER.getCode());
+        eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,upperApprover,AlarmStatus.APPROVAL_CANCEL_UPPER_APPROVER.getCode()));
     }
 
     @Transactional
