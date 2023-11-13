@@ -74,8 +74,8 @@
     <!--결재문서 업데이트-->
     <update id="updateApprovalDoc" parameterType="ApprovalDocResDTO">
         update approval_doc
-        set doc_status = #{docStatus}, product_num = #{productNum}, end_at = #{endAt}
-        where approval_doc_id = #{approvalDocId};
+        set doc_status = #{docStatus}, product_num = #{productNum}, end_at = #{endAt}, version = #{version} + 1
+        where approval_doc_id = #{approvalDocId} and version = #{version};
     </update>
 
     <!--상신 상위자 아이디 가져오기-->
@@ -113,7 +113,7 @@
     <!--결재문서 상세조회-->
     <select id="selectApprovalDocById" parameterType="int" resultType="ApprovalDocDetailDTO">
         select approval_doc_id, t1.org_user_id, t3.user_name, t5.dept_name, approval_date, approval_doc_title, doc_status,
-            contents, enforcement_date, product_num, t1.form_code, t4.form_name, t4.default_form, t1.seq_code, t6.seq_name
+            contents, enforcement_date, product_num, t1.form_code, t4.form_name, t4.default_form, t1.seq_code, t6.seq_name, t1.version
         from approval_doc t1
             left join organization_user t2
             on t1.org_user_id = t2.org_user_id
@@ -217,6 +217,12 @@
         select doc_status from approval_doc
             where approval_doc_id = #{approvalDocId};
     </select>
+
+    <select id="selectApprovalDocStatusAndVersion" parameterType="int" resultType="ApprovalDocResDTO">
+        select doc_status, version from approval_doc
+        where approval_doc_id = #{approvalDocId};
+    </select>
+
     <select id="selectApprovalStatusList" parameterType="Map" resultType="char">
         <![CDATA[
             select approval_status from approval
@@ -229,8 +235,8 @@
     <update id="updateApprovalDocFromRequest" parameterType="ApprovalDocReqDTO">
         update approval_doc
         set approval_doc_title = #{approvalDocTitle}, contents = #{contents}, created_at = #{createdAt}, updated_at = #{updatedAt},
-        enforcement_date = #{enforcementDate}, seq_code = #{seqCode}, approval_count = #{approvalCount}, doc_status = #{docStatus}
-        where approval_doc_id = #{approvalDocId};
+        enforcement_date = #{enforcementDate}, seq_code = #{seqCode}, approval_count = #{approvalCount}, doc_status = #{docStatus}, version = #{version}+1
+        where approval_doc_id = #{approvalDocId} and version = #{version};
     </update>
 
     <!--문서수정 알람수신자 가져오기-->

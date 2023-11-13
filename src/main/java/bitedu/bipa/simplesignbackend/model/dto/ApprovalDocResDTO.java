@@ -14,4 +14,5 @@ public class ApprovalDocResDTO {
     private int seqCode;
     private int orgUserId;
     private LocalDateTime endAt;
+    private int version;
 }

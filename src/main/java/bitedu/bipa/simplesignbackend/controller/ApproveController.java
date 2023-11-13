@@ -51,23 +51,25 @@ public class ApproveController {
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/approval/{num}")
-    public ResponseEntity<String> approveApprovalDoc(@PathVariable("num") int approvalDocId) {
-        approveService.approveApprovalDoc(approvalDocId);
+    public ResponseEntity<String> approveApprovalDoc(@PathVariable("num") int approvalDocId, @RequestBody Map<String, Integer> requestPayload) {
+        int version = requestPayload.get("version");
+        approveService.approveApprovalDoc(approvalDocId, version);
         return ResponseEntity.ok("ok");
     }
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/approvalAll")
     public ResponseEntity<String> approveAllApprovalDoc() {
-        approveService.approveAllApprovalDoc();
+        //approveService.approveAllApprovalDoc();
 
         return ResponseEntity.ok("ok");
     }
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/return/{num}")
-    public ResponseEntity<String> returnApprovalDoc(@PathVariable("num") int approvalDocId) {
-        approveService.returnApprovalDoc(approvalDocId);
+    public ResponseEntity<String> returnApprovalDoc(@PathVariable("num") int approvalDocId, @RequestBody Map<String, Integer> requestPayload) {
+        int version = requestPayload.get("version");
+        approveService.returnApprovalDoc(approvalDocId, version);
         return ResponseEntity.ok("ok");
     }
 
