@@ -32,7 +32,8 @@ public enum CustomErrorCode implements ErrorCode{
     FILE_DOWNLOAD_FAIL(HttpStatus.BAD_REQUEST, "파일 다운로드 실패"),
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND,"파일 찾기 실패"),
     PASSWORD_CHANGE_FAILED(HttpStatus.BAD_REQUEST, "비밀번호 변경에 실패했습니다."),
-    NO_SEARCH_APPROVAL_DOC(HttpStatus.BAD_REQUEST,"결재할 문서가 없습니다");
+    NO_SEARCH_APPROVAL_DOC(HttpStatus.BAD_REQUEST,"결재할 문서가 없습니다"),
+    IS_ALREADY_UPDATED(HttpStatus.CONFLICT,"수정된 문서가 존재합니다. 확인해주세요.");
 
     private final HttpStatus httpStatus;
     private final String message;

@@ -260,6 +260,10 @@ public class ApproveDAO {
         return approveMapper.selectApprovalDocStatus(approvalDocId);
     }
 
+    public ApprovalDocResDTO selectApprovalDocStatusAndVersion(int approvalDocId) {
+        return approveMapper.selectApprovalDocStatusAndVersion(approvalDocId);
+    }
+
     public List<Integer> selectApproverIdList(int approvalDocId) {
         return approveMapper.selectApproverIdList(approvalDocId);
     }

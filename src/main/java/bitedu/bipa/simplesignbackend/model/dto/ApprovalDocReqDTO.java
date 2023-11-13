@@ -36,5 +36,6 @@ public class ApprovalDocReqDTO {
     @Size(min = 1, message = "결재라인을 입력해주세요.")
     private List<Integer> approverList = new ArrayList<>();
     private List<ReceivedRefDTO> receiveRefList = new ArrayList<>();
+    private int version;
 
 }

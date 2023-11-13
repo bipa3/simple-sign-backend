@@ -56,6 +56,8 @@ public interface ApproveMapper {
 
     char selectApprovalDocStatus(int approvalDocId);
 
+    ApprovalDocResDTO selectApprovalDocStatusAndVersion(int approvalDocId);
+
     List<Character> selectApprovalStatusList(Map map);
 
     int updateApprovalDocFromRequest(ApprovalDocReqDTO approvalDocReqDTO);

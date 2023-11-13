@@ -70,7 +70,7 @@ public class ApproveService {
     }
 
     @Transactional
-    public void approveApprovalDoc(int approvalDocId) {
+    public void approveApprovalDoc(int approvalDocId, int version) {
         //결재하기
         //1. 결재테이블에서 결재할 문서가 있는지 가져오기, 없으면 bad request
         int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
@@ -94,15 +94,16 @@ public class ApproveService {
                 throw new RestApiException(CustomErrorCode.APPROVAL_FAIL);
             }
         }
-        this.approvalApprovalDoc(approvalResDTO, approvalDocId);
+        this.approvalApprovalDoc(approvalResDTO, approvalDocId, version);
     }
 
     @Transactional
-    private void approvalApprovalDoc(ApprovalResDTO approvalResDTO,int approvalDocId) {
+    private void approvalApprovalDoc(ApprovalResDTO approvalResDTO,int approvalDocId, int version) {
         //3. 결재승인자의 결재순서와 결재문서의 결재 개수가 같은지 확인하고 같다면 결재문서도 '승인'상태로 바꿔주고 종결일자 넣어주고 결재 종결
         ApprovalDocResDTO approvalDocResDTO = approveDAO.selectApprovalCount(approvalDocId);
         boolean isApprovalDocEnd = approvalDocResDTO.getApprovalCount() == approvalResDTO.getApprovalOrder();
         int upperApproverId = 0;
+        approvalDocResDTO.setVersion(version);
         if(isApprovalDocEnd) {
            this.endApproval(approvalDocResDTO, approvalDocId);
         }else {
@@ -116,9 +117,10 @@ public class ApproveService {
             if(affectedCount ==0) {
                 throw  new RestApiException(CustomErrorCode.APPROVAL_FAIL);
             }
+
             affectedCount = approveDAO.updateApprovalDoc(approvalDocResDTO);
             if(affectedCount ==0) {
-                throw new RestApiException(CustomErrorCode.APPROVAL_FAIL);
+                throw new RestApiException(CustomErrorCode.IS_ALREADY_UPDATED);
             }
             //4. 알림보내기(결재승인알람 및 결재문서가 종결이라면 종결알람)
             eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approvalResDTO.getOrgUserId(),AlarmStatus.APPROVE.getCode()));
@@ -138,7 +140,7 @@ public class ApproveService {
 
         int affectedCount = approveDAO.updateApprovalDoc(approvalDocResDTO);
         if(affectedCount ==0) {
-            throw new RestApiException(CustomErrorCode.APPROVAL_FAIL);
+            throw new RestApiException(CustomErrorCode.IS_ALREADY_UPDATED);
         }
 
         //종결일 경우는 상신자와 수신참조자에게 알림
@@ -152,7 +154,7 @@ public class ApproveService {
     }
 
     @Transactional
-    public void returnApprovalDoc( int approvalDocId) {
+    public void returnApprovalDoc( int approvalDocId, int version) {
         //1. 결재테이블에서 결재할 문서가 있는지 가져오기, 없으면 bad request
         //결재하기
         int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
@@ -170,12 +172,13 @@ public class ApproveService {
         }
         //3. 결재 문서를 '반려' 상태로 바꾸기(이후 결재자 행은 어떻게 할건지?)
         ApprovalDocResDTO approvalDocResDTO = new ApprovalDocResDTO();
+        approvalDocResDTO.setVersion(version);
         approvalDocResDTO.setDocStatus(ApprovalStatus.RETURN.getCode());
         approvalDocResDTO.setApprovalDocId(approvalDocId);
         approvalDocResDTO.setEndAt(LocalDateTime.now());
         int affectedCount = approveDAO.updateApprovalDoc(approvalDocResDTO);
         if(affectedCount ==0) {
-            throw new RestApiException(CustomErrorCode.RETURN_FAIL);
+            throw new RestApiException(CustomErrorCode.IS_ALREADY_UPDATED);
         }
 
         //4. 하위 결재자 모두에게 알림 보내기
@@ -250,14 +253,14 @@ public class ApproveService {
         if(!hasApproval) {
             throw new RestApiException(CustomErrorCode.INACTIVE_USER);
         }
-        char docStatus = approveDAO.selectApprovalDocStatus(approvalDocId);
+        //char docStatus = approveDAO.selectApprovalDocStatus(approvalDocId);
         //1. 결재문서 수정
         approvalDocReqDTO.setApprovalDocId(approvalDocId);
         approvalDocReqDTO.setUpdatedAt(LocalDateTime.now());
         approvalDocReqDTO.setApprovalCount(approvalDocReqDTO.getApproverList().size());
         int affectedCount = approveDAO.updateApprovalDocFromRequest(approvalDocReqDTO);
         if(affectedCount ==0) {
-            throw  new RestApiException(CustomErrorCode.APPROVAL_DOC_UPDATE_FAIL);
+            throw  new RestApiException(CustomErrorCode.IS_ALREADY_UPDATED);
         }
 
         //html 파싱
@@ -711,15 +714,15 @@ public class ApproveService {
         eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,upperApprover,AlarmStatus.APPROVAL_CANCEL_UPPER_APPROVER.getCode()));
     }
 
-    @Transactional
-    public void approveAllApprovalDoc() {
-        int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
-        List<Integer> approvalDocList = approveDAO.selectAllUnApprovedDocList(orgUserId);
-        if(approvalDocList.size() ==0) {
-            throw new RestApiException(CustomErrorCode.NO_SEARCH_APPROVAL_DOC);
-        }
-        for(int approvalDocId: approvalDocList) {
-            this.approveApprovalDoc(approvalDocId);
-        }
-    }
+//    @Transactional
+//    public void approveAllApprovalDoc() {
+//        int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
+//        List<Integer> approvalDocList = approveDAO.selectAllUnApprovedDocList(orgUserId);
+//        if(approvalDocList.size() ==0) {
+//            throw new RestApiException(CustomErrorCode.NO_SEARCH_APPROVAL_DOC);
+//        }
+//        for(int approvalDocId: approvalDocList) {
+//            this.approveApprovalDoc(approvalDocId);
+//        }
+//    }
 }
