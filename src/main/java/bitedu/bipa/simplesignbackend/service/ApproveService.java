@@ -714,15 +714,15 @@ public class ApproveService {
         eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,upperApprover,AlarmStatus.APPROVAL_CANCEL_UPPER_APPROVER.getCode()));
     }
 
-//    @Transactional
-//    public void approveAllApprovalDoc() {
-//        int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
-//        List<Integer> approvalDocList = approveDAO.selectAllUnApprovedDocList(orgUserId);
-//        if(approvalDocList.size() ==0) {
-//            throw new RestApiException(CustomErrorCode.NO_SEARCH_APPROVAL_DOC);
-//        }
-//        for(int approvalDocId: approvalDocList) {
-//            this.approveApprovalDoc(approvalDocId);
-//        }
-//    }
+    @Transactional
+    public void approveAllApprovalDoc() {
+        int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
+        List<AllUnApprovedDocDTO> approvalDocList = approveDAO.selectAllUnApprovedDocList(orgUserId);
+        if(approvalDocList.size() ==0) {
+            throw new RestApiException(CustomErrorCode.NO_SEARCH_APPROVAL_DOC);
+        }
+        for(AllUnApprovedDocDTO approvedDocDTO: approvalDocList) {
+            this.approveApprovalDoc(approvedDocDTO.getApprovalDocId(), approvedDocDTO.getVersion());
+        }
+    }
 }

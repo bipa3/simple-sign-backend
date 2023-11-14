@@ -279,7 +279,7 @@ public class ApproveDAO {
         return approveMapper.updateApprovalStatusAndReceiveDate(map);
     }
 
-    public List<Integer> selectAllUnApprovedDocList(int orgUserId) {
+    public List<AllUnApprovedDocDTO> selectAllUnApprovedDocList(int orgUserId) {
         return approveMapper.selectAllUnApprovedDocList(orgUserId);
     }
 

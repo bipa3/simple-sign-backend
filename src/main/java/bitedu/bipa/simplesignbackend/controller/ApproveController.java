@@ -60,7 +60,7 @@ public class ApproveController {
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/approvalAll")
     public ResponseEntity<String> approveAllApprovalDoc() {
-        //approveService.approveAllApprovalDoc();
+        approveService.approveAllApprovalDoc();
 
         return ResponseEntity.ok("ok");
     }
