@@ -35,7 +35,7 @@ public class UserController {
     private final S3Service s3Service;
 
     @PostMapping("/login")
-    public ResponseEntity<UserDTO> userLogin(@RequestBody UserDTO userDTO, HttpServletResponse response){
+    public ResponseEntity<UserDTO> userLogin(@RequestBody UserDTO userDTO, HttpServletResponse response, HttpSession session){
         UserDTO userDTO2 = userService.loginUser(userDTO.getLoginId(),userDTO.getPassword());
 
         if(userDTO2 != null){
@@ -45,6 +45,7 @@ public class UserController {
             List<UserOrgDTO> userOrgDTO = userService.orgUser(userId);
             if(userOrgDTO.size() > 0){
                 userDTO2.setUserOrgList(userOrgDTO);
+                //session.setAttribute("orgUserId", userOrgDTO.get(0).getOrgUserId());
                 SessionUtils.addAttribute("orgUserId", userOrgDTO.get(0).getOrgUserId());
                 SessionUtils.addAttribute("compId", userOrgDTO.get(0).getCompId());
                 SessionUtils.addAttribute("authorityCode", userOrgDTO.get(0).getAuthorityCode());
