@@ -20,6 +20,7 @@ public class ApprovalDocReqDTO {
     private String gradeName;
     private String positionName;
     private int formCode;
+    private String formName;
     @NotEmpty(message = "제목은 필수입니다.")
     private String approvalDocTitle;
     private String contents = "";
