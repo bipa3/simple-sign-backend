@@ -115,7 +115,7 @@ public interface ApproveMapper {
 
     int updateApprovalStatusAndReceiveDate(Map map);
 
-    List<Integer> selectAllUnApprovedDocList(int orgUserId);
+    List<AllUnApprovedDocDTO> selectAllUnApprovedDocList(int orgUserId);
 
     void insertSearchContents(@Param("approvalDocId") int approvalDocId, @Param("parsedText")String parsedText);
 

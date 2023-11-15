@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 public class ApprovalEventHandler {
 
     private final RestTemplate restTemplate;
-    private static final String ALARM_SERVICE_URL = "http://localhost:8081";
+    private static final String ALARM_SERVICE_URL = "https://ec2-43-202-224-51.ap-northeast-2.compute.amazonaws.com/alarm";
 
     public ApprovalEventHandler(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;

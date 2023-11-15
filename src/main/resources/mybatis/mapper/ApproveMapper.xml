@@ -423,8 +423,8 @@
     </update>
 
     <!--해당 사용자가 결재안한 문서 리스트 가져오기-->
-    <select id="selectAllUnApprovedDocList" parameterType="int" resultType="int">
-        select t1.approval_doc_id
+    <select id="selectAllUnApprovedDocList" parameterType="int" resultType="AllUnApprovedDocDTO">
+        select t1.approval_doc_id , t2.version
         from approval t1
         left join approval_doc t2
         on t1.approval_doc_id = t2.approval_doc_id
