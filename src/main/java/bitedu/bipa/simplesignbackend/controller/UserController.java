@@ -57,9 +57,9 @@ public class UserController {
             SessionUtils.addAttribute("userId", userId);
             SessionUtils.addAttribute("userName", userName);
 
-            response.addHeader("Set-Cookie", "JSESSIONID=" + RequestContextHolder.getRequestAttributes().getSessionId() + "; Max-Age=86400; Path=/; HttpOnly; Secure; SameSite=None");
+            response.addHeader("Set-Cookie", "SESSION_ID="+ RequestContextHolder.getRequestAttributes().getSessionId() + "; Max-Age=86400; Path=/; Secure; SameSite=None");
             response.addHeader("Set-Cookie", "LOGIN_COOKIE=" + "true" + "; Max-Age=86400; Path=/; Secure; SameSite=None");
-
+            //Cookie cookie = new Cookie("session_id", RequestContextHolder.getRequestAttributes().getSessionId());
             return ResponseEntity.ok(userDTO2);
         } else {
           return new ResponseEntity(HttpStatus.BAD_REQUEST);
