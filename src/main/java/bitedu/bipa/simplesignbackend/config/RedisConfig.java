@@ -67,24 +67,4 @@ public class RedisConfig {
         return new GenericJackson2JsonRedisSerializer();
     }
 
-
-//    @Value("${spring.redis.password}")
-//    private String redisPwd;
-//
-//    @Bean
-//    public ObjectMapper objectMapper() {
-//        ObjectMapper mapper = new ObjectMapper();
-//        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-//        mapper.registerModules(new JavaTimeModule(), new Jdk8Module());
-//        return mapper;
-//    }
-//
-//    @Bean
-//    public RedisConnectionFactory redisConnectionFactory() {
-//        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
-//        redisStandaloneConfiguration.setPassword(redisPwd);
-//        LettuceConnectionFactory lettuceConnectionFactory =
-//                new LettuceConnectionFactory(redisStandaloneConfiguration);
-//        return lettuceConnectionFactory;
-//    }
 }
