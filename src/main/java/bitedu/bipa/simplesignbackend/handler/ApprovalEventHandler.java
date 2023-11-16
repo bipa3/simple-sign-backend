@@ -25,6 +25,7 @@ public class ApprovalEventHandler {
     @TransactionalEventListener
     public void handleApprovalEvent(ApprovalEvent approvalEvent) {
         HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<ApprovalEvent> entity = new HttpEntity<>(approvalEvent,headers);
 
