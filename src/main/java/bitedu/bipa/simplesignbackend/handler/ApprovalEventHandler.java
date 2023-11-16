@@ -15,7 +15,7 @@ import java.util.Collections;
 public class ApprovalEventHandler {
 
     private final RestTemplate restTemplate;
-    private static final String ALARM_SERVICE_URL = "https://ec2-43-202-224-51.ap-northeast-2.compute.amazonaws.com/alarm";
+    private static final String ALARM_SERVICE_URL = "http://ec2-43-202-224-51.ap-northeast-2.compute.amazonaws.com/alarm";
 
     public ApprovalEventHandler(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
