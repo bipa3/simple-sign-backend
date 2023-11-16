@@ -18,7 +18,8 @@ public class ApprovalBoxDAO {
     ApprovalBoxManageMapper approvalBoxManageMapper;
 
     public ArrayList<DocumentListDTO> selectDocsList(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, int offset, String sortStatus, String radioSortValue) {
-        return approvalBoxMapper.getDocumentsByViewItems(orgUserId,itemsPerPage,offset,deptId, estId, compId, viewItems,sortStatus,radioSortValue);
+        ArrayList<DocumentListDTO> list = approvalBoxMapper.getDocumentsByViewItems(orgUserId,itemsPerPage,offset,deptId, estId, compId, viewItems,sortStatus,radioSortValue);
+        return list;
     }
 
 
@@ -27,7 +28,8 @@ public class ApprovalBoxDAO {
     }
 
     public int selectSearchDocsCount(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, String searchInput,String radioSortValue) {
-        return approvalBoxMapper.getSearchDocCountByViewItems(orgUserId, deptId, estId, compId, viewItems, searchInput,radioSortValue);
+        int count  = approvalBoxMapper.getSearchDocCountByViewItems(orgUserId, deptId, estId, compId, viewItems, searchInput,radioSortValue);
+        return count;
     }
 
     public  int selectDocsCount(List<String> viewItems, int orgUserId, int deptId, int estId, int compId,String radioSortValue) {

@@ -29,8 +29,7 @@ public class ApprovalBoxController {
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @GetMapping("/view")
-    public Map<String, Object> viewDocList(
-            @SessionAttribute(name = "userId") int userId,
+    public ArrayList<DocumentListDTO> viewDocList(
             @SessionAttribute(name = "orgUserId") int orgUserId,
             @SessionAttribute(name = "compId") int compId,
             @SessionAttribute(name = "deptId") int deptId,
@@ -41,16 +40,44 @@ public class ApprovalBoxController {
             @RequestParam(name = "sortStatus") String sortStatus,
             @RequestParam(name = "radioSortValue") String radioSortValue
     ) {
+
         int estId = approvalBoxDAO.selectEstId(orgUserId);
-        Map<String, Object> result = new HashMap<>();
+        ArrayList<DocumentListDTO> docList;
 
         if (!searchInput.equals("")) {
-            result=approvalBoxService.selectSearchDocuments(viewItems, orgUserId, deptId, estId, compId, itemsPerPage, offset, searchInput,sortStatus,radioSortValue);
+            docList=approvalBoxService.selectSearchDocuments(viewItems, orgUserId, deptId, estId, compId, itemsPerPage, offset, searchInput,sortStatus,radioSortValue);
         }else{
-            result = approvalBoxService.selectDocuments(viewItems, orgUserId, deptId,estId,compId, itemsPerPage, offset,sortStatus,radioSortValue);
+            docList = approvalBoxService.selectDocuments(viewItems, orgUserId, deptId,estId,compId, itemsPerPage, offset,sortStatus,radioSortValue);
+        }
+        return docList;
+    }
+
+
+
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @GetMapping("/count")
+    public int getDocListCount(
+            @SessionAttribute(name = "userId") int userId,
+            @SessionAttribute(name = "orgUserId") int orgUserId,
+            @SessionAttribute(name = "compId") int compId,
+            @SessionAttribute(name = "deptId") int deptId,
+            @RequestParam(name = "viewItems") List<String> viewItems,
+            @RequestParam(name = "searchInput") String searchInput,
+            @RequestParam(name = "radioSortValue") String radioSortValue
+    ) {
+        int estId = approvalBoxDAO.selectEstId(orgUserId);
+
+        int count=0;
+
+
+        if (!searchInput.equals("")) {
+
+            count=approvalBoxService.selectSearchDocumentsCount(viewItems, orgUserId, deptId, estId, compId, searchInput,radioSortValue);
+        }else{
+            count = approvalBoxService.selectDocumentsCount(viewItems, orgUserId, deptId,estId,compId,radioSortValue);
         }
 
-        return result;
+        return count;
     }
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
