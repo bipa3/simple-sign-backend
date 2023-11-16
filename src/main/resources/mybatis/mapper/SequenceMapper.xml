@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.SequenceMapper">
+
+
+    <select id="selectProductForm" resultType="String" parameterType="int">
+        select product_form from sequence
+        where seq_code = #{seqCode};
+    </select>
+
+
+    <select id="selectProductFullNameList" resultType="ProductNumberResDTO" parameterType="int">
+        select product_full_name
+        from product_number
+        where seq_code = #{seqCode};
+    </select>
+
+    <!--첫 품의번호 넣기-->
+    <insert id="insertProductNumber" parameterType="ProductNumberReqDTO">
+        insert into product_number (product_num, product_full_name, seq_code)
+            values(1, #{productFullName}, #{seqCode});
+    </insert>
+
+    <!--품의번호 업데이트-->
+    <insert id="updateProductNumber" parameterType="String">
+        update product_number set product_num = product_num + 1
+            where product_full_name  = #{productFullName};
+    </insert>
+
+    <select id="selectLastInsertedId">
+        select max(product_id) from product_number;
+    </select>
+
+    <select id = "selectProductNumber" parameterType="Map">
+        select distinct product_num from product_number
+        where seq_code = #{seqCode} and product_full_name = #{productFullName};
+    </select>
+
+
+
+
+</mapper>

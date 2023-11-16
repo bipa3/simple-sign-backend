@@ -8,4 +8,5 @@ public class FormListDTO {
     private int formCode;
     private String formName;
     private String formExplain;
+    private String formApprovalKind;
 }

@@ -6,7 +6,114 @@
 <mapper namespace="bitedu.bipa.simplesignbackend.mapper.UserMapper">
 
     <select id="login" resultType="bitedu.bipa.simplesignbackend.model.dto.UserDTO">
-        select * from user where login_id=#{loginId} and password=#{password};
+        select user_id, user_name from user where login_id=#{loginId} and password=#{password};
     </select>
 
+    <select id="loginSalt" resultType="String">
+        select salt from user where login_id = #{loginId}
+    </select>
+
+    <select id="selectSalt" parameterType="int" resultType="String">
+        select salt from user where user_id = #{userId}
+    </select>
+
+    <!-- 비밀번호 확인 -->
+    <select id="passwordClick" parameterType="int" resultType="String">
+        select password from user where user_id = #{userId};
+    </select>
+
+    <!-- 비밀번호 변경 -->
+    <update id="updatePassword" parameterType="UserPasswordDTO">
+        update user set password = #{newPassword}, salt = #{salt} where user_id = #{userId};
+    </update>
+
+    <!-- 회원정보 조회 -->
+    <select id="selectUser" parameterType="int" resultType="UserDTO">
+        select u.employee_number, u.user_name, u.login_id, u.email, u.phone, u.birth, u.gender, u.address,
+        o.comp_name, o.est_name, d.dept_string, p.position_name, g.grade_name, u.employment_status, u.start_date
+        from user u
+        left join organization_user o on u.user_id = o.user_id
+        left join department d on o.dept_id = d.dept_id
+        left join position p on o.position_code = p.position_code
+        left join grade g on o.grade_code = g.grade_code
+        WHERE o.org_user_id = #{orgUserId};
+    </select>
+
+    <!-- 회원정보 수정 -->
+    <update id="updateUser" parameterType="UserDTO">
+        update user u
+        join organization_user o on o.user_id = u.user_id
+        set u.address = #{address}, u.phone = #{phone} where o.org_user_id = #{orgUserId};
+    </update>
+
+    <!-- 프로필 조회 -->
+    <select id="selectProfile" parameterType="int" resultType="String">
+        select approval_file_path from attatchment_file where use_id = #{userId} and file_code = 01;
+    </select>
+    
+    <!-- 프로필 삽입 -->
+    <insert id="insertProfile" parameterType="UserDTO">
+        insert into attatchment_file(file_name, approval_file_path, file_code, use_id)
+        values ("profile", #{approvalFilePath}, "01", #{userId});
+    </insert>
+
+    <!-- 프로필수정 -->
+    <update id="updateProfile" parameterType="UserDTO">
+        update attatchment_file set approval_file_path = #{approvalFilePath} where use_id = #{userId} and file_code = 01;
+    </update>
+
+    <!-- 사인 이미지 조회 -->
+    <select id="selectSignState" parameterType="int" resultType="boolean">
+        select sign_state from user where user_id = #{userId}
+    </select>
+
+    <select id="selectSignImage" parameterType="int" resultType="String">
+        select approval_file_path from attatchment_file where use_id = #{userId} and file_code = 02;
+    </select>
+
+    <!-- 서명수정 -->
+    <update id="updateSignState" parameterType="UserDTO">
+        update user set sign_state = #{signState} where user_id = #{userId};
+    </update>
+
+    <insert id="insertSign" parameterType="UserDTO">
+        insert into attatchment_file(file_name, approval_file_path, file_code, use_id)
+        values ("sign", #{approvalFilePath}, "02", #{userId});
+    </insert>
+
+    <update id="updateSign" parameterType="UserDTO">
+        update attatchment_file set approval_file_path = #{approvalFilePath} where use_id = #{userId} and file_code = 02;
+    </update>
+
+    <select id="getOrgList" parameterType="int" resultType="UserOrgDTO">
+        SELECT ou.org_user_id, comp.comp_id, comp.comp_name, dept.dept_id, dept.dept_name, authority_code, authority_name FROM organization_user ou
+        LEFT JOIN department dept ON ou.dept_id=dept.dept_id
+        LEFT JOIN establishment est ON dept.est_id=est.est_id
+        LEFT JOIN company comp ON comp.comp_id=est.comp_id
+        LEFT JOIN (SELECT user_role.org_user_id, authority.authority_code, authority.authority_name FROM user_role INNER JOIN authority ON user_role.authority_code=authority.authority_code) AS role
+        ON ou.org_user_id=role.org_user_id
+        WHERE user_id=#{userId}
+        order by authority_code asc, ou.org_user_id asc;
+    </select>
+
+    <select id="selectPasswordByInput">
+        select count(*) from user
+        where user_id = #{userId} and password = #{password};
+    </select>
+
+    <select id="selectUserIdByOrgUserId" parameterType="int" resultType="int">
+        select user_id from organization_user where org_user_id = #{approverId};
+    </select>
+
+    <!--파일아이디 가져오기-->
+    <select id="selectSignFileIdByUserId" parameterType="int" resultType="int">
+        select file_id from attatchment_file
+        where use_id = #{userId} and file_code = '02';
+    </select>
+
+    <!--파일아이디로 파일이미지 가져오기-->
+    <select id="selectSignImageBySignFileId" parameterType="int" resultType="String">
+        select approval_file_path from attatchment_file
+        where file_id = #{fileId};
+    </select>
 </mapper>

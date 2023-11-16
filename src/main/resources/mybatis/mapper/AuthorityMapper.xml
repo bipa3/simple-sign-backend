@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.AuthorityMapper">
+
+    <select id="findAuthority" resultType="int">
+        select count(*) from user_role
+        where org_user_id = #{orgUserId} and authority_code = #{authorityCode};
+    </select>
+
+    <select id="getAuthorityName" resultType="String" parameterType="int">
+        select authority_name from authority
+        where authority_code = #{authorityCode}
+    </select>
+
+    <select id="selectAuthorityCode" resultType="UserOrgDTO" parameterType="int">
+        select o.org_user_id, a.authority_code, a.authority_name, c.comp_id, c.comp_name, d.dept_id, d.dept_name
+        from organization_user o
+        left join department d on d.dept_id = o.dept_id
+        left join establishment e on e.est_id = d.est_id
+        left join company c on c.comp_id = e.comp_id
+        left join user_role ur on o.org_user_id = ur.org_user_id
+        left join authority a on ur.authority_code = a.authority_code
+        where o.org_user_id = #{orgUserId};
+    </select>
+
+</mapper>

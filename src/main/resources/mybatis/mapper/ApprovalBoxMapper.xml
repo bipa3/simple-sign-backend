@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.ApprovalBoxMapper">
+    <select id="getDocumentsByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
+        SELECT DISTINCT
+        ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
+        ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name,
+        ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+        FROM approval_doc ad
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
+        LEFT JOIN approval a2 ON (ad.approval_doc_id = a2.approval_doc_id
+        AND a2.approval_order = (
+        SELECT MAX(sub_a.approval_order)
+        FROM approval sub_a
+        JOIN approval_doc ad2 ON ad2.approval_doc_id = sub_a.approval_doc_id
+        JOIN organization_user ou3 ON ou3.org_user_id = sub_a.org_user_id
+        WHERE ad2.approval_doc_id = ad.approval_doc_id
+        AND ou3.org_user_id = sub_a.org_user_id
+        AND sub_a.approval_status in ('A','R')
+
+        ))
+        left JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
+        LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
+        LEFT JOIN user u2 ON (a2.org_user_id = ou2.org_user_id and ou2.user_id = u2.user_id)
+        JOIN department d ON d.dept_id = ou.dept_id
+        JOIN form f ON ad.form_code = f.form_code
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'reference'">
+                left join received_ref r on (r.active_state =1 and r.approval_doc_id = ad.approval_doc_id)
+                left join doc_view dv on (dv.approval_doc_id = ad.approval_doc_id)
+            </if>
+        </foreach>
+        WHERE ad.doc_del_status = 0
+        AND (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'send'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+            </if>
+            <if test="viewItem == 'tempor'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
+            </if>
+            <if test="viewItem == 'pend'">
+                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
+                'T'))</if>
+            <if test="viewItem == 'concluded'">
+                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R'))
+            </if>
+            <if test="viewItem == 'reference'">
+                (ad.doc_status != 'T' and ad.doc_status != 'P' and r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId}  and r.category='D') OR (r.use_id = #{estId}  and r.category='E') OR (r.use_id = #{compId}  and r.category='C'))</if>
+            <if test="viewItem == 'progress'">
+                ((a.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'end'">
+                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R') and end_at is not null)
+            </if>
+            <if test="viewItem == 'reject'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
+            </if>
+        </foreach>
+        )
+        <choose>
+            <when test="radioSortValue != null and radioSortValue != ''">
+                <choose>
+                    <when test="radioSortValue=='ongoingdoc'">
+                        and ad.doc_status = 'P'
+                    </when>
+                    <when test="radioSortValue=='writtendoc'">
+                        and ad.doc_status in ('A','R')
+                    </when>
+                    <when test="radioSortValue=='notreaddoc'">
+                        and (dv.org_user_id != #{orgUserId} OR dv.org_user_id IS NULL)
+                    </when>
+                    <when test="radioSortValue=='readdoc'">
+                        and dv.org_user_id = #{orgUserId}
+                    </when>
+                    <otherwise>
+
+                    </otherwise>
+
+                </choose>
+            </when>
+        </choose>
+        ORDER BY ad.approval_date
+        <choose>
+            <when test="sortStatus == 'asc'">
+                ASC
+            </when>
+            <when test="sortStatus == 'desc'">
+                DESC
+            </when>
+        </choose>
+        LIMIT #{itemsPerPage} OFFSET #{offset};
+    </select>
+
+
+
+
+    <select id="getDocCountByViewItems" resultType="int">
+        SELECT COUNT(DISTINCT ad.approval_doc_id)
+        FROM approval_doc ad
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
+        LEFT JOIN approval a2 ON (ad.approval_doc_id = a2.approval_doc_id
+        AND a2.approval_order = (
+        SELECT MAX(sub_a.approval_order)
+        FROM approval sub_a
+        JOIN approval_doc ad2 ON ad2.approval_doc_id = sub_a.approval_doc_id
+        JOIN organization_user ou3 ON ou3.org_user_id = sub_a.org_user_id
+        WHERE ad2.approval_doc_id = ad.approval_doc_id
+        AND ou3.org_user_id = sub_a.org_user_id
+        AND sub_a.approval_status in ('A','R')
+
+        ))
+        left JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
+        LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
+        LEFT JOIN user u2 ON (a2.org_user_id = ou2.org_user_id and ou2.user_id = u2.user_id)
+        JOIN department d ON d.dept_id = ou.dept_id
+        JOIN form f ON ad.form_code = f.form_code
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'reference'">
+                left join received_ref r on (r.active_state =1 and r.approval_doc_id = ad.approval_doc_id)
+                left join doc_view dv on (dv.approval_doc_id = ad.approval_doc_id)
+            </if>
+        </foreach>
+        WHERE ad.doc_del_status = 0
+        AND (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'send'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+            </if>
+            <if test="viewItem == 'tempor'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
+            </if>
+            <if test="viewItem == 'pend'">
+                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
+                'T'))</if>
+            <if test="viewItem == 'concluded'">
+                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R'))
+            </if>
+            <if test="viewItem == 'reference'">
+                (ad.doc_status != 'T' and ad.doc_status != 'P' and r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId}  and r.category='D') OR (r.use_id = #{estId}  and r.category='E') OR (r.use_id = #{compId}  and r.category='C'))
+        </if>
+            <if test="viewItem == 'progress'">
+                ((a.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'end'">
+                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R') and end_at is not null)
+            </if>
+            <if test="viewItem == 'reject'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
+            </if>
+        </foreach>
+        )
+        <choose>
+            <when test="radioSortValue != null and radioSortValue != ''">
+                <choose>
+                    <when test="radioSortValue=='ongoingdoc'">
+                        and ad.doc_status = 'P'
+                    </when>
+                    <when test="radioSortValue=='writtendoc'">
+                        and ad.doc_status in ('A','R')
+                    </when>
+                    <when test="radioSortValue=='notreaddoc'">
+                        and (dv.org_user_id != #{orgUserId} OR dv.org_user_id IS NULL)
+                    </when>
+                    <when test="radioSortValue=='readdoc'">
+                        and dv.org_user_id = #{orgUserId}
+                    </when>
+
+                </choose>
+            </when>
+        </choose>
+    </select>
+
+    <select id="getSearchDocumentsByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
+        SELECT DISTINCT
+        ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
+        ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name,
+        ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+        FROM approval_doc ad
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
+        LEFT JOIN approval a2 ON (ad.approval_doc_id = a2.approval_doc_id
+        AND a2.approval_order = (
+        SELECT MAX(sub_a.approval_order)
+        FROM approval sub_a
+        JOIN approval_doc ad2 ON ad2.approval_doc_id = sub_a.approval_doc_id
+        JOIN organization_user ou3 ON ou3.org_user_id = sub_a.org_user_id
+        WHERE ad2.approval_doc_id = ad.approval_doc_id
+        AND ou3.org_user_id = sub_a.org_user_id
+        AND sub_a.approval_status in ('A','R')
+
+        ))
+        left JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
+        LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
+        LEFT JOIN user u2 ON (a2.org_user_id = ou2.org_user_id and ou2.user_id = u2.user_id)
+        JOIN department d ON d.dept_id = ou.dept_id
+        JOIN form f ON ad.form_code = f.form_code
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'reference'">
+                left join received_ref r on (r.active_state =1 and r.approval_doc_id = ad.approval_doc_id)
+                left join doc_view dv on (dv.approval_doc_id = ad.approval_doc_id)
+            </if>
+        </foreach>
+        WHERE ad.doc_del_status = 0
+        AND (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'send'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+            </if>
+            <if test="viewItem == 'tempor'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
+            </if>
+            <if test="viewItem == 'pend'">
+                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
+                'T'))</if>
+            <if test="viewItem == 'concluded'">
+                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R'))
+            </if>
+            <if test="viewItem == 'reference'">
+                (ad.doc_status != 'T' and ad.doc_status != 'P' and r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId}  and r.category='D') OR (r.use_id = #{estId}  and r.category='E') OR (r.use_id = #{compId}  and r.category='C'))</if>
+            <if test="viewItem == 'progress'">
+                ((a.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'end'">
+                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R') and end_at is not null)
+            </if>
+            <if test="viewItem == 'reject'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
+            </if>
+        </foreach>
+        )
+        <choose>
+            <when test="radioSortValue != null and radioSortValue != ''">
+                <choose>
+                    <when test="radioSortValue=='ongoingdoc'">
+                        and ad.doc_status = 'P'
+                    </when>
+                    <when test="radioSortValue=='writtendoc'">
+                        and ad.doc_status in ('A','R')
+                    </when>
+                    <when test="radioSortValue=='notreaddoc'">
+                        and (dv.org_user_id != #{orgUserId} OR dv.org_user_id IS NULL)
+                    </when>
+                    <when test="radioSortValue=='readdoc'">
+                        and dv.org_user_id = #{orgUserId}
+                    </when>
+
+                </choose>
+            </when>
+        </choose>
+        AND (
+        ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+        OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
+        OR ad.search_contents LIKE CONCAT('%', #{searchInput}, '%')
+        OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
+        OR u2.user_name LIKE CONCAT('%', #{searchInput}, '%')
+        OR f.form_name LIKE CONCAT('%', #{searchInput}, '%')
+        )
+        ORDER BY ad.approval_date
+        <choose>
+            <when test="sortStatus == 'asc'">
+                ASC
+            </when>
+            <when test="sortStatus == 'desc'">
+                DESC
+            </when>
+        </choose>
+        LIMIT #{itemsPerPage} OFFSET #{offset};
+    </select>
+
+    <select id="getSearchDocCountByViewItems" resultType="int">
+        SELECT COUNT(DISTINCT ad.approval_doc_id)
+        FROM approval_doc ad
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
+        LEFT JOIN approval a2 ON (ad.approval_doc_id = a2.approval_doc_id
+        AND a2.approval_order = (
+        SELECT MAX(sub_a.approval_order)
+        FROM approval sub_a
+        JOIN approval_doc ad2 ON ad2.approval_doc_id = sub_a.approval_doc_id
+        JOIN organization_user ou3 ON ou3.org_user_id = sub_a.org_user_id
+        WHERE ad2.approval_doc_id = ad.approval_doc_id
+        AND ou3.org_user_id = sub_a.org_user_id
+        AND sub_a.approval_status in ('A','R')
+        ))
+        left JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
+        LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
+        LEFT JOIN user u2 ON (a2.org_user_id = ou2.org_user_id and ou2.user_id = u2.user_id)
+        JOIN department d ON d.dept_id = ou.dept_id
+        JOIN form f ON ad.form_code = f.form_code
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'reference'">
+                left join received_ref r on (r.active_state =1 and r.approval_doc_id = ad.approval_doc_id)
+                left join doc_view dv on (dv.approval_doc_id = ad.approval_doc_id)
+            </if>
+        </foreach>
+        WHERE ad.doc_del_status = 0
+        AND (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'send'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+            </if>
+            <if test="viewItem == 'tempor'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
+            </if>
+            <if test="viewItem == 'pend'">
+                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
+                'T'))</if>
+            <if test="viewItem == 'concluded'">
+                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R'))
+            </if>
+            <if test="viewItem == 'reference'">
+                (ad.doc_status != 'T' and ad.doc_status != 'P' and r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId}  and r.category='D') OR (r.use_id = #{estId}  and r.category='E') OR (r.use_id = #{compId}  and r.category='C'))
+            </if>
+            <if test="viewItem == 'progress'">
+                ((a.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'end'">
+                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R') and end_at is not null)
+            </if>
+            <if test="viewItem == 'reject'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
+            </if>
+        </foreach>
+        )
+        <choose>
+            <when test="radioSortValue != null and radioSortValue != ''">
+                <choose>
+                    <when test="radioSortValue=='ongoingdoc'">
+                        and ad.doc_status = 'P'
+                    </when>
+                    <when test="radioSortValue=='writtendoc'">
+                        and ad.doc_status in ('A','R')
+                    </when>
+                    <when test="radioSortValue=='notreaddoc'">
+                        and (dv.org_user_id != #{orgUserId} OR dv.org_user_id IS NULL)
+                    </when>
+                    <when test="radioSortValue=='readdoc'">
+                        and dv.org_user_id = #{orgUserId}
+                    </when>
+
+                </choose>
+            </when>
+        </choose>
+        AND (
+        ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+        OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
+        OR ad.search_contents LIKE CONCAT('%', #{searchInput}, '%')
+        OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
+        OR u2.user_name LIKE CONCAT('%', #{searchInput}, '%')
+        OR f.form_name LIKE CONCAT('%', #{searchInput}, '%')
+        )
+    </select>
+
+    <sql id="commonIfConditions">
+        <if test="criteria.startDate != null and criteria.endDate != null">
+            <choose>
+                <when test="criteria.searchDate == 1"  >
+                    AND (ad.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                </when>
+                <when test="criteria.searchDate == 2">
+                    AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                </when>
+                <when test="criteria.searchDate == 3">
+                    AND (a.approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                </when>
+                <when test="criteria.searchDate == 4">
+                    AND (ad.end_at BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                </when>
+            </choose>
+        </if>
+        <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
+            AND ad.approval_doc_title LIKE CONCAT('%', #{criteria.searchTitle}, '%')
+        </if>
+        <if test="criteria.searchContent != null and criteria.searchContent != ''">
+            AND ad.search_contents LIKE CONCAT('%', #{criteria.searchContent}, '%')
+        </if>
+        <if test="criteria.searchDept != null and criteria.searchDept != ''">
+            AND d.dept_name LIKE CONCAT('%', #{criteria.searchDept}, '%')
+        </if>
+        <if test="criteria.searchWriter != null and criteria.searchWriter != ''">
+            AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
+        </if>
+        <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
+            AND (a.approval_status IN ('A', 'R') AND (u2.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%')))
+        </if>
+        <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
+            <choose>
+                <when test="criteria.searchApprovState == 2"  >
+                    AND ad.doc_status = 'W'
+                </when>
+                <when test="criteria.searchApprovState == 3">
+                    AND ad.doc_status = 'P'
+                </when>
+                <when test="criteria.searchApprovState == 4">
+                    AND ad.doc_status IN ('A', 'R')
+                </when>
+                <when test="criteria.searchApprovState == 5">
+                    AND ad.doc_status = 'R'
+                </when>
+            </choose>
+        </if>
+        <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
+            AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
+        </if>
+        <if test="criteria.searchDocNumber > 0">
+            AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
+        </if>
+    </sql>
+
+    <select id="getDetailSearchDocsList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
+        SELECT DISTINCT
+        ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
+        ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name,
+        ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+        FROM approval_doc ad
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
+        LEFT JOIN approval a2 ON (ad.approval_doc_id = a2.approval_doc_id
+        AND a2.approval_order = (
+        SELECT MAX(sub_a.approval_order)
+        FROM approval sub_a
+        JOIN approval_doc ad2 ON ad2.approval_doc_id = sub_a.approval_doc_id
+        JOIN organization_user ou3 ON ou3.org_user_id = sub_a.org_user_id
+        WHERE ad2.approval_doc_id = ad.approval_doc_id
+        AND ou3.org_user_id = sub_a.org_user_id
+        AND sub_a.approval_status in ('A','R')
+
+        ))
+        left JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
+        LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
+        LEFT JOIN user u2 ON (a2.org_user_id = ou2.org_user_id and ou2.user_id = u2.user_id)
+        JOIN department d ON d.dept_id = ou.dept_id
+        JOIN form f ON ad.form_code = f.form_code
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'reference'">
+                left join received_ref r on (r.active_state =1 and r.approval_doc_id = ad.approval_doc_id)
+            </if>
+        </foreach>
+        WHERE ad.doc_del_status = 0
+        AND (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'send'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+            </if>
+            <if test="viewItem == 'tempor'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
+            </if>
+            <if test="viewItem == 'pend'">
+                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
+                'T'))</if>
+            <if test="viewItem == 'concluded'">
+                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R'))
+            </if>
+            <if test="viewItem == 'reference'">
+                (ad.doc_status != 'T' and ad.doc_status != 'P' and r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId}  and r.category='D') OR (r.use_id = #{estId}  and r.category='E') OR (r.use_id = #{compId}  and r.category='C'))</if>
+            <if test="viewItem == 'progress'">
+                ((a.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'end'">
+                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R') and end_at is not null)
+            </if>
+            <if test="viewItem == 'reject'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
+            </if>
+        </foreach>
+        )
+        <choose>
+            <when test="radioSortValue != null and radioSortValue != ''">
+                <choose>
+                    <when test="radioSortValue=='ongoingdoc'">
+                        and ad.doc_status = 'P'
+                    </when>
+                    <when test="radioSortValue=='writtendoc'">
+                        and ad.doc_status in ('A','R')
+                    </when>
+                    <when test="radioSortValue=='notreaddoc'">
+                        and (dv.org_user_id != #{orgUserId} OR dv.org_user_id IS NULL)
+                    </when>
+                    <when test="radioSortValue=='readdoc'">
+                        and dv.org_user_id = #{orgUserId}
+                    </when>
+
+                </choose>
+            </when>
+        </choose>
+        <include refid="commonIfConditions"/>
+        ORDER BY ad.approval_date
+        <choose>
+            <when test="sortStatus == 'asc'">
+                ASC
+            </when>
+            <when test="sortStatus == 'desc'">
+                DESC
+            </when>
+        </choose>
+        LIMIT #{itemsPerPage} OFFSET #{offset};
+    </select>
+
+    <select id="getDetailSearchDocsCount" resultType="int">
+        SELECT COUNT(DISTINCT ad.approval_doc_id)
+        FROM approval_doc ad
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
+        LEFT JOIN approval a2 ON (ad.approval_doc_id = a2.approval_doc_id
+        AND a2.approval_order = (
+        SELECT MAX(sub_a.approval_order)
+        FROM approval sub_a
+        JOIN approval_doc ad2 ON ad2.approval_doc_id = sub_a.approval_doc_id
+        JOIN organization_user ou3 ON ou3.org_user_id = sub_a.org_user_id
+        WHERE ad2.approval_doc_id = ad.approval_doc_id
+        AND ou3.org_user_id = sub_a.org_user_id
+        AND sub_a.approval_status in ('A','R')
+
+        ))
+        left JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
+        LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
+        LEFT JOIN user u2 ON (a2.org_user_id = ou2.org_user_id and ou2.user_id = u2.user_id)
+        JOIN department d ON d.dept_id = ou.dept_id
+        JOIN form f ON ad.form_code = f.form_code
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'reference'">
+                left join received_ref r on (r.active_state =1 and r.approval_doc_id = ad.approval_doc_id)
+            </if>
+        </foreach>
+        WHERE ad.doc_del_status = 0
+        AND (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'send'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+            </if>
+            <if test="viewItem == 'tempor'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
+            </if>
+            <if test="viewItem == 'pend'">
+                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
+                'T'))</if>
+            <if test="viewItem == 'concluded'">
+                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R'))
+            </if>
+            <if test="viewItem == 'reference'">
+                (ad.doc_status != 'T' and ad.doc_status != 'P' and r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId}  and r.category='D') OR (r.use_id = #{estId}  and r.category='E') OR (r.use_id = #{compId}  and r.category='C'))
+            </if>
+            <if test="viewItem == 'progress'">
+                ((a.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND a.approval_status IN ('A', 'R')))
+            </if>
+            <if test="viewItem == 'end'">
+                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R') and end_at is not null)
+            </if>
+            <if test="viewItem == 'reject'">
+                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
+            </if>
+        </foreach>
+        )
+        <choose>
+            <when test="radioSortValue != null and radioSortValue != ''">
+                <choose>
+                    <when test="radioSortValue=='ongoingdoc'">
+                        and ad.doc_status = 'P'
+                    </when>
+                    <when test="radioSortValue=='writtendoc'">
+                        and ad.doc_status in ('A','R')
+                    </when>
+                    <when test="radioSortValue=='notreaddoc'">
+                        and (dv.org_user_id != #{orgUserId} OR dv.org_user_id IS NULL)
+                    </when>
+                    <when test="radioSortValue=='readdoc'">
+                        and dv.org_user_id = #{orgUserId}
+                    </when>
+
+                </choose>
+            </when>
+        </choose>
+        <include refid="commonIfConditions"/>;
+    </select>
+
+    <select id="selectSendCount" resultType="int">
+        select count(*) from approval_doc where org_user_id = #{orgUserId} and doc_status = 'P' and doc_del_status = 0
+    </select>
+    <select id="selectPendCount" resultType="int">
+        select count(*) from approval_doc ad
+        join approval a on a.approval_doc_id = ad.approval_doc_id
+        where a.org_user_id = #{orgUserId} and a.approval_status = 'P' and doc_del_status = 0 and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status != 'T')
+    </select>
+    <select id="selectConcludedCount" resultType="int">
+        select count(*) from approval_doc ad
+        join approval a on a.approval_doc_id = ad. approval_doc_id
+        where a.org_user_id = #{orgUserId} and (a.approval_status = 'A' or a.approval_status = 'R') and doc_del_status = 0
+        and ad.doc_status = 'P'
+    </select>
+    <select id="selectReferenceCount" resultType="int">
+        SELECT COUNT(*) FROM (
+        SELECT DISTINCT ad.approval_doc_id
+        FROM approval_doc ad
+        JOIN received_ref r ON (r.active_state = 1 AND r.approval_doc_id = ad.approval_doc_id)
+        LEFT JOIN doc_view dv ON (dv.approval_doc_id = ad.approval_doc_id AND dv.org_user_id = #{orgUserId})
+        WHERE ((ad.doc_status != 'T' AND ad.doc_status != 'P')
+        AND r.approval_doc_id = ad.approval_doc_id
+        AND (
+        (r.use_id = #{orgUserId} AND r.category = 'U') OR
+        (r.use_id = #{deptId} AND r.category = 'D') OR
+        (r.use_id = #{estId} AND r.category = 'E') OR
+        (r.use_id = #{compId} AND r.category = 'C')
+        ))
+        AND ad.doc_del_status = 0
+        AND dv.approval_doc_id IS NULL
+        ) as subquery;
+
+    </select>
+    <insert id="insertDocView">
+        INSERT INTO doc_view(approval_doc_id, org_user_id)
+        SELECT #{docId}, #{orgUserId}
+        WHERE NOT EXISTS (
+        SELECT 1
+        FROM doc_view
+        WHERE approval_doc_id = #{docId} AND org_user_id = #{orgUserId}
+        )
+    </insert>
+    <select id="selectDocView"  resultType="java.lang.Integer">
+        select approval_doc_id from doc_view where org_user_id = #{orgUserId}
+    </select>
+
+</mapper>
+

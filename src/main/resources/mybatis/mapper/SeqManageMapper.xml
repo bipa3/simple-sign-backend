@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitedu.bipa.simplesignbackend.mapper.SeqManageMapper">
+
+    <select id="getSeqAndCompList" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqAndCompDTO">
+        SELECT seq_code AS id, comp_name, seq_code AS code, seq_name, seq_description AS description, seq_sort_order AS sortOrder FROM sequence
+        INNER JOIN company ON sequence.comp_id = company.comp_id
+        <where>
+            <if test="compId != 0">
+                AND sequence.comp_id=#{compId}
+            </if>
+            AND seq_name like CONCAT('%', #{seqName}, '%') AND seq_code like CONCAT('%', #{code}, '%') AND seq_del_status=0 ORDER BY seq_sort_order, seq_code;
+        </where>
+    </select>
+
+    <select id="getSeqDetail" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqDetailDTO">
+        select seq_code AS code, seq_name, Seq_description as description, seq_sort_order as sortOrder, product_form AS seqString, comp_id
+        from sequence where seq_code=#{code};
+    </select>
+
+    <select id="selectSeqItems" resultType="java.lang.String">
+        SELECT GROUP_CONCAT(code_value SEPARATOR ' ') FROM (
+        <foreach collection="seqItems" item="seqItem" separator="UNION ALL">
+            SELECT code_value FROM common_code WHERE section_id="005" AND code_id=#{seqItem} AND code_status=1
+        </foreach>) AS result
+
+    </select>
+
+    <select id="getSeqDeptScope" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqScopeDTO">
+        SELECT fud.status AS category, fud.seq_code, fud.use_id, comp.comp_id, comp.comp_name AS company, est.est_id, NVL(est.est_name, "") AS establishment, dept.dept_id, NVL(dept.dept_name, "") AS department, fud.use_id AS user_id, NVL(u.user_name, "") AS user, NVL(g.grade_name, "") AS grade, NVL(p.position_name, "") AS position
+        from (SELECT * FROM sequence_use_department WHERE seq_code=#{code}) fud
+        LEFT JOIN organization_user AS ou ON fud.status IN ('U') AND fud.use_id=ou.org_user_id
+        LEFT JOIN department AS dept ON (fud.status IN ('D') AND (fud.use_id=dept.dept_id)) OR (fud.status IN ('U') AND (ou.dept_id=dept.dept_id))
+        LEFT JOIN establishment AS est ON (fud.status IN ('E') AND (fud.use_id=est.est_id)) OR (fud.status IN ('U', 'D') AND (dept.est_id=est.est_id))
+        LEFT JOIN company AS comp ON (fud.status IN ('C') AND (fud.use_id=comp.comp_id)) OR (fud.status IN ('U', 'D', 'E') AND (est.comp_id=comp.comp_id))
+        LEFT JOIN user AS u ON ou.user_id=u.user_id
+        LEFT JOIN grade AS g on ou.grade_code=g.grade_code
+        LEFT JOIN position AS p on ou.position_code=p.position_code;
+    </select>
+
+    <select id="getSeqFormScope" resultType="bitedu.bipa.simplesignbackend.model.dto.SeqScopeDTO">
+        SELECT "F" AS category, fl.form_code AS useId, form_name AS name FROM (SELECT form_code FROM sequence_use_form WHERE seq_code=#{code}) fl
+        LEFT JOIN form ON fl.form_code = form.form_code;
+    </select>
+
+    <update id="deleteSeq">
+        UPDATE sequence SET seq_del_status=1 WHERE seq_code = #{code}
+    </update>
+
+    <insert id="createSeqDetail" >
+        INSERT INTO sequence(comp_id, seq_name, seq_description, seq_sort_order, product_form)
+        VALUES(#{compId}, #{seqName}, #{description}, #{sortOrder}, #{seqString});
+    </insert>
+
+    <insert id="createSeqDeptScope" parameterType="map">
+        INSERT INTO sequence_use_department(status, seq_code, use_id) VALUES(#{category}, #{seqCode}, #{useId});
+    </insert>
+
+    <insert id="createSeqFormScope" parameterType="map">
+        INSERT INTO sequence_use_form(form_code, seq_code) VALUES(#{formCode}, #{seqCode});
+    </insert>
+
+    <update id="updateSeqDetail" >
+        UPDATE sequence SET
+        seq_name=#{seqName},
+        seq_description=#{description},
+        seq_sort_order=#{sortOrder},
+        product_form=#{seqString}
+        WHERE seq_code=#{code};
+    </update>
+
+    <delete id="delDeptScope">
+        delete from sequence_use_department
+        where status=#{category} and seq_code = #{seqCode} and use_id = #{useId}
+    </delete>
+
+    <insert id="insertIgnoreDeptScope" parameterType="map">
+        INSERT IGNORE INTO sequence_use_department(status, seq_code, use_id)
+        VALUES(#{category}, #{seqCode}, #{useId});
+    </insert>
+
+    <delete id="delFormScope">
+        delete from sequence_use_form
+        where seq_code = #{seqCode} and form_code = #{formCode}
+    </delete>
+
+    <insert id="insertIgnoreFormScope" parameterType="map">
+        INSERT IGNORE INTO sequence_use_form(form_code, seq_code)
+        VALUES(#{formCode}, #{seqCode});
+    </insert>
+</mapper>
