@@ -2,9 +2,8 @@ package bitedu.bipa.simplesignbackend.handler;
 
 import bitedu.bipa.simplesignbackend.event.ApprovalEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.client.RestTemplate;
@@ -22,17 +21,28 @@ public class ApprovalEventHandler {
         this.restTemplate = restTemplate;
     }
 
+
     @TransactionalEventListener
     public void handleApprovalEvent(ApprovalEvent approvalEvent) {
+        restTemplate.getInterceptors().add((request, body, execution) -> {
+            ClientHttpResponse response = execution.execute(request,body);
+            response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+            return response;
+        });
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<ApprovalEvent> entity = new HttpEntity<>(approvalEvent,headers);
 
-       try {
-           restTemplate.postForObject(ALARM_SERVICE_URL + "/createNewAlarm", entity, Void.class);
-       }catch (Exception e) {
-           System.out.println(e);
-       }
+        try {
+            ResponseEntity<Void> response = restTemplate.exchange(
+                    ALARM_SERVICE_URL + "/createNewAlarm",
+                    HttpMethod.POST,
+                    entity,
+                    Void.class
+            );
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 }
