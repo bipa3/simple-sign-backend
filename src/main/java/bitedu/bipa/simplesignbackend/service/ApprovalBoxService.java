@@ -18,28 +18,26 @@ public class ApprovalBoxService {
     @Autowired
     ApprovalBoxDAO approvalBoxDAO;
 
-    public Map<String, Object> selectDocuments(List<String> viewItems, int orgUserId, int deptId,int estId, int compId, int itemsPerPage, int offset, String sortStatus,String radioSortValue) {
+    public ArrayList<DocumentListDTO> selectDocuments(List<String> viewItems, int orgUserId, int deptId,int estId, int compId, int itemsPerPage, int offset, String sortStatus,String radioSortValue) {
         ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDocsList(viewItems,orgUserId,deptId,estId,compId,itemsPerPage,offset,sortStatus,radioSortValue);
-        int count= approvalBoxDAO.selectDocsCount(viewItems,orgUserId,deptId,estId,compId,radioSortValue);
-
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("docList", docList);
-        result.put("count", count);
-
-
-        return result;
+        return docList;
     }
 
-    public Map<String, Object> selectSearchDocuments(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, int offset, String searchInput,String sortStatus, String radioSortValue) {
+    public int selectDocumentsCount(List<String> viewItems, int orgUserId, int deptId,int estId, int compId,String radioSortValue) {
+        int count= approvalBoxDAO.selectDocsCount(viewItems,orgUserId,deptId,estId,compId,radioSortValue);
+        return count;
+    }
+
+    public ArrayList<DocumentListDTO> selectSearchDocuments(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, int offset, String searchInput,String sortStatus, String radioSortValue) {
         ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectSearchDocsList(viewItems,orgUserId,deptId, estId, compId, itemsPerPage,offset,searchInput,sortStatus,radioSortValue);
-       int count =approvalBoxDAO.selectSearchDocsCount(viewItems,orgUserId,deptId, estId, compId, searchInput,radioSortValue);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("docList", docList);
-        result.put("count", count);
+        return docList;
+    }
 
-        return result;
+    public int selectSearchDocumentsCount(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, String searchInput,String radioSortValue) {
+        int count =approvalBoxDAO.selectSearchDocsCount(viewItems,orgUserId,deptId, estId, compId, searchInput,radioSortValue);
+
+        return count;
     }
 
 
