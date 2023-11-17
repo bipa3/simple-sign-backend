@@ -158,7 +158,8 @@ public class ApproveService {
             throw new RestApiException(CustomErrorCode.IS_ALREADY_UPDATED);
         }
         //4. 알림보내기(결재승인알람 및 결재문서가 종결이라면 종결알람)
-        eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approvalResDTO.getOrgUserId(),AlarmStatus.APPROVE.getCode()));
+        int recipient = approveDAO.selectRecipientId(approvalDocId);
+        eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,recipient,AlarmStatus.APPROVE.getCode()));
         eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,upperApproverId,AlarmStatus.SUBMIT.getCode()));
     }
 
@@ -671,6 +672,10 @@ public class ApproveService {
         boolean isFavoritesExist = approveDAO.selectFavorites(favoritesReqDTO);
         if(isFavoritesExist) {
             return;
+        }
+        int totalCount = approveDAO.selectFavoriteCount(orgUserId);
+        if(totalCount >=4) {
+            throw new RestApiException(CustomErrorCode.FAVORITE_COUNT_EXCEEDED);
         }
         int affectedCount = approveDAO.insertFavorites(favoritesReqDTO);
         if(affectedCount ==0) {

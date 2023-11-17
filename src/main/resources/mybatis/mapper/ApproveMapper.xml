@@ -164,7 +164,7 @@
     </select>
 
     <select id="selectReceivedRefList" parameterType="int" resultType="ApprovalLineDetailListDTO">
-        select t1.use_id as userId, t3.user_name as user, t4.dept_id, dept_name as department, t5.est_id, t5.est_name as establishment,
+        select t1.use_id as userId, t3.user_name as user, t4.dept_id, t4.dept_name as department, t5.est_id, t5.est_name as establishment,
         t6.comp_id, t6.comp_name as company , t1.category
         from received_ref t1
         join organization_user t2
@@ -330,7 +330,7 @@
 
     <!--기본 결재라인 가져오기-->
     <select id="selectDefaultApprovalLine" parameterType="int" resultType="ApprovalLineDetailListDTO">
-        select t1.org_user_id as user_id , user_name as user, t3.dept_id, dept_name as department,
+        select t1.org_user_id as user_id , user_name as user, t3.dept_id, t5.dept_name as department,
             t6.est_id, t3.est_name as establishment, t7.comp_id, t7.comp_name as company, t8.position_name as position,
             t9.grade_name as grade, line_order as approval_order
         from default_approval_line t1
@@ -441,4 +441,8 @@
         set contents = #{parsedText}
         where approval_doc_id = #{approvalDocId}
     </update>
+
+    <select id="selectFavoriteCount" parameterType="int">
+        select count(*) from favorites where org_user_id = #{orgUserId};
+    </select>
 </mapper>

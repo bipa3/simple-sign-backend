@@ -290,4 +290,8 @@ public class ApproveDAO {
     public void updateSearchContents(int approvalDocId, String parsedText) {
         approveMapper.updateSearchContents(approvalDocId, parsedText);
     }
+
+    public int selectFavoriteCount(int orgUserId) {
+        return approveMapper.selectFavoriteCount(orgUserId);
+    }
 }
