@@ -6,14 +6,20 @@ import bitedu.bipa.simplesignbackend.dao.SequenceDAO;
 import bitedu.bipa.simplesignbackend.enums.SequenceItem;
 import bitedu.bipa.simplesignbackend.model.dto.BelongOrganizationDTO;
 import bitedu.bipa.simplesignbackend.model.dto.ProductNumberReqDTO;
+import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
+import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.yaml.snakeyaml.constructor.DuplicateKeyException;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
+import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 
 @Service
 public class SequenceService {
@@ -26,7 +32,7 @@ public class SequenceService {
         this.commonDAO = commonDAO;
     }
 
-    @Transactional(propagation= MANDATORY)
+    @Transactional(propagation= MANDATORY, noRollbackFor = {DuplicateKeyException.class})
     public String createProductNum(int seqCode, int userId) {
         //1. 채번코드에 맞는 양식문자열 가져오기(ex)'01,02,03')
         String productForm = sequenceDAO.selectProductForm(seqCode);
@@ -101,10 +107,14 @@ public class SequenceService {
 
         String productFullName = buffer.toString();
         int productNum = 0;
-        int affectedCount = sequenceDAO.updateProductNumber(productFullName,productNumberReqDTO);
-        if(affectedCount ==0) {
-            sequenceDAO.insertProductNumber(productNumberReqDTO);
+        int affectedCount = sequenceDAO.insertProductNumber(productNumberReqDTO);
+        if (affectedCount == 0) {
+            int affectedCount2 = sequenceDAO.updateProductNumber(productFullName, productNumberReqDTO);
+            if(affectedCount2 ==0) {
+                throw new RestApiException(CustomErrorCode.SEQUENCE_INSERT_FAIL);
+            }
         }
+
         productNum = sequenceDAO.selectProductNumber(seqCode,productFullName);
 
 

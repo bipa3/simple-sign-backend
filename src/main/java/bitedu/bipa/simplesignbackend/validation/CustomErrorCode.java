@@ -33,7 +33,9 @@ public enum CustomErrorCode implements ErrorCode{
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND,"파일 찾기 실패"),
     PASSWORD_CHANGE_FAILED(HttpStatus.BAD_REQUEST, "비밀번호 변경에 실패했습니다."),
     NO_SEARCH_APPROVAL_DOC(HttpStatus.BAD_REQUEST,"결재할 문서가 없습니다"),
-    IS_ALREADY_UPDATED(HttpStatus.CONFLICT,"수정된 문서가 존재합니다. 확인해주세요.");
+    IS_ALREADY_UPDATED(HttpStatus.CONFLICT,"해당 문서에 변경사항이 존재합니다. 확인해주세요."),
+    SEQUENCE_INSERT_FAIL(HttpStatus.BAD_REQUEST, "품의번호 생성을 실패했습니다"),
+    FAVORITE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, "즐겨찾기는 4개이상 추가하실 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

@@ -120,4 +120,6 @@ public interface ApproveMapper {
     void insertSearchContents(@Param("approvalDocId") int approvalDocId, @Param("parsedText")String parsedText);
 
     void updateSearchContents(@Param("approvalDocId") int approvalDocId, @Param("parsedText")String parsedText);
+
+    int selectFavoriteCount(int orgUserId);
 }

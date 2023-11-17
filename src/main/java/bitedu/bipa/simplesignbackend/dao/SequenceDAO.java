@@ -4,6 +4,7 @@ import bitedu.bipa.simplesignbackend.mapper.ApproveMapper;
 import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
 import bitedu.bipa.simplesignbackend.mapper.SequenceMapper;
 import bitedu.bipa.simplesignbackend.model.dto.*;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -28,20 +29,26 @@ public class SequenceDAO {
     }
 
     public int insertProductNumber(ProductNumberReqDTO dto) {
-        int affectedCount = sequenceMapper.insertProductNumber(dto);
-        if(affectedCount==0) {
-            throw  new RuntimeException();
+        int affectedCount = 0;
+        try{
+            affectedCount = sequenceMapper.insertProductNumber(dto);
+        }catch (DuplicateKeyException e) {
+            System.out.println("duplicatedException");
+            return 0;
         }
-        return 1;
+       return affectedCount;
     }
 
     public int updateProductNumber(String productFullName, ProductNumberReqDTO dto) {
-        int affectedCount = sequenceMapper.updateProductNumber(productFullName);
+        Map<String, Object> map = new HashMap();
+        map.put("productFullName", productFullName);
+        map.put("seqCode", dto.getSeqCode());
+        int affectedCount = sequenceMapper.updateProductNumber(map);
 
        return affectedCount;
     }
 
-    public int selectProductNumber(int seqCode, String productFullName) {
+    public Integer selectProductNumber(int seqCode, String productFullName) {
         Map<String, Object> map = new HashMap<>();
         map.put("seqCode", seqCode);
         map.put("productFullName", productFullName);
