@@ -136,7 +136,7 @@
 
     <select id="getFormByCompId">
         SELECT form_code AS id, form_name FROM form
-        WHERE comp_id = #{compId};
+        WHERE comp_id = #{compId} AND form_del_status = 0;
     </select>
 
 </mapper>
