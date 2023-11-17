@@ -25,16 +25,16 @@
     </insert>
 
     <!--품의번호 업데이트-->
-    <insert id="updateProductNumber" parameterType="String">
+    <insert id="updateProductNumber" parameterType="Map">
         update product_number set product_num = product_num + 1
-            where product_full_name  = #{productFullName};
+            where product_full_name  = #{productFullName} and seq_code = #{seqCode};
     </insert>
 
     <select id="selectLastInsertedId">
         select max(product_id) from product_number;
     </select>
 
-    <select id = "selectProductNumber" parameterType="Map">
+    <select id = "selectProductNumber" parameterType="Map" resultType="Integer">
         select distinct product_num from product_number
         where seq_code = #{seqCode} and product_full_name = #{productFullName};
     </select>

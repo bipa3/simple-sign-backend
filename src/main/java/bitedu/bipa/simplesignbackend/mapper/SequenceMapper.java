@@ -22,5 +22,5 @@ public interface SequenceMapper {
 
     int selectProductNumber(Map map);
 
-    int updateProductNumber(String productFullName);
+    int updateProductNumber(Map map);
 }
