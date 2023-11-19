@@ -45,4 +45,6 @@ public interface FormManageMapper {
 
     List<FormDTO> getFormByCompId(int compId);
 
+    int getUsedForm(int code);
+
 }

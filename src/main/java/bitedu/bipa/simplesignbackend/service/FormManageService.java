@@ -5,6 +5,7 @@ import bitedu.bipa.simplesignbackend.mapper.CommonMapper;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
+import bitedu.bipa.simplesignbackend.validation.CustomErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -250,16 +251,27 @@ public class FormManageService {
         return true;
     }
 
+    @Transactional
     public Boolean removeForm(int code) {
         FormDetailResDTO formDetail = new FormDetailResDTO();
+        int usedCount = 0;
         try {
+            usedCount = formManageDAO.searchUsedForm(code);
+            if(usedCount > 0){
+                throw new Exception("FORM_DELETE_FAIL");
+            }
+
             formDetail = formManageDAO.selectFormDetail(code);
             commonService.checkDeptMasterAthority(formDetail.getCompId());
 
             formManageDAO.deleteForm(code);
         }catch (Exception e){
             e.printStackTrace();
-            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+            if(e.getMessage() == "FORM_DELETE_FAIL"){
+                throw new RestApiException(CustomErrorCode.FORM_DELETE_FAIL);
+            } else{
+                throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+            }
         }
         return true;
     }

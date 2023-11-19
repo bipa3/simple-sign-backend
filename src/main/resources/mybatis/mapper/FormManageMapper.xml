@@ -139,4 +139,8 @@
         WHERE comp_id = #{compId} AND form_del_status = 0;
     </select>
 
+    <select id="getUsedForm">
+        select count(*) AS count from sequence_use_form where form_code=#{code};
+    </select>
+
 </mapper>
