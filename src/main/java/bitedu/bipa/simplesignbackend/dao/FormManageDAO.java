@@ -106,4 +106,8 @@ public class FormManageDAO {
     public List<FormDTO> searchFormByCompId(Integer id) {
         return formManageMapper.getFormByCompId(id);
     }
+
+    public int searchUsedForm(int code) {
+        return formManageMapper.getUsedForm(code);
+    }
 }

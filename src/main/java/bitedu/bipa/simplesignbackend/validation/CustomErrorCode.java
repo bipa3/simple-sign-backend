@@ -35,7 +35,8 @@ public enum CustomErrorCode implements ErrorCode{
     NO_SEARCH_APPROVAL_DOC(HttpStatus.BAD_REQUEST,"결재할 문서가 없습니다"),
     IS_ALREADY_UPDATED(HttpStatus.CONFLICT,"해당 문서에 변경사항이 존재합니다. 확인해주세요."),
     SEQUENCE_INSERT_FAIL(HttpStatus.BAD_REQUEST, "품의번호 생성을 실패했습니다"),
-    FAVORITE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, "즐겨찾기는 4개이상 추가하실 수 없습니다.");
+    FAVORITE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, "즐겨찾기는 4개이상 추가하실 수 없습니다."),
+    FORM_DELETE_FAIL(HttpStatus.CONFLICT , "사용중인 양식은 삭제할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
