@@ -38,8 +38,9 @@
         from form t1
             left join
             form_use_department t2 on t1.form_code = t2.form_code
-        where ((t2. category = 'U' and use_id = #{belong.userId})
+        where ((t2. category = 'U' and use_id = #{belong.orgUserId})
             or (t2.category = 'D' and use_id = #{belong.deptId})
+            or (t2.category = 'D' and use_id = #{belong.lowerDeptId})
             or (t2.category = 'E' and use_id = #{belong.estId})
             or (t2.category = 'C' and use_id =#{belong.compId}))
             and t1.form_used_status = 1
@@ -48,17 +49,31 @@
     </select>
 
     <select id="selectSequence" resultType="SequenceListDTO" parameterType="Map">
-        select distinct t1.seq_code, seq_name as name
+        select distinct t1.seq_code, seq_name as name, t3.status as status, t3.use_id as use_id
         from sequence t1
             left join
             sequence_use_form t2 on t1.seq_code = t2.seq_code
             left join
             sequence_use_department t3 on t3.seq_code = t2.seq_code
+        where form_code = #{formCode}
+        and seq_del_status = 0;
+    </select>
+
+    <select id="selectSequenceByUseId" resultType="SequenceListDTO" parameterType="Map">
+        select distinct t1.seq_code, seq_name as name, t3.status as status, t3.use_id as use_id
+        from sequence t1
+        left join
+        sequence_use_form t2 on t1.seq_code = t2.seq_code
+        left join
+        sequence_use_department t3 on t3.seq_code = t2.seq_code
         where form_code =#{formCode}
-        and ((t3. status = 'U' and use_id = #{belong.userId})
+        and ((t3. status = 'U' and use_id = #{belong.orgUserId})
         or (t3.status = 'D' and use_id = #{belong.deptId})
+        or (t3.status = 'D' and use_id = #{belong.lowerDeptId})
         or (t3.status = 'E' and use_id = #{belong.estId})
-        or (t3.status = 'C' and use_id =#{belong.compId}));
+        or (t3.status = 'C' and use_id =#{belong.compId}))
+        and seq_del_status = 0
+        and t3.seq_code = #{seqCode};
     </select>
 
     <select id="getFormItemList" resultType="bitedu.bipa.simplesignbackend.model.dto.FormItemDTO" >
