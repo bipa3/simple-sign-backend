@@ -3,6 +3,7 @@ import bitedu.bipa.simplesignbackend.model.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface CommonMapper {
@@ -24,6 +25,8 @@ public interface CommonMapper {
     List<FormRecommendResDTO> getRecommendedFormByComp(int compId);
 
     List<CommonDTO> getApprovalKindList();
+
+    int getLowerDeptId(Map map);
 
 //    List<Member> getMemberList();
 //

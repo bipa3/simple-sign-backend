@@ -7,4 +7,6 @@ public class SequenceListDTO {
 
     private int seqCode;
     private String name;
+    private char status;
+    private int useId;
 }

@@ -8,19 +8,18 @@ import bitedu.bipa.simplesignbackend.utils.SessionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Repository
 public class FormManageDAO {
     FormManageMapper formManageMapper;
-    CommonMapper commonMapper;
+    CommonDAO commonDAO;
 
-    public FormManageDAO(FormManageMapper formManageMapper, CommonMapper commonMapper) {
+    public FormManageDAO(FormManageMapper formManageMapper, CommonDAO commonDAO) {
         this.formManageMapper = formManageMapper;
-        this.commonMapper = commonMapper;
+        this.commonDAO = commonDAO;
     }
     public List<FormAndCompDTO> selectFormAndComp(FormAndCompDTO formAndCompDTO) {
         return (ArrayList) formManageMapper.getFormAndCompList(formAndCompDTO);
@@ -36,7 +35,7 @@ public class FormManageDAO {
 
     public List<FormListDTO> selectFormList(String searchContent) {
         int orgUserId = (int) SessionUtils.getAttribute("orgUserId");
-        BelongOrganizationDTO belong = commonMapper.getBelongs(orgUserId);
+        BelongOrganizationDTO belong = commonDAO.getBelongs(orgUserId);
         Map<String, Object> map = new HashMap<>();
         map.put("belong", belong);
         map.put("searchContent", searchContent);
@@ -44,11 +43,28 @@ public class FormManageDAO {
     }
 
     public List<SequenceListDTO> selectSeqList(int userId, int formCode) {
-        BelongOrganizationDTO belong = commonMapper.getBelongs(userId);
+        BelongOrganizationDTO belong = commonDAO.getBelongs(userId);
         Map<String, Object> map = new HashMap<>();
         map.put("belong", belong);
         map.put("formCode", formCode);
-        return formManageMapper.selectSequence(map);
+        List<SequenceListDTO> seqList = formManageMapper.selectSequence(map);
+        Iterator<SequenceListDTO> iterator = seqList.iterator();
+        while(iterator.hasNext()) {
+            SequenceListDTO dto = iterator.next();
+            if(!(dto.getStatus() =='C' && dto.getUseId() ==1)) {
+                map.put("seqCode", dto.getSeqCode());
+                if(formManageMapper.selectSequenceByUseId(map) ==null) {
+                    iterator.remove();
+                }
+            }
+        }
+
+        List<SequenceListDTO> filteredList = seqList.stream()
+                .collect(Collectors.toMap(SequenceListDTO::getSeqCode, sequenceListDTO -> sequenceListDTO, (existing, replacement) -> existing))
+                .values()
+                .stream()
+                .collect(Collectors.toList());
+        return filteredList;
     }
 
     public List<FormItemDTO> selectFormItemList() {
