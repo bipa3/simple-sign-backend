@@ -109,7 +109,6 @@ public class FormManageController {
     public ResponseEntity<List<FormListDTO>> formTitleList(@RequestParam(required = false) String searchContent){
         searchContent =  searchContent==null?"":searchContent;
         List<FormListDTO> dto = formManageService.showFormList(searchContent);
-        System.out.println(dto);
         return ResponseEntity.ok(dto);
     }
 
