@@ -4,8 +4,6 @@ import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
 import bitedu.bipa.simplesignbackend.validation.RestApiException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,8 +16,9 @@ public class ApprovalBoxService {
     @Autowired
     ApprovalBoxDAO approvalBoxDAO;
 
-    public ArrayList<DocumentListDTO> selectDocuments(List<String> viewItems, int orgUserId, int deptId,int estId, int compId, int itemsPerPage, int offset, String sortStatus,String radioSortValue) {
-        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDocsList(viewItems,orgUserId,deptId,estId,compId,itemsPerPage,offset,sortStatus,radioSortValue);
+    public ArrayList<DocumentListDTO> selectDocuments(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, String sortStatus, String radioSortValue, String lastApprovalDate, Integer lastDocId) {
+
+        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDocsList(viewItems,orgUserId,deptId,estId,compId,itemsPerPage,sortStatus,radioSortValue,lastApprovalDate,lastDocId);
         return docList;
     }
 
@@ -28,8 +27,8 @@ public class ApprovalBoxService {
         return count;
     }
 
-    public ArrayList<DocumentListDTO> selectSearchDocuments(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, int offset, String searchInput,String sortStatus, String radioSortValue) {
-        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectSearchDocsList(viewItems,orgUserId,deptId, estId, compId, itemsPerPage,offset,searchInput,sortStatus,radioSortValue);
+    public ArrayList<DocumentListDTO> selectSearchDocuments(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, String searchInput, String sortStatus, String radioSortValue,String lastApprovalDate,Integer lastDocId) {
+        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectSearchDocsList(viewItems,orgUserId,deptId, estId, compId, itemsPerPage,searchInput,sortStatus,radioSortValue,lastApprovalDate,lastDocId);
 
         return docList;
     }
@@ -41,21 +40,29 @@ public class ApprovalBoxService {
     }
 
 
-    public Map<String, Object> searchDocuments( int orgUserId, int deptId, int estId, int compId, SearchRequestDTO criteria) {
+    public ArrayList<DocumentListDTO> searchDocuments( int orgUserId, int deptId, int compId, SearchRequestDTO criteria) {
         List<String> viewItems = criteria.getViewItems();
         int itemsPerPage = criteria.getItemsPerPage();
-        int offset=criteria.getOffset();
         String sortStatus = criteria.getSortStatus();
         String radioSortValue = criteria.getRadioSortValue();
+        String lastApprovalDate = criteria.getLastApprovalDate();
+        Integer lastDocId = criteria.getLastDocId();
 
-        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDetailSearchDocsList(viewItems, orgUserId, deptId, estId, compId, itemsPerPage,offset, criteria,sortStatus,radioSortValue);
-        int count =approvalBoxDAO.selectDetailSearchDocsCount(viewItems, orgUserId, deptId, estId, compId, criteria,radioSortValue);
+        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDetailSearchDocsList(viewItems, orgUserId, deptId, compId, itemsPerPage, criteria,sortStatus,radioSortValue,lastApprovalDate,lastDocId);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("docList", docList);
-        result.put("count", count);
 
-        return result;
+        return docList;
+    }
+
+    public int searchDocumentsCount( int orgUserId, int deptId, int estId, int compId, SearchRequestDTO criteria) {
+        List<String> viewItems = criteria.getViewItems();
+        String radioSortValue = criteria.getRadioSortValue();
+
+
+        int count =approvalBoxDAO.selectDetailSearchDocsCount(viewItems, orgUserId, deptId, compId, criteria,radioSortValue);
+
+
+        return count;
     }
 
     public ArrayList<ApprovalBoxDTO> selectApprovalBox(int company) {

@@ -186,9 +186,9 @@
         NULL as user
         FROM
         box_use_department
-        JOIN company c ON c.comp_id = use_id
-        JOIN establishment e ON e.comp_id = c.comp_id
         JOIN department d ON d.dept_id = use_id
+        JOIN establishment e ON e.est_id = d.est_id
+        JOIN company c ON c.comp_id =  e.comp_id
         WHERE
         approval_box_id = #{boxId}
         AND using_category = 'D'
@@ -211,7 +211,7 @@
         JOIN organization_user ou ON ou.org_user_id = use_id
         JOIN user u ON ou.user_id = u.user_id
         JOIN company c ON c.comp_name = ou.comp_name
-        JOIN establishment e ON e.comp_id = c.comp_id
+        JOIN establishment e ON e.est_name = ou.est_name
         JOIN department d ON d.dept_id = ou.dept_id
 
 

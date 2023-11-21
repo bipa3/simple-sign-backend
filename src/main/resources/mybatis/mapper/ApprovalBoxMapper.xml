@@ -5,12 +5,24 @@
 
 <mapper namespace="bitedu.bipa.simplesignbackend.mapper.ApprovalBoxMapper">
     <select id="getDocumentsByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        SELECT
-        <!-- 문서명, 제목, 상신일, 상신자, 문서상태, 부서명, 양식명, 종결일, 마지막 결재자, 결재일, 도착일 -->
-        ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
-        u.user_name, ad.doc_status, d.dept_name, ad.form_name,
-        ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
-        FROM approval_doc ad
+        <choose>
+            <when test="viewItems.contains('concluded')">
+                SELECT
+                ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
+                u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
+                ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+                FROM approval_doc ad force index(approval_date_idx)
+            </when>
+
+            <otherwise>
+                SELECT
+                ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
+                u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
+                ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+                FROM approval_doc ad
+            </otherwise>
+        </choose>
+
 
         <!-- 로그인 사용자에 대한 결재 테이블 join (미결, 기결, 기결진행, 기결종결)-->
         LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
@@ -30,8 +42,6 @@
         )
         LEFT JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
         LEFT JOIN user u2 ON ou2.user_id = u2.user_id
-        <!-- 부서명을 위한 join -->
-        JOIN department d ON d.dept_id = ou.dept_id
 
         <!-- 수신참조함 join -->
         <foreach collection="viewItems" item="viewItem" separator="OR">
@@ -56,18 +66,17 @@
                 (ad.doc_status IN ('A', 'R', 'P') AND a.org_user_id = #{orgUserId} AND a.approval_status in('A','R'))
             </if>
             <if test="viewItem == 'reference'">
-                (ad.doc_status NOT IN ('T', 'P')
-                AND (
-                (r.approval_doc_id = ad.approval_doc_id AND r.use_id = #{orgUserId} AND r.category = 'U')
+                (
+                (r.use_id = #{orgUserId} AND r.category = 'U')
                 OR (r.use_id = #{deptId} AND r.category = 'D')
                 OR (r.use_id = #{compId} AND r.category = 'C')
-                ))
+                )
             </if>
             <if test="viewItem == 'progress'">
                 (ad.doc_status = 'P' AND a.org_user_id = #{orgUserId} AND a.approval_status IN ('A', 'R'))
             </if>
             <if test="viewItem == 'end'">
-                (ad.doc_status IN ('A', 'R') AND a.org_user_id =#{orgUserId} AND a.approval_status in('A','R'))
+                (ad.doc_status IN ('A', 'R') AND a.org_user_id =#{orgUserId})
             </if>
             <if test="viewItem == 'reject'">
                 (ad.doc_status = 'R' AND ad.org_user_id = #{orgUserId})
@@ -99,17 +108,32 @@
             </when>
         </choose>
 
+        <if test="lastApprovalDate != null and lastApprovalDocId != null">
+            <!-- 내림차순 정렬일 때 -->
+            <choose>
+                <when test="sortStatus == 'desc'">
+                    AND (#{lastApprovalDate} > ad.approval_date OR (ad.approval_date = #{lastApprovalDate} AND #{lastApprovalDocId} > ad.approval_doc_id))
+                </when>
+                <!-- 오름차순 정렬일 때 -->
+                <when test="sortStatus == 'asc'">
+                    AND (ad.approval_date > #{lastApprovalDate} OR (ad.approval_date = #{lastApprovalDate} AND ad.approval_doc_id > #{lastApprovalDocId}))
+                </when>
+            </choose>
+        </if>
+
         <!-- 오름차순/내림차순 -->
-        ORDER BY ad.approval_date
         <choose>
             <when test="sortStatus == 'asc'">
-                ASC
+                ORDER BY ad.approval_date ASC, ad.approval_doc_id ASC
             </when>
             <when test="sortStatus == 'desc'">
-                DESC
+                ORDER BY ad.approval_date DESC, ad.approval_doc_id DESC
             </when>
         </choose>
-        LIMIT #{itemsPerPage} OFFSET #{offset};
+
+
+
+        LIMIT #{itemsPerPage};
     </select>
 
 
@@ -189,13 +213,31 @@
 
 
     <select id="getSearchDocumentsByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        SELECT DISTINCT
-        ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
-        ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name,
-        ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
-        FROM approval_doc ad
+        <choose>
+            <when test="viewItems.contains('concluded')">
+                SELECT
+                ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
+                u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
+                ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+                FROM approval_doc ad force index(approval_date_idx)
+            </when>
+
+            <otherwise>
+                SELECT
+                ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
+                u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
+                ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+                FROM approval_doc ad
+            </otherwise>
+        </choose>
+
+
+        <!-- 로그인 사용자에 대한 결재 테이블 join (미결, 기결, 기결진행, 기결종결)-->
         LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
+        <!-- 상신자 이름 들고오기 join -->
         JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
+        LEFT JOIN user u ON  ou.user_id = u.user_id
+        <!-- 마지막 결재자를 들고오기 위한 join -->
         LEFT JOIN approval a2 ON (ad.approval_doc_id = a2.approval_doc_id
         AND a2.approval_order = (
         SELECT MAX(sub_a.approval_order)
@@ -204,48 +246,55 @@
         JOIN organization_user ou3 ON ou3.org_user_id = sub_a.org_user_id
         WHERE ad2.approval_doc_id = ad.approval_doc_id
         AND ou3.org_user_id = sub_a.org_user_id
-        AND sub_a.approval_status in ('A','R')
+        AND sub_a.approval_status in ('A','R'))
+        )
+        LEFT JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
+        LEFT JOIN user u2 ON ou2.user_id = u2.user_id
+        join search_contents sc on sc.approval_doc_id = ad.approval_doc_id
 
-        ))
-        left JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
-        LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
-        LEFT JOIN user u2 ON (a2.org_user_id = ou2.org_user_id and ou2.user_id = u2.user_id)
-        JOIN department d ON d.dept_id = ou.dept_id
-        JOIN form f ON ad.form_code = f.form_code
+        <!-- 수신참조함 join -->
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'reference'">
-                left join received_ref r on (r.active_state =1 and r.approval_doc_id = ad.approval_doc_id)
-                left join doc_view dv on (dv.approval_doc_id = ad.approval_doc_id)
+                left join received_ref r on (r.active_state = 1 and r.approval_doc_id = ad.approval_doc_id)
+                left join doc_view dv on (dv.approval_doc_id = ad.approval_doc_id and dv.org_user_id = #{orgUserId})
             </if>
         </foreach>
-        WHERE ad.doc_del_status = 0
-        AND (
+        <!-- 문서함에 따른 where 절 -->
+        WHERE (
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'send'">
-                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+                (ad.doc_status != 'T' AND ad.org_user_id = #{orgUserId})
             </if>
             <if test="viewItem == 'tempor'">
-                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
+                (ad.doc_status = 'T' AND ad.org_user_id = #{orgUserId})
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
-                'T'))</if>
+                (ad.doc_status in ('P','W') AND a.org_user_id = #{orgUserId} AND a.approval_status = 'P')
+            </if>
             <if test="viewItem == 'concluded'">
-                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R'))
+                (ad.doc_status IN ('A', 'R', 'P') AND a.org_user_id = #{orgUserId} AND a.approval_status in('A','R'))
             </if>
             <if test="viewItem == 'reference'">
-                (ad.doc_status != 'T' and ad.doc_status != 'P' and r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId}  and r.category='D') OR (r.use_id = #{estId}  and r.category='E') OR (r.use_id = #{compId}  and r.category='C'))</if>
+                (
+                (r.use_id = #{orgUserId} AND r.category = 'U')
+                OR (r.use_id = #{deptId} AND r.category = 'D')
+                OR (r.use_id = #{compId} AND r.category = 'C')
+                )
+            </if>
             <if test="viewItem == 'progress'">
-                ((a.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND a.approval_status IN ('A', 'R')))
+                (ad.doc_status = 'P' AND a.org_user_id = #{orgUserId} AND a.approval_status IN ('A', 'R'))
             </if>
             <if test="viewItem == 'end'">
-                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R') and end_at is not null)
+                (ad.doc_status IN ('A', 'R') AND a.org_user_id =#{orgUserId})
             </if>
             <if test="viewItem == 'reject'">
-                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
+                (ad.doc_status = 'R' AND ad.org_user_id = #{orgUserId})
             </if>
         </foreach>
         )
+        and ad.doc_del_status = 0
+
+        <!-- 문서 필터링 정렬 -->
         <choose>
             <when test="radioSortValue != null and radioSortValue != ''">
                 <choose>
@@ -261,28 +310,45 @@
                     <when test="radioSortValue=='readdoc'">
                         and dv.org_user_id = #{orgUserId}
                     </when>
+                    <otherwise>
 
+                    </otherwise>
                 </choose>
             </when>
         </choose>
         AND (
         ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
         OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
-        OR ad.search_contents LIKE CONCAT('%', #{searchInput}, '%')
+        OR MATCH(sc.contents) AGAINST(CONCAT('+', #{searchInput}, '*') IN BOOLEAN MODE)
         OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
         OR u2.user_name LIKE CONCAT('%', #{searchInput}, '%')
-        OR f.form_name LIKE CONCAT('%', #{searchInput}, '%')
+        OR ad.form_name LIKE CONCAT('%', #{searchInput}, '%')
         )
-        ORDER BY ad.approval_date
+
+        <if test="lastApprovalDate != null and lastApprovalDocId != null">
+            <!-- 내림차순 정렬일 때 -->
+            <choose>
+                <when test="sortStatus == 'desc'">
+                    AND (#{lastApprovalDate} > ad.approval_date OR (ad.approval_date = #{lastApprovalDate} AND #{lastApprovalDocId} > ad.approval_doc_id))
+                </when>
+                <!-- 오름차순 정렬일 때 -->
+                <when test="sortStatus == 'asc'">
+                    AND (ad.approval_date > #{lastApprovalDate} OR (ad.approval_date = #{lastApprovalDate} AND ad.approval_doc_id > #{lastApprovalDocId}))
+                </when>
+            </choose>
+        </if>
+
+        <!-- 오름차순/내림차순 -->
         <choose>
             <when test="sortStatus == 'asc'">
-                ASC
+                ORDER BY ad.approval_date ASC, ad.approval_doc_id ASC
             </when>
             <when test="sortStatus == 'desc'">
-                DESC
+                ORDER BY ad.approval_date DESC, ad.approval_doc_id DESC
             </when>
         </choose>
-        LIMIT #{itemsPerPage} OFFSET #{offset};
+
+        LIMIT #{itemsPerPage};
     </select>
 
     <select id="getSearchDocCountByViewItems" resultType="int">
@@ -333,7 +399,7 @@
                 ((a.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND a.approval_status IN ('A', 'R')))
             </if>
             <if test="viewItem == 'end'">
-                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R') and end_at is not null)
+                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R'))
             </if>
             <if test="viewItem == 'reject'">
                 (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
@@ -365,18 +431,21 @@
         OR ad.search_contents LIKE CONCAT('%', #{searchInput}, '%')
         OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
         OR u2.user_name LIKE CONCAT('%', #{searchInput}, '%')
-        OR f.form_name LIKE CONCAT('%', #{searchInput}, '%')
+        OR ad.form_name LIKE CONCAT('%', #{searchInput}, '%')
         )
     </select>
 
     <sql id="commonIfConditions">
+        <if test="criteria.searchDocNumber > 0">
+            AND ad.approval_doc_id = #{criteria.searchDocNumber}
+        </if>
         <if test="criteria.startDate != null and criteria.endDate != null">
             <choose>
                 <when test="criteria.searchDate == 1"  >
                     AND (ad.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                 </when>
                 <when test="criteria.searchDate == 2">
-                    AND (a.user_id=#{userId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
+                    AND (a.user_id=#{orgUserId} AND a.receive_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
                 </when>
                 <when test="criteria.searchDate == 3">
                     AND (a.approval_status IN('A','R') AND a.approval_date BETWEEN #{criteria.startDate} AND #{criteria.endDate})
@@ -399,7 +468,7 @@
             AND u.user_name LIKE CONCAT('%', #{criteria.searchWriter}, '%')
         </if>
         <if test="criteria.searchApprovUser != null and criteria.searchApprovUser != ''">
-            AND (a.approval_status IN ('A', 'R') AND (u2.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%')))
+            AND ((u2.user_name LIKE CONCAT('%', #{criteria.searchApprovUser}, '%')))
         </if>
         <if test="criteria.searchApprovState != null and criteria.searchApprovState != ''">
             <choose>
@@ -418,21 +487,37 @@
             </choose>
         </if>
         <if test="criteria.searchDocForm != null and criteria.searchDocForm != ''">
-            AND f.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
-        </if>
-        <if test="criteria.searchDocNumber > 0">
-            AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
+            AND ad.form_name LIKE CONCAT('%', #{criteria.searchDocForm}, '%')
         </if>
     </sql>
 
     <select id="getDetailSearchDocsList" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        SELECT DISTINCT
-        ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
-        ad.org_user_id, ad.doc_status, u.user_name, d.dept_name, f.form_name,
-        ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
-        FROM approval_doc ad
+
+        <choose>
+            <when test="viewItems.contains('concluded')">
+                SELECT
+                ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
+                u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
+                ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+                FROM approval_doc ad force index(approval_date_idx)
+            </when>
+
+            <otherwise>
+                SELECT
+                ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
+                u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
+                ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+                FROM approval_doc ad
+            </otherwise>
+        </choose>
+
+
+        <!-- 로그인 사용자에 대한 결재 테이블 join (미결, 기결, 기결진행, 기결종결)-->
         LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
+        <!-- 상신자 이름 들고오기 join -->
         JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
+        LEFT JOIN user u ON  ou.user_id = u.user_id
+        <!-- 마지막 결재자를 들고오기 위한 join -->
         LEFT JOIN approval a2 ON (ad.approval_doc_id = a2.approval_doc_id
         AND a2.approval_order = (
         SELECT MAX(sub_a.approval_order)
@@ -441,47 +526,55 @@
         JOIN organization_user ou3 ON ou3.org_user_id = sub_a.org_user_id
         WHERE ad2.approval_doc_id = ad.approval_doc_id
         AND ou3.org_user_id = sub_a.org_user_id
-        AND sub_a.approval_status in ('A','R')
+        AND sub_a.approval_status in ('A','R'))
+        )
+        LEFT JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
+        LEFT JOIN user u2 ON ou2.user_id = u2.user_id
+        join search_contents sc on sc.approval_doc_id = ad.approval_doc_id
 
-        ))
-        left JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
-        LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
-        LEFT JOIN user u2 ON (a2.org_user_id = ou2.org_user_id and ou2.user_id = u2.user_id)
-        JOIN department d ON d.dept_id = ou.dept_id
-        JOIN form f ON ad.form_code = f.form_code
+        <!-- 수신참조함 join -->
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'reference'">
-                left join received_ref r on (r.active_state =1 and r.approval_doc_id = ad.approval_doc_id)
+                left join received_ref r on (r.active_state = 1 and r.approval_doc_id = ad.approval_doc_id)
+                left join doc_view dv on (dv.approval_doc_id = ad.approval_doc_id and dv.org_user_id = #{orgUserId})
             </if>
         </foreach>
-        WHERE ad.doc_del_status = 0
-        AND (
+        <!-- 문서함에 따른 where 절 -->
+        WHERE (
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'send'">
-                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+                (ad.doc_status != 'T' AND ad.org_user_id = #{orgUserId})
             </if>
             <if test="viewItem == 'tempor'">
-                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
+                (ad.doc_status = 'T' AND ad.org_user_id = #{orgUserId})
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
-                'T'))</if>
+                (ad.doc_status in ('P','W') AND a.org_user_id = #{orgUserId} AND a.approval_status = 'P')
+            </if>
             <if test="viewItem == 'concluded'">
-                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R'))
+                (ad.doc_status IN ('A', 'R', 'P') AND a.org_user_id = #{orgUserId} AND a.approval_status in('A','R'))
             </if>
             <if test="viewItem == 'reference'">
-                (ad.doc_status != 'T' and ad.doc_status != 'P' and r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId}  and r.category='D') OR (r.use_id = #{estId}  and r.category='E') OR (r.use_id = #{compId}  and r.category='C'))</if>
+                (
+                (r.use_id = #{orgUserId} AND r.category = 'U')
+                OR (r.use_id = #{deptId} AND r.category = 'D')
+                OR (r.use_id = #{compId} AND r.category = 'C')
+                )
+            </if>
             <if test="viewItem == 'progress'">
-                ((a.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND a.approval_status IN ('A', 'R')))
+                (ad.doc_status = 'P' AND a.org_user_id = #{orgUserId} AND a.approval_status IN ('A', 'R'))
             </if>
             <if test="viewItem == 'end'">
-                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R') and end_at is not null)
+                (ad.doc_status IN ('A', 'R') AND a.org_user_id =#{orgUserId})
             </if>
             <if test="viewItem == 'reject'">
-                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
+                (ad.doc_status = 'R' AND ad.org_user_id = #{orgUserId})
             </if>
         </foreach>
         )
+        and ad.doc_del_status = 0
+
+        <!-- 문서 필터링 정렬 -->
         <choose>
             <when test="radioSortValue != null and radioSortValue != ''">
                 <choose>
@@ -497,21 +590,43 @@
                     <when test="radioSortValue=='readdoc'">
                         and dv.org_user_id = #{orgUserId}
                     </when>
+                    <otherwise>
 
+                    </otherwise>
                 </choose>
             </when>
         </choose>
+
         <include refid="commonIfConditions"/>
-        ORDER BY ad.approval_date
+
+        <if test="lastApprovalDate != null and lastApprovalDocId != null">
+            <!-- 내림차순 정렬일 때 -->
+            <choose>
+                <when test="sortStatus == 'desc'">
+                    AND (#{lastApprovalDate} > ad.approval_date OR (ad.approval_date = #{lastApprovalDate} AND #{lastApprovalDocId} > ad.approval_doc_id))
+                </when>
+                <!-- 오름차순 정렬일 때 -->
+                <when test="sortStatus == 'asc'">
+                    AND (ad.approval_date > #{lastApprovalDate} OR (ad.approval_date = #{lastApprovalDate} AND ad.approval_doc_id > #{lastApprovalDocId}))
+                </when>
+            </choose>
+        </if>
+
+        <!-- 오름차순/내림차순 -->
         <choose>
             <when test="sortStatus == 'asc'">
-                ASC
+                ORDER BY ad.approval_date ASC, ad.approval_doc_id ASC
             </when>
             <when test="sortStatus == 'desc'">
-                DESC
+                ORDER BY ad.approval_date DESC, ad.approval_doc_id DESC
             </when>
         </choose>
-        LIMIT #{itemsPerPage} OFFSET #{offset};
+
+
+
+        LIMIT #{itemsPerPage};
+
+
     </select>
 
     <select id="getDetailSearchDocsCount" resultType="int">
