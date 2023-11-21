@@ -35,20 +35,23 @@ public class ApprovalBoxController {
             @SessionAttribute(name = "deptId") int deptId,
             @RequestParam(name = "viewItems") List<String> viewItems,
             @RequestParam(name = "itemsPerPage") int itemsPerPage,
-            @RequestParam(name = "offset") int offset,
             @RequestParam(name = "searchInput") String searchInput,
             @RequestParam(name = "sortStatus") String sortStatus,
-            @RequestParam(name = "radioSortValue") String radioSortValue
+            @RequestParam(name = "radioSortValue") String radioSortValue,
+            @RequestParam(name = "lastApprovalDate", required = false) String lastApprovalDate,
+            @RequestParam(name = "lastDocId", required = false) Integer lastDocId
     ) {
 
         int estId = approvalBoxDAO.selectEstId(orgUserId);
         ArrayList<DocumentListDTO> docList;
 
         if (!searchInput.equals("")) {
-            docList=approvalBoxService.selectSearchDocuments(viewItems, orgUserId, deptId, estId, compId, itemsPerPage, offset, searchInput,sortStatus,radioSortValue);
+            docList=approvalBoxService.selectSearchDocuments(viewItems, orgUserId, deptId, estId, compId, itemsPerPage,searchInput,sortStatus,radioSortValue,lastApprovalDate,lastDocId);
         }else{
-            docList = approvalBoxService.selectDocuments(viewItems, orgUserId, deptId,estId,compId, itemsPerPage, offset,sortStatus,radioSortValue);
+            docList = approvalBoxService.selectDocuments(viewItems, orgUserId, deptId,estId,compId, itemsPerPage, sortStatus,radioSortValue,lastApprovalDate,lastDocId);
         }
+
+
         return docList;
     }
 
@@ -82,13 +85,24 @@ public class ApprovalBoxController {
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/search")
-    public ResponseEntity<Map<String, Object>> searchDocuments(@SessionAttribute(name = "userId") int userId,
-                                                               @SessionAttribute(name = "orgUserId") int orgUserId,
+    public ResponseEntity<ArrayList<DocumentListDTO>> searchDocuments(@SessionAttribute(name = "orgUserId") int orgUserId,
                                                                @SessionAttribute(name = "compId") int compId,
-                                                               @SessionAttribute(name = "deptId") int deptId, @Valid @RequestBody SearchRequestDTO criteria) {
+                                                               @SessionAttribute(name = "deptId") int deptId,
+                                                               @Valid @RequestBody SearchRequestDTO criteria) {
+
+        ArrayList<DocumentListDTO> result = approvalBoxService.searchDocuments(orgUserId,deptId,compId,criteria);
+        return ResponseEntity.ok(result);
+    }
+
+    @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
+    @PostMapping("/searchCount")
+    public ResponseEntity<Integer> searchDocumentsCount(@SessionAttribute(name = "orgUserId") int orgUserId,
+                                                               @SessionAttribute(name = "compId") int compId,
+                                                               @SessionAttribute(name = "deptId") int deptId,
+                                                               @Valid @RequestBody SearchRequestDTO criteria) {
         int estId = approvalBoxDAO.selectEstId(orgUserId);
 
-        Map<String, Object> result = approvalBoxService.searchDocuments( orgUserId,deptId,estId,compId,criteria);
+       int result = approvalBoxService.searchDocumentsCount( orgUserId,deptId,estId,compId,criteria);
         return ResponseEntity.ok(result);
     }
 
@@ -121,6 +135,7 @@ public class ApprovalBoxController {
     @GetMapping("/box/detail/usedept")
     public ArrayList<BoxUseDepartmentDTO> viewBoxUseDept(@RequestParam(name="boxId")int boxId){
         ArrayList<BoxUseDepartmentDTO> UseDept = approvalBoxService.selectBoxUseDept(boxId);
+
         return UseDept;
     }
 

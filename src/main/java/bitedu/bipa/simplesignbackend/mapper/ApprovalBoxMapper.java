@@ -14,11 +14,13 @@ public interface ApprovalBoxMapper {
             @Param("itemsPerPage") int itemsPerPage,
             @Param("offset") int offset,
             @Param("deptId") int deptId,
-            @Param("estId") int estId,
             @Param("compId") int compId,
             @Param("viewItems") List<String> viewItems,
             @Param("sortStatus") String sortStatus,
-            @Param("radioSortValue") String radioSortValue
+            @Param("radioSortValue") String radioSortValue,
+            @Param("lastApprovalDate")String lastApprovalDate,
+            @Param("lastApprovalDocId")Integer lastApprovalDocId
+
     );
 
     int getDocCountByViewItems(@Param("orgUserId") int orgUserId,
@@ -29,14 +31,15 @@ public interface ApprovalBoxMapper {
 
     ArrayList<DocumentListDTO> getSearchDocumentsByViewItems(@Param("orgUserId") int orgUserId,
                                                              @Param("itemsPerPage") int itemsPerPage,
-                                                             @Param("offset") int offset,
                                                              @Param("deptId") int deptId,
                                                              @Param("estId") int estId,
                                                              @Param("compId") int compId,
                                                              @Param("viewItems") List<String> viewItems,
                                                              @Param("searchInput") String searchInput,
                                                             @Param("sortStatus") String sortStatus,
-                                                            @Param("radioSortValue") String radioSortValue);
+                                                            @Param("radioSortValue") String radioSortValue,
+                                                             @Param("lastApprovalDate")String lastApprovalDate,
+                                                             @Param("lastApprovalDocId")Integer lastApprovalDocId);
 
     int getSearchDocCountByViewItems(@Param("orgUserId") int orgUserId,
                                                             @Param("deptId") int deptId,
@@ -48,23 +51,22 @@ public interface ApprovalBoxMapper {
 
     ArrayList<DocumentListDTO> getDetailSearchDocsList(@Param("orgUserId") int orgUserId,
                                                         @Param("deptId") int deptId,
-                                                       @Param("estId") int estId,
                                                        @Param("compId") int compId,
                                                         @Param("viewItems") List<String> viewItems,
                                                         @Param("itemsPerPage") int itemsPerPage,
-                                                        @Param("offset") int offset,
                                                         @Param("criteria") SearchRequestDTO criteria,
                                                        @Param("sortStatus") String sortStatus,
-                                                       @Param("radioSortValue") String radioSortValue);
+                                                       @Param("radioSortValue") String radioSortValue,
+                                                       @Param("lastApprovalDate")String lastApprovalDate,
+                                                       @Param("lastApprovalDocId")Integer lastApprovalDocId);
 
 
     int getDetailSearchDocsCount(@Param("orgUserId") int orgUserId,
                                                         @Param("deptId") int deptId,
-                                                        @Param("estId") int estId,
                                                         @Param("compId") int compId,
                                                         @Param("viewItems") List<String> viewItems,
                                                         @Param("criteria") SearchRequestDTO criteria,
-                                 @Param("radioSortValue") String radioSortValue);
+                                                        @Param("radioSortValue") String radioSortValue);
 
     int selectSendCount(@Param("orgUserId") int orgUserId);
 
