@@ -39,6 +39,8 @@ public class SearchRequestDTO {
     private String searchDocNumber;
     private String sortStatus;
     private String radioSortValue;
+    private String lastApprovalDate;
+    private Integer lastDocId;
 
     @AssertTrue(message = "시작일이 종료일보다 늦을 수 없습니다.")
     public boolean isDatesValid() {
