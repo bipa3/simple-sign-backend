@@ -23,4 +23,6 @@ public interface SequenceMapper {
     int selectProductNumber(Map map);
 
     int updateProductNumber(Map map);
+
+    int selectProductNumberExist(Map map);
 }
