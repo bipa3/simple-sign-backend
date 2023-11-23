@@ -31,14 +31,10 @@ public class SeqManageService {
     public List<SeqAndCompDTO> searchSeqAndCompList(SeqAndCompDTO seqAndCompDTO) {
         commonService.checkDeptMasterAthority(Integer.parseInt(seqAndCompDTO.getCompId()));
         List<SeqAndCompDTO> seqAndCompList = new ArrayList<SeqAndCompDTO>();
-        try{
-            seqAndCompList = seqManageDAO.selectSeqAndComp(seqAndCompDTO);
-            if(seqAndCompList.size() < 1){
-                throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        
+        seqAndCompList = seqManageDAO.selectSeqAndComp(seqAndCompDTO);
+        if(seqAndCompList.size() < 1) {
+            throw new RestApiException(CommonErrorCode.NO_CONTENT);
         }
         return seqAndCompList;
     }
