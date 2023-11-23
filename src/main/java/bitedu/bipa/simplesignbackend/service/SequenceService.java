@@ -32,7 +32,7 @@ public class SequenceService {
         this.commonDAO = commonDAO;
     }
 
-    @Transactional(propagation= MANDATORY, noRollbackFor = {DuplicateKeyException.class})
+    @Transactional(propagation= MANDATORY)
     public String createProductNum(int seqCode, int userId) {
         //1. 채번코드에 맞는 양식문자열 가져오기(ex)'01,02,03')
         String productForm = sequenceDAO.selectProductForm(seqCode);
@@ -107,13 +107,27 @@ public class SequenceService {
 
         String productFullName = buffer.toString();
         int productNum = 0;
-        int affectedCount = sequenceDAO.insertProductNumber(productNumberReqDTO);
-        if (affectedCount == 0) {
-            int affectedCount2 = sequenceDAO.updateProductNumber(productFullName, productNumberReqDTO);
-            if(affectedCount2 ==0) {
+//        int affectedCount = sequenceDAO.insertProductNumber(productNumberReqDTO);
+//        if (affectedCount == 0) {
+//            int affectedCount2 = sequenceDAO.updateProductNumber(productFullName, productNumberReqDTO);
+//            if(affectedCount2 ==0) {
+//                throw new RestApiException(CustomErrorCode.SEQUENCE_INSERT_FAIL);
+//            }
+//        }
+        int affectedCount = sequenceDAO.updateProductNumber(productFullName, productNumberReqDTO);
+        if(affectedCount ==0) {
+            affectedCount = sequenceDAO.insertProductNumber(productNumberReqDTO);
+            if(affectedCount ==0) {
                 throw new RestApiException(CustomErrorCode.SEQUENCE_INSERT_FAIL);
             }
         }
+
+//       boolean isExist = sequenceDAO.selectProductNumberExist(seqCode, productFullName);
+//       if(isExist) {
+//           sequenceDAO.updateProductNumber(productFullName, productNumberReqDTO);
+//       }else {
+//           sequenceDAO.insertProductNumber(productNumberReqDTO);
+//       }
 
         productNum = sequenceDAO.selectProductNumber(seqCode,productFullName);
 

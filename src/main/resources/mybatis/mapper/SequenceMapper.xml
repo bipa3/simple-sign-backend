@@ -39,7 +39,10 @@
         where seq_code = #{seqCode} and product_full_name = #{productFullName};
     </select>
 
-
+    <select id="selectProductNumberExist" parameterType="Map" resultType="int">
+        select count(*) from product_number
+        where seq_code = #{seqCode} and product_full_name = #{productFullName};
+    </select>
 
 
 </mapper>
