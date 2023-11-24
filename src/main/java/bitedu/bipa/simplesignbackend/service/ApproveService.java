@@ -16,6 +16,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
@@ -132,7 +133,7 @@ public class ApproveService {
         }
 
         //종결일 경우는 상신자와 수신참조자에게 알림
-        eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approvalDocResDTO.getOrgUserId(),AlarmStatus.APPROVE.getCode()));
+        eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approvalDocResDTO.getOrgUserId(), AlarmStatus.APPROVE.getCode()));
         List<Integer> receivedRefUserIdList = approveDAO.selectRecievedRefUserId(approvalDocId);
         if(receivedRefUserIdList.size() !=0) {
             for (int receiveUser : receivedRefUserIdList) {
@@ -140,6 +141,8 @@ public class ApproveService {
             }
         }
     }
+
+
 
     @Transactional
     private void progressApproval(ApprovalResDTO approvalResDTO, ApprovalDocResDTO approvalDocResDTO, int approvalDocId) {
@@ -736,13 +739,13 @@ public class ApproveService {
     }
 
     @Transactional
-    public void approveAllApprovalDoc() {
-        int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
-        List<AllUnApprovedDocDTO> approvalDocList = approveDAO.selectAllUnApprovedDocList(orgUserId);
-        if(approvalDocList.size() ==0) {
-            throw new RestApiException(CustomErrorCode.NO_SEARCH_APPROVAL_DOC);
-        }
-        for(AllUnApprovedDocDTO approvedDocDTO: approvalDocList) {
+        public void approveAllApprovalDoc() {
+            int orgUserId = (int)SessionUtils.getAttribute("orgUserId");
+            List<AllUnApprovedDocDTO> approvalDocList = approveDAO.selectAllUnApprovedDocList(orgUserId);
+            if(approvalDocList.size() ==0) {
+                throw new RestApiException(CustomErrorCode.NO_SEARCH_APPROVAL_DOC);
+            }
+            for(AllUnApprovedDocDTO approvedDocDTO: approvalDocList) {
             this.approveApprovalDoc(approvedDocDTO.getApprovalDocId(), approvedDocDTO.getVersion());
         }
     }
