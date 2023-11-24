@@ -50,4 +50,9 @@ public class RedisConfig {
         redisTemplate.setDefaultSerializer(new StringRedisSerializer());
         return redisTemplate;
     }
+
+    @Bean
+    public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
+        return new GenericJackson2JsonRedisSerializer();
+    }
 }
