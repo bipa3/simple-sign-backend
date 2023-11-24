@@ -89,7 +89,7 @@ public class ApprovalBoxService {
         String radioSortValue = criteria.getRadioSortValue();
 
 
-        int count =approvalBoxDAO.selectDetailSearchDocsCount(viewItems, orgUserId, deptId, compId, criteria,radioSortValue);
+        int count =approvalBoxDAO.selectDetailSearchDocsCount(viewItems, orgUserId, deptId,estId, compId, criteria,radioSortValue);
 
 
         return count;

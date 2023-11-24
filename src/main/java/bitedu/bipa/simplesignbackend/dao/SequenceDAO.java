@@ -54,4 +54,15 @@ public class SequenceDAO {
         map.put("productFullName", productFullName);
         return sequenceMapper.selectProductNumber(map);
     }
+
+    public boolean selectProductNumberExist(int seqCode, String productFullName) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("seqCode", seqCode);
+        map.put("productFullName", productFullName);
+        int count = sequenceMapper.selectProductNumberExist(map);
+        if(count ==0) {
+            return false;
+        }
+        return true;
+    }
 }

@@ -1,10 +1,7 @@
 package bitedu.bipa.simplesignbackend.controller;
 import bitedu.bipa.simplesignbackend.model.dto.*;
 import bitedu.bipa.simplesignbackend.service.CommonService;
-import bitedu.bipa.simplesignbackend.utils.RadisUtils;
-import bitedu.bipa.simplesignbackend.utils.SessionUtils;
-import bitedu.bipa.simplesignbackend.validation.CommonErrorCode;
-import bitedu.bipa.simplesignbackend.validation.RestApiException;
+import bitedu.bipa.simplesignbackend.utils.RedisUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +14,9 @@ import java.util.List;
 public class CommonController {
 
     CommonService commonService;
-    RadisUtils radisUtils;
+    RedisUtils radisUtils;
 
-    public CommonController (CommonService commonService, RadisUtils radisUtils) {
+    public CommonController (CommonService commonService, RedisUtils radisUtils) {
         this.commonService = commonService;
         this.radisUtils = radisUtils;
     }

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -49,8 +48,8 @@ public class ApprovalBoxDAO {
         return approvalBoxMapper.getDetailSearchDocsList(orgUserId, deptId, estId, compId, viewItems, itemsPerPage, criteria,sortStatus,radioSortValue,lastApprovalDate,lastApprovalDocId,inputFormCode,inputOrgUserId,inputDeptId);
     }
 
-    public int selectDetailSearchDocsCount(List<String> viewItems, int orgUserId, int deptId, int compId, SearchRequestDTO criteria, String radioSortValue) {
-        return approvalBoxMapper.getDetailSearchDocsCount(orgUserId, deptId, compId, viewItems, criteria,radioSortValue);
+    public int selectDetailSearchDocsCount(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, SearchRequestDTO criteria, String radioSortValue) {
+        return approvalBoxMapper.getDetailSearchDocsCount(orgUserId, deptId, estId, compId, viewItems, criteria,radioSortValue);
     }
 
     public ArrayList<ApprovalBoxDTO> selectBoxList(int company) {

@@ -69,6 +69,7 @@ public interface ApprovalBoxMapper {
 
     int getDetailSearchDocsCount(@Param("orgUserId") int orgUserId,
                                  @Param("deptId") int deptId,
+                                 @Param("estId") int estId,
                                  @Param("compId") int compId,
                                  @Param("viewItems") List<String> viewItems,
                                  @Param("criteria") SearchRequestDTO criteria,

@@ -142,8 +142,18 @@ public class ApproveController {
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PatchMapping("/temp/{num}")
-    public ResponseEntity<String>  updateTemporalApprovalDoc(@PathVariable("num") int approvalDocId, @RequestBody ApprovalDocReqDTO approvalDocReqDTO) {
+    public ResponseEntity<String>  updateTemporalApprovalDoc(@Valid @PathVariable("num") int approvalDocId, @RequestPart ApprovalDocReqDTO approvalDocReqDTO,
+                                                             @RequestPart(required = false) List<MultipartFile> files) throws IOException{
         approveService.updateTemporalApprovalDoc(approvalDocId, approvalDocReqDTO);
+
+        if (files != null ) {
+            for (MultipartFile file : files) {
+                String fileName = file.getOriginalFilename();
+                String uniqueFileName = s3Service.makeUniqueFileName(file, "approvalDoc");
+                String s3Url = s3Service.upload(file, uniqueFileName);
+                approveService.insertApprovalAttachment(s3Url, fileName, approvalDocId, uniqueFileName);
+            }
+        }
         return ResponseEntity.ok("ok");
     }
 

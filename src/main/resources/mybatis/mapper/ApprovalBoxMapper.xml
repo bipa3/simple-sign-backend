@@ -341,7 +341,7 @@
         AND (
         ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
 
-            or ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
+
 
         <if test="inputFormCode != null">
             <foreach item="item" index="index" collection="inputFormCode"
@@ -367,7 +367,10 @@
                 OR sc.contents LIKE CONCAT('%', #{searchInput}, '%')
             </if>
         </foreach>
+
+        or ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
         )
+
 
         <if test="lastApprovalDate != null and lastApprovalDocId != null">
             <!-- 내림차순 정렬일 때 -->
