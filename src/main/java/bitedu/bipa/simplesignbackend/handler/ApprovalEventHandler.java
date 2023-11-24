@@ -1,6 +1,7 @@
 package bitedu.bipa.simplesignbackend.handler;
 
 import bitedu.bipa.simplesignbackend.event.ApprovalEvent;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 
 
 @Service
+@Slf4j
 public class ApprovalEventHandler {
 
 
@@ -35,7 +37,7 @@ public class ApprovalEventHandler {
         try {
             kafkaTemplate.send("alarmTopic", approvalEvent);
         }catch (Exception e) {
-            System.out.println(e);
+            log.info(String.valueOf(e));
         }
 //        restTemplate.getInterceptors().add((request, body, execution) -> {
 //            ClientHttpResponse response = execution.execute(request,body);
