@@ -28,7 +28,20 @@ public class ApprovalBoxService {
     }
 
     public ArrayList<DocumentListDTO> selectSearchDocuments(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, String searchInput, String sortStatus, String radioSortValue,String lastApprovalDate,Integer lastDocId) {
-        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectSearchDocsList(viewItems,orgUserId,deptId, estId, compId, itemsPerPage,searchInput,sortStatus,radioSortValue,lastApprovalDate,lastDocId);
+        ArrayList<Integer> inputOrgUserId = new ArrayList();
+        ArrayList<Integer> inputFormCode = new ArrayList();
+
+        //searchInput이 숫자로만 이루어져 있을 때
+        if(searchInput.matches("\\d+")){
+            inputOrgUserId.add(Integer.valueOf(searchInput));
+            inputFormCode.add(Integer.valueOf(searchInput));
+        }else{  //아닐 때
+            inputOrgUserId = approvalBoxDAO.selectOrgUserId(searchInput);
+            inputFormCode = approvalBoxDAO.selectFormCode(searchInput);
+        }
+
+        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectSearchDocsList(viewItems,orgUserId,deptId, estId, compId, itemsPerPage,searchInput,sortStatus,radioSortValue,lastApprovalDate,lastDocId,
+                inputOrgUserId,inputFormCode);
 
         return docList;
     }
@@ -40,7 +53,8 @@ public class ApprovalBoxService {
     }
 
 
-    public ArrayList<DocumentListDTO> searchDocuments( int orgUserId, int deptId, int compId, SearchRequestDTO criteria) {
+    public ArrayList<DocumentListDTO> searchDocuments( int orgUserId, int deptId, int estId, int compId, SearchRequestDTO criteria) {
+
         List<String> viewItems = criteria.getViewItems();
         int itemsPerPage = criteria.getItemsPerPage();
         String sortStatus = criteria.getSortStatus();
@@ -48,7 +62,23 @@ public class ApprovalBoxService {
         String lastApprovalDate = criteria.getLastApprovalDate();
         Integer lastDocId = criteria.getLastDocId();
 
-        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDetailSearchDocsList(viewItems, orgUserId, deptId, compId, itemsPerPage, criteria,sortStatus,radioSortValue,lastApprovalDate,lastDocId);
+
+        Integer inputDocId = null;
+        ArrayList<Integer> inputFormCode  = approvalBoxDAO.selectFormCode(criteria.getSearchDocForm());
+        ArrayList<Integer> inputOrgUserId = new ArrayList<>();
+        ArrayList<Integer> inputDeptId = new ArrayList<>();
+
+        if(criteria.getSearchApprovUser() != null || criteria.getSearchApprovUser() != "") {
+            inputOrgUserId.addAll(approvalBoxDAO.selectOrgUserId(criteria.getSearchApprovUser()));
+        }
+        if(criteria.getSearchWriter() != null || criteria.getSearchApprovUser() != ""){
+            inputOrgUserId.addAll(approvalBoxDAO.selectOrgUserId(criteria.getSearchWriter()));
+        }
+        if(criteria.getSearchDept() != null || criteria.getSearchDept() != ""){
+            inputDeptId.addAll(approvalBoxDAO.selectDeptId(criteria.getSearchDept()));
+        }
+
+        ArrayList<DocumentListDTO> docList = approvalBoxDAO.selectDetailSearchDocsList(viewItems, orgUserId, deptId,estId, compId, itemsPerPage, criteria,sortStatus,radioSortValue,lastApprovalDate,lastDocId,inputFormCode,inputOrgUserId,inputDeptId);
 
 
         return docList;
@@ -59,7 +89,7 @@ public class ApprovalBoxService {
         String radioSortValue = criteria.getRadioSortValue();
 
 
-        int count =approvalBoxDAO.selectDetailSearchDocsCount(viewItems, orgUserId, deptId, compId, criteria,radioSortValue);
+        int count =approvalBoxDAO.selectDetailSearchDocsCount(viewItems, orgUserId, deptId,estId, compId, criteria,radioSortValue);
 
 
         return count;
@@ -110,13 +140,13 @@ public class ApprovalBoxService {
         String menuUsingRange = criteria.getMenuUsingRange();
         ArrayList<BoxUseDepartmentDTO> boxUseDept = criteria.getBoxUseDept();
         int sortOrder = criteria.getSortOrder();
-       try{
-           approvalBoxDAO.updateApprovalBox(approvalBoxId, compId, approvalBoxName, viewItems,approvalBoxUsedStatus,menuUsingRange,boxUseDept,sortOrder);
-       }catch(Exception e){
+        try{
+            approvalBoxDAO.updateApprovalBox(approvalBoxId, compId, approvalBoxName, viewItems,approvalBoxUsedStatus,menuUsingRange,boxUseDept,sortOrder);
+        }catch(Exception e){
             e.printStackTrace();
             throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
-       return true;
+        return true;
     }
 
     public void createApprovalBox(ApprovalBoxReqDTO criteria) {

@@ -83,7 +83,7 @@
 
         SELECT ab.approval_box_id, ab.approval_box_name, ab.sort_order
         FROM approval_box ab
-        WHERE ab.menu_using_range = 'T' AND ab.comp_id = 1
+        WHERE ab.menu_using_range = 'T' AND ab.comp_id = #{compId}
         AND ab.box_delete_status != 1
         AND ab.approval_box_used_status != 0
         ) AS combined_results

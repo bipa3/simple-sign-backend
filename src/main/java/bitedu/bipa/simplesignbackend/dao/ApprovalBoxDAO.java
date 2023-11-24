@@ -18,17 +18,18 @@ public class ApprovalBoxDAO {
     ApprovalBoxManageMapper approvalBoxManageMapper;
 
     public ArrayList<DocumentListDTO> selectDocsList(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, String sortStatus, String radioSortValue, String lastApprovalDate, Integer lastApprovalDocId) {
+        ArrayList<DocumentListDTO> list = approvalBoxMapper.getDocumentsByViewItems(orgUserId,itemsPerPage,deptId, estId, compId, viewItems, sortStatus,radioSortValue,lastApprovalDate,lastApprovalDocId);
 
-        // 데이터베이스 작업 수행
-        ArrayList<DocumentListDTO> list = approvalBoxMapper.getDocumentsByViewItems(orgUserId,itemsPerPage,deptId, estId, compId, viewItems,sortStatus,radioSortValue,lastApprovalDate,lastApprovalDocId);
-
-       return list;
+        return list;
     }
 
 
-    public ArrayList<DocumentListDTO> selectSearchDocsList(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, String searchInput, String sortStatus, String radioSortValue, String lastApprovalDate, Integer lastApprovalDocId) {
+    public ArrayList<DocumentListDTO> selectSearchDocsList(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, String searchInput, String sortStatus, String radioSortValue, String lastApprovalDate, Integer lastApprovalDocId,
+                                                           ArrayList<Integer> inputOrgUserId,ArrayList<Integer> inputFormCode) {
 
-        ArrayList<DocumentListDTO> list = approvalBoxMapper.getSearchDocumentsByViewItems(orgUserId, itemsPerPage,  deptId, estId, compId, viewItems, searchInput, sortStatus,radioSortValue,lastApprovalDate,lastApprovalDocId);
+        ArrayList<DocumentListDTO> list = approvalBoxMapper.getSearchDocumentsByViewItems(orgUserId, itemsPerPage,  deptId, estId, compId,
+                viewItems, searchInput, sortStatus,radioSortValue,lastApprovalDate,lastApprovalDocId,
+                inputOrgUserId,inputFormCode);
 
         return list;
     }
@@ -42,12 +43,13 @@ public class ApprovalBoxDAO {
         return approvalBoxMapper.getDocCountByViewItems(orgUserId,deptId,estId,compId,viewItems,radioSortValue);
     }
 
-    public ArrayList<DocumentListDTO> selectDetailSearchDocsList(List<String> viewItems, int orgUserId, int deptId, int compId, int itemsPerPage, SearchRequestDTO criteria, String sortStatus, String radioSortValue, String lastApprovalDate, Integer lastApprovalDocId) {
-        return approvalBoxMapper.getDetailSearchDocsList(orgUserId, deptId,compId, viewItems, itemsPerPage, criteria,sortStatus,radioSortValue,lastApprovalDate,lastApprovalDocId);
+    public ArrayList<DocumentListDTO> selectDetailSearchDocsList(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, int itemsPerPage, SearchRequestDTO criteria, String sortStatus, String radioSortValue, String lastApprovalDate, Integer lastApprovalDocId,
+                                                                 ArrayList<Integer> inputFormCode, ArrayList<Integer> inputOrgUserId, ArrayList<Integer> inputDeptId) {
+        return approvalBoxMapper.getDetailSearchDocsList(orgUserId, deptId, estId, compId, viewItems, itemsPerPage, criteria,sortStatus,radioSortValue,lastApprovalDate,lastApprovalDocId,inputFormCode,inputOrgUserId,inputDeptId);
     }
 
-    public int selectDetailSearchDocsCount(List<String> viewItems, int orgUserId, int deptId, int compId, SearchRequestDTO criteria, String radioSortValue) {
-        return approvalBoxMapper.getDetailSearchDocsCount(orgUserId, deptId, compId, viewItems, criteria,radioSortValue);
+    public int selectDetailSearchDocsCount(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, SearchRequestDTO criteria, String radioSortValue) {
+        return approvalBoxMapper.getDetailSearchDocsCount(orgUserId, deptId, estId, compId, viewItems, criteria,radioSortValue);
     }
 
     public ArrayList<ApprovalBoxDTO> selectBoxList(int company) {
@@ -144,5 +146,19 @@ public class ApprovalBoxDAO {
 
     public ArrayList<BoxUseDepartmentDTO> selectBoxUseDept(int boxId) {
         return (ArrayList) approvalBoxManageMapper.selectBoxUseDept(boxId);
+    }
+
+    public ArrayList<Integer> selectOrgUserId(String searchInput) {
+        //동명이인일 때 고려(추후)
+        return approvalBoxMapper.selectOrgUserId(searchInput);
+    }
+
+    public ArrayList<Integer> selectFormCode(String searchInput) {
+        return approvalBoxMapper.selectFormCode(searchInput);
+    }
+
+    public ArrayList<Integer> selectDeptId(String searchDept) {
+        return approvalBoxMapper.selectDeptId(searchDept);
+
     }
 }

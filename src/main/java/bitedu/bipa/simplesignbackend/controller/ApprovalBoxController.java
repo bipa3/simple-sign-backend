@@ -46,12 +46,12 @@ public class ApprovalBoxController {
         ArrayList<DocumentListDTO> docList;
 
         if (!searchInput.equals("")) {
+
             docList=approvalBoxService.selectSearchDocuments(viewItems, orgUserId, deptId, estId, compId, itemsPerPage,searchInput,sortStatus,radioSortValue,lastApprovalDate,lastDocId);
         }else{
+
             docList = approvalBoxService.selectDocuments(viewItems, orgUserId, deptId,estId,compId, itemsPerPage, sortStatus,radioSortValue,lastApprovalDate,lastDocId);
         }
-
-
         return docList;
     }
 
@@ -86,23 +86,24 @@ public class ApprovalBoxController {
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/search")
     public ResponseEntity<ArrayList<DocumentListDTO>> searchDocuments(@SessionAttribute(name = "orgUserId") int orgUserId,
-                                                               @SessionAttribute(name = "compId") int compId,
-                                                               @SessionAttribute(name = "deptId") int deptId,
-                                                               @Valid @RequestBody SearchRequestDTO criteria) {
+                                                                      @SessionAttribute(name = "compId") int compId,
+                                                                      @SessionAttribute(name = "deptId") int deptId,
 
-        ArrayList<DocumentListDTO> result = approvalBoxService.searchDocuments(orgUserId,deptId,compId,criteria);
+                                                                      @Valid @RequestBody SearchRequestDTO criteria) {
+        int estId = approvalBoxDAO.selectEstId(orgUserId);
+        ArrayList<DocumentListDTO> result = approvalBoxService.searchDocuments(orgUserId,deptId,estId,compId,criteria);
         return ResponseEntity.ok(result);
     }
 
     @Authority(role = {Authority.Role.USER, Authority.Role.DEPT_ADMIN, Authority.Role.MASTER_ADMIN})
     @PostMapping("/searchCount")
     public ResponseEntity<Integer> searchDocumentsCount(@SessionAttribute(name = "orgUserId") int orgUserId,
-                                                               @SessionAttribute(name = "compId") int compId,
-                                                               @SessionAttribute(name = "deptId") int deptId,
-                                                               @Valid @RequestBody SearchRequestDTO criteria) {
+                                                        @SessionAttribute(name = "compId") int compId,
+                                                        @SessionAttribute(name = "deptId") int deptId,
+                                                        @Valid @RequestBody SearchRequestDTO criteria) {
         int estId = approvalBoxDAO.selectEstId(orgUserId);
 
-       int result = approvalBoxService.searchDocumentsCount( orgUserId,deptId,estId,compId,criteria);
+        int result = approvalBoxService.searchDocumentsCount( orgUserId,deptId,estId,compId,criteria);
         return ResponseEntity.ok(result);
     }
 
