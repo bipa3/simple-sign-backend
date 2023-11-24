@@ -231,6 +231,9 @@ public class ApproveService {
         if(approverId == orgUserId) {
             sameApprover = true;
         }
+        if(sameApprover) {
+            return;
+        }
         //2.결재문서에서 결재라인에 해당 사용자가 있는지 확인 + 해당 사용자 전 결재자들이 전부 결재했는지 확인
         List<ApprovalLineListDTO> approvalLineLists = approveDAO.selectApprovalLineByApprovalDocId(approvalDocId);
         List<ApprovalLineListDTO> filteredList = approvalLineLists.stream().filter(approvalLineListDTO ->
