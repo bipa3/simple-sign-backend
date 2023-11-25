@@ -131,9 +131,9 @@ public class ApproveService {
         if(affectedCount ==0) {
             throw new RestApiException(CustomErrorCode.IS_ALREADY_UPDATED);
         }
-
+        int approverId = (int)SessionUtils.getAttribute("orgUserId");
         //종결일 경우는 상신자와 수신참조자에게 알림
-        eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approvalDocResDTO.getOrgUserId(), AlarmStatus.APPROVE.getCode()));
+        eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,approvalDocResDTO.getOrgUserId(), AlarmStatus.APPROVE.getCode(),approverId));
         List<Integer> receivedRefUserIdList = approveDAO.selectRecievedRefUserId(approvalDocId);
         if(receivedRefUserIdList.size() !=0) {
             for (int receiveUser : receivedRefUserIdList) {
@@ -161,8 +161,9 @@ public class ApproveService {
             throw new RestApiException(CustomErrorCode.IS_ALREADY_UPDATED);
         }
         //4. 알림보내기(결재승인알람 및 결재문서가 종결이라면 종결알람)
+        int approverId = (int)SessionUtils.getAttribute("orgUserId");
         int recipient = approveDAO.selectRecipientId(approvalDocId);
-        eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,recipient,AlarmStatus.APPROVE.getCode()));
+        eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,recipient,AlarmStatus.APPROVE.getCode(), approverId));
         eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,upperApproverId,AlarmStatus.SUBMIT.getCode()));
     }
 
