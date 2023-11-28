@@ -43,7 +43,7 @@
     <!--결재 가져오기-->
     <select id="selectApprovalByApprovalId" resultType="ApprovalResDTO" parameterType="Map">
         select approval_id, approval_doc_id, receive_date, approval_date, approval_order, approval_status,
-                org_user_id
+                org_user_id, sign_file_id
         from approval
         where approval_doc_id = #{approvalDocId} and org_user_id = #{orgUserId};
     </select>

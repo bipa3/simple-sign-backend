@@ -64,7 +64,7 @@
 
     <!-- 사인 이미지 조회 -->
     <select id="selectSignState" parameterType="int" resultType="boolean">
-        select sign_state from user where user_id = #{userId}
+        select sign_state from user where user_id = #{userId};
     </select>
 
     <select id="selectSignImage" parameterType="int" resultType="String">

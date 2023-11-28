@@ -93,7 +93,7 @@ public class ApproveService {
         //custom 사인이 있으면 사인아이디 삽입
         int userId = (int)SessionUtils.getAttribute("userId");
         boolean isCustomSignExist = userDAO.getSignstate(userId);
-        if(isCustomSignExist) {
+        if(isCustomSignExist && approvalResDTO.getSignFileId() !=0) {
             int fileId = userDAO.getSignFileIdByUserId(userId);
             approvalResDTO.setSignFileId(fileId);
         }

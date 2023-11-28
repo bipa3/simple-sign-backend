@@ -40,7 +40,6 @@ public class SequenceService {
 
         //userId에 맞는 부서아이디, 회사아이디, 사업장 아이디 가져오기
         BelongOrganizationDTO belongs = commonDAO.getBelongs(userId);
-
         //품의번호 만들기
         StringBuffer buffer = new StringBuffer();
         for(String product:productList) {
@@ -76,7 +75,7 @@ public class SequenceService {
                     buffer.append(LocalDate.now().format(DateTimeFormatter.ofPattern("MM")));
                     break;
                 case"11":
-                    buffer.append(LocalDate.now().format(DateTimeFormatter.ofPattern("DD")));
+                    buffer.append(LocalDate.now().format(DateTimeFormatter.ofPattern("dd")));
                     break;
                 case "12":
                     buffer.append(SequenceItem.CODE2);
