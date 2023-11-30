@@ -89,6 +89,7 @@ public class ApproveService {
         //결재 상태를 '승인'으로 바꾸고 결재시간 삽입하기
         approvalResDTO.setApprovalStatus(ApprovalStatus.APPROVAL.getCode());
         approvalResDTO.setApprovalDate(LocalDateTime.now());
+        System.out.println("LocalDateTime: "+ LocalDateTime.now());
 
         //custom 사인이 있으면 사인아이디 삽입
         int userId = (int)SessionUtils.getAttribute("userId");
