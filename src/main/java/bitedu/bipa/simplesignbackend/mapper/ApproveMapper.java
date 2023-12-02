@@ -117,9 +117,11 @@ public interface ApproveMapper {
 
     List<AllUnApprovedDocDTO> selectAllUnApprovedDocList(int orgUserId);
 
-    void insertSearchContents(@Param("approvalDocId") int approvalDocId, @Param("parsedText")String parsedText);
+    void insertSearchContents(@Param("approvalDocId") int approvalDocId, @Param("parsedText")String parsedText, @Param("approvalDocTitle")String approvalDocTitle);
 
     void updateSearchContents(@Param("approvalDocId") int approvalDocId, @Param("parsedText")String parsedText);
 
     int selectFavoriteCount(int orgUserId);
+
+    void updateProductNumintoSearchContents(@Param("approvalDocId") int approvalDocId, @Param("productNum") String productNum);
 }

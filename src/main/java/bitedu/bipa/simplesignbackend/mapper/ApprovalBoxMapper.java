@@ -49,7 +49,10 @@ public interface ApprovalBoxMapper {
                                      @Param("compId") int compId,
                                      @Param("viewItems") List<String> viewItems,
                                      @Param("searchInput") String searchInput,
-                                     @Param("radioSortValue") String radioSortValue);
+                                     @Param("radioSortValue") String radioSortValue,
+                                     @Param("inputFormCode")List <Integer> inputFormCode,
+                                     @Param("inputOrgUserId")List <Integer> inputOrgUserId);
+
 
     ArrayList<DocumentListDTO> getDetailSearchDocsList(@Param("orgUserId") int orgUserId,
                                                        @Param("deptId") int deptId,

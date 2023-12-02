@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class DocumentListDTO {
     private int approvalDocId;
+    private String productNum;
     private String approvalDocTitle;
     private char docStatus;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")

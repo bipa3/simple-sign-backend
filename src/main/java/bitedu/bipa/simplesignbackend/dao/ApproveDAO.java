@@ -283,8 +283,8 @@ public class ApproveDAO {
         return approveMapper.selectAllUnApprovedDocList(orgUserId);
     }
 
-    public void insertSearchContents(int approvalDocId, String parsedText) {
-        approveMapper.insertSearchContents(approvalDocId, parsedText);
+    public void insertSearchContents(int approvalDocId, String parsedText, String approvalDocTitle) {
+        approveMapper.insertSearchContents(approvalDocId, parsedText, approvalDocTitle);
     }
 
     public void updateSearchContents(int approvalDocId, String parsedText) {
@@ -293,5 +293,9 @@ public class ApproveDAO {
 
     public int selectFavoriteCount(int orgUserId) {
         return approveMapper.selectFavoriteCount(orgUserId);
+    }
+
+    public void updateProductNumintoSearchContents(int approvalDocId, String productNum) {
+        approveMapper.updateProductNumintoSearchContents(approvalDocId,productNum);
     }
 }

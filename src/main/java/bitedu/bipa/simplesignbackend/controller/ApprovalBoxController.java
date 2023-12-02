@@ -76,8 +76,6 @@ public class ApprovalBoxController {
         if (!searchInput.equals("")) {
 
             count=approvalBoxService.selectSearchDocumentsCount(viewItems, orgUserId, deptId, estId, compId, searchInput,radioSortValue);
-        }else{
-            count = approvalBoxService.selectDocumentsCount(viewItems, orgUserId, deptId,estId,compId,radioSortValue);
         }
 
         return count;
