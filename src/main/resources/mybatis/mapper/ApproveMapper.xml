@@ -433,8 +433,8 @@
 
     <!-- searchContext 테이블에 파싱된 내용 넣기 -->
     <insert id="insertSearchContents" >
-        insert into search_contents (approval_doc_id, contents)
-        values(#{approvalDocId}, #{parsedText});
+        insert into search_contents (approval_doc_id,approval_doc_title, contents)
+        values(#{approvalDocId},#{approvalDocTitle}, #{parsedText});
     </insert>
     <update id="updateSearchContents">
         update search_contents
@@ -445,4 +445,9 @@
     <select id="selectFavoriteCount" parameterType="int">
         select count(*) from favorites where org_user_id = #{orgUserId};
     </select>
+
+    <update id="updateProductNumintoSearchContents">
+        UPDATE search_contents SET product_num = #{productNum} WHERE approval_doc_id = #{approvalDocId};
+    </update>
+
 </mapper>

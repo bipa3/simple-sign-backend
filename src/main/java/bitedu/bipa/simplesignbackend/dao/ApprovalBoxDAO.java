@@ -34,8 +34,9 @@ public class ApprovalBoxDAO {
         return list;
     }
 
-    public int selectSearchDocsCount(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, String searchInput,String radioSortValue) {
-        int count  = approvalBoxMapper.getSearchDocCountByViewItems(orgUserId, deptId, estId, compId, viewItems, searchInput,radioSortValue);
+    public int selectSearchDocsCount(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, String searchInput,String radioSortValue,
+                                     ArrayList<Integer> inputFormCode,ArrayList<Integer> inputOrgUserId) {
+        int count  = approvalBoxMapper.getSearchDocCountByViewItems(orgUserId, deptId, estId, compId, viewItems, searchInput,radioSortValue,inputFormCode,inputOrgUserId);
         return count;
     }
 

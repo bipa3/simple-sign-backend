@@ -47,7 +47,19 @@ public class ApprovalBoxService {
     }
 
     public int selectSearchDocumentsCount(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, String searchInput,String radioSortValue) {
-        int count =approvalBoxDAO.selectSearchDocsCount(viewItems,orgUserId,deptId, estId, compId, searchInput,radioSortValue);
+        ArrayList<Integer> inputOrgUserId = new ArrayList();
+        ArrayList<Integer> inputFormCode = new ArrayList();
+
+        //searchInput이 숫자로만 이루어져 있을 때
+        if(searchInput.matches("\\d+")){
+            inputOrgUserId.add(Integer.valueOf(searchInput));
+            inputFormCode.add(Integer.valueOf(searchInput));
+        }else{  //아닐 때
+            inputOrgUserId = approvalBoxDAO.selectOrgUserId(searchInput);
+            inputFormCode = approvalBoxDAO.selectFormCode(searchInput);
+        }
+
+        int count =approvalBoxDAO.selectSearchDocsCount(viewItems,orgUserId,deptId, estId, compId, searchInput,radioSortValue,inputOrgUserId,inputFormCode);
 
         return count;
     }

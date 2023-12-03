@@ -6,27 +6,19 @@
 <mapper namespace="bitedu.bipa.simplesignbackend.mapper.ApprovalBoxMapper">
     <select id="getDocumentsByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
         <choose>
-            <when test="viewItems.contains('concluded') ">
+            <when test="viewItems.contains('reference')">
                 SELECT
-                ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
+                ad.approval_doc_id, ad.product_num, ad.approval_doc_title, ad.approval_date as sendDate,
+                u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
+                ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+                FROM approval_doc ad ignore index(primary)
+            </when>
+            <otherwise>
+                SELECT
+                ad.approval_doc_id, ad.product_num, ad.approval_doc_title, ad.approval_date as sendDate,
                 u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
                 ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
                 FROM approval_doc ad
-            </when>
-            <when test="viewItems.contains('reference')">
-                SELECT
-                ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
-                u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
-                ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
-                FROM approval_doc ad force index(approval_date_idx)
-            </when>
-
-            <otherwise>
-                SELECT
-                ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
-                u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
-                ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
-                FROM approval_doc ad ignore index(approval_date_idx)
             </otherwise>
         </choose>
 
@@ -221,30 +213,11 @@
 
 
     <select id="getSearchDocumentsByViewItems" resultType="bitedu.bipa.simplesignbackend.model.dto.DocumentListDTO">
-        <choose>
-            <when test="viewItems.contains('concluded')">
-                SELECT
-                ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
-                u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
-                ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
-                FROM approval_doc ad
-            </when>
-            <when test="viewItems.contains('reference')">
-                SELECT
-                ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
-                u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
-                ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
-                FROM approval_doc ad force index(approval_date_idx)
-            </when>
-
-            <otherwise>
-                SELECT
-                ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
-                u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
-                ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
-                FROM approval_doc ad ignore index(approval_date_idx)
-            </otherwise>
-        </choose>
+        SELECT * FROM ((SELECT
+        ad.approval_doc_id, ad.product_num, ad.approval_doc_title, ad.approval_date as sendDate,
+        u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
+        ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+        FROM approval_doc ad
 
 
         <!-- 로그인 사용자에 대한 결재 테이블 join (미결, 기결, 기결진행, 기결종결)-->
@@ -316,6 +289,7 @@
         )
         and ad.doc_del_status = 0
 
+
         <!-- 문서 필터링 정렬 -->
         <choose>
             <when test="radioSortValue != null and radioSortValue != ''">
@@ -339,10 +313,7 @@
             </when>
         </choose>
         AND (
-        ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
-
-
-
+        MATCH(sc.approval_doc_title) AGAINST( #{searchInput})
         <if test="inputFormCode != null">
             <foreach item="item" index="index" collection="inputFormCode"
                      open="OR (" separator="OR" close=")">
@@ -362,16 +333,7 @@
             </foreach>
         </if>
 
-        <foreach collection="viewItems" item="viewItem" separator="OR">
-            <if test="viewItem != 'tempor'">
-                OR sc.contents LIKE CONCAT('%', #{searchInput}, '%')
-            </if>
-        </foreach>
-
-        or ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
         )
-
-
         <if test="lastApprovalDate != null and lastApprovalDocId != null">
             <!-- 내림차순 정렬일 때 -->
             <choose>
@@ -384,25 +346,23 @@
                 </when>
             </choose>
         </if>
+        )
 
-        <!-- 오름차순/내림차순 -->
-        <choose>
-            <when test="sortStatus == 'asc'">
-                ORDER BY ad.approval_date ASC, ad.approval_doc_id ASC
-            </when>
-            <when test="sortStatus == 'desc'">
-                ORDER BY ad.approval_date DESC, ad.approval_doc_id DESC
-            </when>
-        </choose>
-
-        LIMIT #{itemsPerPage};
-    </select>
-
-    <select id="getSearchDocCountByViewItems" resultType="int">
-        SELECT COUNT(DISTINCT ad.approval_doc_id)
+        union
+        (
+        SELECT
+        ad.approval_doc_id, ad.product_num, ad.approval_doc_title, ad.approval_date as sendDate,
+        u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
+        ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
         FROM approval_doc ad
+
+
+        <!-- 로그인 사용자에 대한 결재 테이블 join (미결, 기결, 기결진행, 기결종결)-->
         LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
+        <!-- 상신자 이름 들고오기 join -->
         JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
+        LEFT JOIN user u ON  ou.user_id = u.user_id
+        <!-- 마지막 결재자를 들고오기 위한 join -->
         LEFT JOIN approval a2 ON (ad.approval_doc_id = a2.approval_doc_id
         AND a2.approval_order = (
         SELECT MAX(sub_a.approval_order)
@@ -411,48 +371,63 @@
         JOIN organization_user ou3 ON ou3.org_user_id = sub_a.org_user_id
         WHERE ad2.approval_doc_id = ad.approval_doc_id
         AND ou3.org_user_id = sub_a.org_user_id
-        AND sub_a.approval_status in ('A','R')
-        ))
-        left JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
-        LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
-        LEFT JOIN user u2 ON (a2.org_user_id = ou2.org_user_id and ou2.user_id = u2.user_id)
-        JOIN department d ON d.dept_id = ou.dept_id
-        JOIN form f ON ad.form_code = f.form_code
+        AND sub_a.approval_status in ('A','R'))
+        )
+        LEFT JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
+        LEFT JOIN user u2 ON ou2.user_id = u2.user_id
+
         <foreach collection="viewItems" item="viewItem" separator="OR">
-            <if test="viewItem == 'reference'">
-                join received_ref r on (r.active_state =1 and r.approval_doc_id = ad.approval_doc_id)
-                left join doc_view dv on (dv.approval_doc_id = ad.approval_doc_id)
+            <if test="viewItem != 'tempor'">
+                join search_contents sc on sc.approval_doc_id = ad.approval_doc_id
             </if>
         </foreach>
-        WHERE ad.doc_del_status = 0
-        AND (
+
+
+        <!-- 수신참조함 join -->
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'reference'">
+                join received_ref r on (r.active_state = 1 and r.approval_doc_id = ad.approval_doc_id)
+                left join doc_view dv on (dv.approval_doc_id = ad.approval_doc_id and dv.org_user_id = #{orgUserId})
+            </if>
+        </foreach>
+        <!-- 문서함에 따른 where 절 -->
+        WHERE (
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'send'">
-                (ad.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P', 'W'))
+                (ad.doc_status != 'T' AND ad.org_user_id = #{orgUserId})
             </if>
             <if test="viewItem == 'tempor'">
-                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'T')
+                (ad.doc_status = 'T' AND ad.org_user_id = #{orgUserId})
             </if>
             <if test="viewItem == 'pend'">
-                (a.org_user_id = #{orgUserId} AND a.approval_status = 'P' and (ad.doc_status != 'A' and ad.doc_status != 'R' and ad.doc_status !=
-                'T'))</if>
+                (ad.doc_status in ('P','W') AND a.org_user_id = #{orgUserId} AND a.approval_status = 'P')
+            </if>
             <if test="viewItem == 'concluded'">
-                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R'))
+                (ad.doc_status IN ('A', 'R', 'P') AND a.org_user_id = #{orgUserId} AND a.approval_status in('A','R'))
             </if>
             <if test="viewItem == 'reference'">
-                (ad.doc_status != 'T' and ad.doc_status != 'P' and r.approval_doc_id = ad.approval_doc_id  AND (r.use_id =#{orgUserId} and r.category = 'U') OR (r.use_id =#{deptId}  and r.category='D') OR (r.use_id = #{estId}  and r.category='E') OR (r.use_id = #{compId}  and r.category='C'))
+                (
+                (r.use_id = #{orgUserId} AND r.category = 'U')
+                OR (r.use_id = #{deptId} AND r.category = 'D')
+                OR (r.use_id = #{estId} AND r.category= 'E')
+                OR (r.use_id = #{compId} AND r.category = 'C')
+                )
             </if>
             <if test="viewItem == 'progress'">
-                ((a.org_user_id = #{orgUserId} AND ad.doc_status = 'P' AND a.approval_status IN ('A', 'R')))
+                (ad.doc_status = 'P' AND a.org_user_id = #{orgUserId} AND a.approval_status IN ('A', 'R'))
             </if>
             <if test="viewItem == 'end'">
-                (a.org_user_id = #{orgUserId} AND ad.doc_status IN ('A', 'R', 'P') and a.approval_status in('A','R'))
+                (ad.doc_status IN ('A', 'R') AND a.org_user_id =#{orgUserId})
             </if>
             <if test="viewItem == 'reject'">
-                (ad.org_user_id = #{orgUserId} AND ad.doc_status = 'R' AND EXISTS (SELECT 1 FROM approval a WHERE a.approval_doc_id = ad.approval_doc_id AND a.org_user_id = #{orgUserId}))
+                (ad.doc_status = 'R' AND ad.org_user_id = #{orgUserId})
             </if>
         </foreach>
         )
+        and ad.doc_del_status = 0
+
+
+        <!-- 문서 필터링 정렬 -->
         <choose>
             <when test="radioSortValue != null and radioSortValue != ''">
                 <choose>
@@ -468,18 +443,586 @@
                     <when test="radioSortValue=='readdoc'">
                         and dv.org_user_id = #{orgUserId}
                     </when>
+                    <otherwise>
 
+                    </otherwise>
                 </choose>
             </when>
         </choose>
         AND (
-        ad.approval_doc_id LIKE CONCAT('%', #{searchInput}, '%')
-        OR ad.approval_doc_title LIKE CONCAT('%', #{searchInput}, '%')
-        OR ad.search_contents LIKE CONCAT('%', #{searchInput}, '%')
-        OR u.user_name LIKE CONCAT('%', #{searchInput}, '%')
-        OR u2.user_name LIKE CONCAT('%', #{searchInput}, '%')
-        OR ad.form_name LIKE CONCAT('%', #{searchInput}, '%')
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem != 'tempor'">
+                MATCH(sc.contents) AGAINST(#{searchInput})
+            </if>
+        </foreach>
+
+        <if test="inputFormCode != null">
+            <foreach item="item" index="index" collection="inputFormCode"
+                     open="OR (" separator="OR" close=")">
+                ad.form_code = #{item}
+            </foreach>
+        </if>
+        <if test="inputOrgUserId != null">
+            <foreach item="item" index="index" collection="inputOrgUserId"
+                     open="OR (" separator="OR" close=")">
+                ou.org_user_id = #{item}
+            </foreach>
+        </if>
+        <if test="inputOrgUserId != null">
+            <foreach item="item" index="index" collection="inputOrgUserId"
+                     open="OR (" separator="OR" close=")">
+                ou2.org_user_id = #{item}
+            </foreach>
+        </if>
         )
+        <if test="lastApprovalDate != null and lastApprovalDocId != null">
+            <!-- 내림차순 정렬일 때 -->
+            <choose>
+                <when test="sortStatus == 'desc'">
+                    AND (#{lastApprovalDate} > ad.approval_date OR (ad.approval_date = #{lastApprovalDate} AND #{lastApprovalDocId} > ad.approval_doc_id))
+                </when>
+                <!-- 오름차순 정렬일 때 -->
+                <when test="sortStatus == 'asc'">
+                    AND (ad.approval_date > #{lastApprovalDate} OR (ad.approval_date = #{lastApprovalDate} AND ad.approval_doc_id > #{lastApprovalDocId}))
+                </when>
+            </choose>
+        </if>
+        )
+
+        union
+        (
+        SELECT
+        ad.approval_doc_id, ad.product_num, ad.approval_doc_title, ad.approval_date as sendDate,
+        u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
+        ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+        FROM approval_doc ad
+
+
+        <!-- 로그인 사용자에 대한 결재 테이블 join (미결, 기결, 기결진행, 기결종결)-->
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
+        <!-- 상신자 이름 들고오기 join -->
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
+        LEFT JOIN user u ON  ou.user_id = u.user_id
+        <!-- 마지막 결재자를 들고오기 위한 join -->
+        LEFT JOIN approval a2 ON (ad.approval_doc_id = a2.approval_doc_id
+        AND a2.approval_order = (
+        SELECT MAX(sub_a.approval_order)
+        FROM approval sub_a
+        JOIN approval_doc ad2 ON ad2.approval_doc_id = sub_a.approval_doc_id
+        JOIN organization_user ou3 ON ou3.org_user_id = sub_a.org_user_id
+        WHERE ad2.approval_doc_id = ad.approval_doc_id
+        AND ou3.org_user_id = sub_a.org_user_id
+        AND sub_a.approval_status in ('A','R'))
+        )
+        LEFT JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
+        LEFT JOIN user u2 ON ou2.user_id = u2.user_id
+
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem != 'tempor'">
+                join search_contents sc on sc.approval_doc_id = ad.approval_doc_id
+            </if>
+        </foreach>
+
+
+        <!-- 수신참조함 join -->
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'reference'">
+                join received_ref r on (r.active_state = 1 and r.approval_doc_id = ad.approval_doc_id)
+                left join doc_view dv on (dv.approval_doc_id = ad.approval_doc_id and dv.org_user_id = #{orgUserId})
+            </if>
+        </foreach>
+        <!-- 문서함에 따른 where 절 -->
+        WHERE (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'send'">
+                (ad.doc_status != 'T' AND ad.org_user_id = #{orgUserId})
+            </if>
+            <if test="viewItem == 'tempor'">
+                (ad.doc_status = 'T' AND ad.org_user_id = #{orgUserId})
+            </if>
+            <if test="viewItem == 'pend'">
+                (ad.doc_status in ('P','W') AND a.org_user_id = #{orgUserId} AND a.approval_status = 'P')
+            </if>
+            <if test="viewItem == 'concluded'">
+                (ad.doc_status IN ('A', 'R', 'P') AND a.org_user_id = #{orgUserId} AND a.approval_status in('A','R'))
+            </if>
+            <if test="viewItem == 'reference'">
+                (
+                (r.use_id = #{orgUserId} AND r.category = 'U')
+                OR (r.use_id = #{deptId} AND r.category = 'D')
+                OR (r.use_id = #{estId} AND r.category= 'E')
+                OR (r.use_id = #{compId} AND r.category = 'C')
+                )
+            </if>
+            <if test="viewItem == 'progress'">
+                (ad.doc_status = 'P' AND a.org_user_id = #{orgUserId} AND a.approval_status IN ('A', 'R'))
+            </if>
+            <if test="viewItem == 'end'">
+                (ad.doc_status IN ('A', 'R') AND a.org_user_id =#{orgUserId})
+            </if>
+            <if test="viewItem == 'reject'">
+                (ad.doc_status = 'R' AND ad.org_user_id = #{orgUserId})
+            </if>
+        </foreach>
+        )
+        and ad.doc_del_status = 0
+
+
+        <!-- 문서 필터링 정렬 -->
+        <choose>
+            <when test="radioSortValue != null and radioSortValue != ''">
+                <choose>
+                    <when test="radioSortValue=='ongoingdoc'">
+                        and ad.doc_status = 'P'
+                    </when>
+                    <when test="radioSortValue=='writtendoc'">
+                        and ad.doc_status in ('A','R')
+                    </when>
+                    <when test="radioSortValue=='notreaddoc'">
+                        and (dv.org_user_id != #{orgUserId} OR dv.org_user_id IS NULL)
+                    </when>
+                    <when test="radioSortValue=='readdoc'">
+                        and dv.org_user_id = #{orgUserId}
+                    </when>
+                    <otherwise>
+
+                    </otherwise>
+                </choose>
+            </when>
+        </choose>
+        AND (
+        MATCH(sc.product_num) AGAINST(#{searchInput})
+
+        <if test="inputFormCode != null">
+            <foreach item="item" index="index" collection="inputFormCode"
+                     open="OR (" separator="OR" close=")">
+                ad.form_code = #{item}
+            </foreach>
+        </if>
+        <if test="inputOrgUserId != null">
+            <foreach item="item" index="index" collection="inputOrgUserId"
+                     open="OR (" separator="OR" close=")">
+                ou.org_user_id = #{item}
+            </foreach>
+        </if>
+        <if test="inputOrgUserId != null">
+            <foreach item="item" index="index" collection="inputOrgUserId"
+                     open="OR (" separator="OR" close=")">
+                ou2.org_user_id = #{item}
+            </foreach>
+        </if>
+        )
+        <if test="lastApprovalDate != null and lastApprovalDocId != null">
+            <!-- 내림차순 정렬일 때 -->
+            <choose>
+                <when test="sortStatus == 'desc'">
+                    AND (#{lastApprovalDate} > ad.approval_date OR (ad.approval_date = #{lastApprovalDate} AND #{lastApprovalDocId} > ad.approval_doc_id))
+                </when>
+                <!-- 오름차순 정렬일 때 -->
+                <when test="sortStatus == 'asc'">
+                    AND (ad.approval_date > #{lastApprovalDate} OR (ad.approval_date = #{lastApprovalDate} AND ad.approval_doc_id > #{lastApprovalDocId}))
+                </when>
+            </choose>
+        </if>
+        )) AS combined_results
+
+
+
+        <!-- 오름차순/내림차순 -->
+        <choose>
+            <when test="sortStatus == 'asc'">
+                ORDER BY combined_results.approval_date ASC,combined_results.approval_doc_id ASC
+            </when>
+            <when test="sortStatus == 'desc'">
+                ORDER BY combined_results.approval_date DESC, combined_results.approval_doc_id DESC
+            </when>
+        </choose>
+
+        LIMIT #{itemsPerPage};
+    </select>
+
+    <select id="getSearchDocCountByViewItems" resultType="int">
+        SELECT COUNT(*) FROM (
+        (SELECT
+        ad.approval_doc_id, ad.product_num, ad.approval_doc_title, ad.approval_date as sendDate,
+        u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
+        ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+        FROM approval_doc ad
+
+
+
+        <!-- 로그인 사용자에 대한 결재 테이블 join (미결, 기결, 기결진행, 기결종결)-->
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
+        <!-- 상신자 이름 들고오기 join -->
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
+        LEFT JOIN user u ON  ou.user_id = u.user_id
+        <!-- 마지막 결재자를 들고오기 위한 join -->
+        LEFT JOIN approval a2 ON (ad.approval_doc_id = a2.approval_doc_id
+        AND a2.approval_order = (
+        SELECT MAX(sub_a.approval_order)
+        FROM approval sub_a
+        JOIN approval_doc ad2 ON ad2.approval_doc_id = sub_a.approval_doc_id
+        JOIN organization_user ou3 ON ou3.org_user_id = sub_a.org_user_id
+        WHERE ad2.approval_doc_id = ad.approval_doc_id
+        AND ou3.org_user_id = sub_a.org_user_id
+        AND sub_a.approval_status in ('A','R'))
+        )
+        LEFT JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
+        LEFT JOIN user u2 ON ou2.user_id = u2.user_id
+
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem != 'tempor'">
+                join search_contents sc on sc.approval_doc_id = ad.approval_doc_id
+            </if>
+        </foreach>
+
+
+        <!-- 수신참조함 join -->
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'reference'">
+                join received_ref r on (r.active_state = 1 and r.approval_doc_id = ad.approval_doc_id)
+                left join doc_view dv on (dv.approval_doc_id = ad.approval_doc_id and dv.org_user_id = #{orgUserId})
+            </if>
+        </foreach>
+        <!-- 문서함에 따른 where 절 -->
+        WHERE (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'send'">
+                (ad.doc_status != 'T' AND ad.org_user_id = #{orgUserId})
+            </if>
+            <if test="viewItem == 'tempor'">
+                (ad.doc_status = 'T' AND ad.org_user_id = #{orgUserId})
+            </if>
+            <if test="viewItem == 'pend'">
+                (ad.doc_status in ('P','W') AND a.org_user_id = #{orgUserId} AND a.approval_status = 'P')
+            </if>
+            <if test="viewItem == 'concluded'">
+                (ad.doc_status IN ('A', 'R', 'P') AND a.org_user_id = #{orgUserId} AND a.approval_status in('A','R'))
+            </if>
+            <if test="viewItem == 'reference'">
+                (
+                (r.use_id = #{orgUserId} AND r.category = 'U')
+                OR (r.use_id = #{deptId} AND r.category = 'D')
+                OR (r.use_id = #{estId} AND r.category= 'E')
+                OR (r.use_id = #{compId} AND r.category = 'C')
+                )
+            </if>
+            <if test="viewItem == 'progress'">
+                (ad.doc_status = 'P' AND a.org_user_id = #{orgUserId} AND a.approval_status IN ('A', 'R'))
+            </if>
+            <if test="viewItem == 'end'">
+                (ad.doc_status IN ('A', 'R') AND a.org_user_id =#{orgUserId})
+            </if>
+            <if test="viewItem == 'reject'">
+                (ad.doc_status = 'R' AND ad.org_user_id = #{orgUserId})
+            </if>
+        </foreach>
+        )
+        and ad.doc_del_status = 0
+
+
+        <!-- 문서 필터링 정렬 -->
+        <choose>
+            <when test="radioSortValue != null and radioSortValue != ''">
+                <choose>
+                    <when test="radioSortValue=='ongoingdoc'">
+                        and ad.doc_status = 'P'
+                    </when>
+                    <when test="radioSortValue=='writtendoc'">
+                        and ad.doc_status in ('A','R')
+                    </when>
+                    <when test="radioSortValue=='notreaddoc'">
+                        and (dv.org_user_id != #{orgUserId} OR dv.org_user_id IS NULL)
+                    </when>
+                    <when test="radioSortValue=='readdoc'">
+                        and dv.org_user_id = #{orgUserId}
+                    </when>
+                    <otherwise>
+
+                    </otherwise>
+                </choose>
+            </when>
+        </choose>
+        AND (
+        MATCH(sc.approval_doc_title) AGAINST( #{searchInput})
+        <if test="inputFormCode != null">
+            <foreach item="item" index="index" collection="inputFormCode"
+                     open="OR (" separator="OR" close=")">
+                ad.form_code = #{item}
+            </foreach>
+        </if>
+        <if test="inputOrgUserId != null">
+            <foreach item="item" index="index" collection="inputOrgUserId"
+                     open="OR (" separator="OR" close=")">
+                ou.org_user_id = #{item}
+            </foreach>
+        </if>
+        <if test="inputOrgUserId != null">
+            <foreach item="item" index="index" collection="inputOrgUserId"
+                     open="OR (" separator="OR" close=")">
+                ou2.org_user_id = #{item}
+            </foreach>
+        </if>
+
+        )
+        )
+
+        union
+        (
+        SELECT
+        ad.approval_doc_id, ad.product_num, ad.approval_doc_title, ad.approval_date as sendDate,
+        u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
+        ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+        FROM approval_doc ad
+
+
+
+        <!-- 로그인 사용자에 대한 결재 테이블 join (미결, 기결, 기결진행, 기결종결)-->
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
+        <!-- 상신자 이름 들고오기 join -->
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
+        LEFT JOIN user u ON  ou.user_id = u.user_id
+        <!-- 마지막 결재자를 들고오기 위한 join -->
+        LEFT JOIN approval a2 ON (ad.approval_doc_id = a2.approval_doc_id
+        AND a2.approval_order = (
+        SELECT MAX(sub_a.approval_order)
+        FROM approval sub_a
+        JOIN approval_doc ad2 ON ad2.approval_doc_id = sub_a.approval_doc_id
+        JOIN organization_user ou3 ON ou3.org_user_id = sub_a.org_user_id
+        WHERE ad2.approval_doc_id = ad.approval_doc_id
+        AND ou3.org_user_id = sub_a.org_user_id
+        AND sub_a.approval_status in ('A','R'))
+        )
+        LEFT JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
+        LEFT JOIN user u2 ON ou2.user_id = u2.user_id
+
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem != 'tempor'">
+                join search_contents sc on sc.approval_doc_id = ad.approval_doc_id
+            </if>
+        </foreach>
+
+
+        <!-- 수신참조함 join -->
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'reference'">
+                join received_ref r on (r.active_state = 1 and r.approval_doc_id = ad.approval_doc_id)
+                left join doc_view dv on (dv.approval_doc_id = ad.approval_doc_id and dv.org_user_id = #{orgUserId})
+            </if>
+        </foreach>
+        <!-- 문서함에 따른 where 절 -->
+        WHERE (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'send'">
+                (ad.doc_status != 'T' AND ad.org_user_id = #{orgUserId})
+            </if>
+            <if test="viewItem == 'tempor'">
+                (ad.doc_status = 'T' AND ad.org_user_id = #{orgUserId})
+            </if>
+            <if test="viewItem == 'pend'">
+                (ad.doc_status in ('P','W') AND a.org_user_id = #{orgUserId} AND a.approval_status = 'P')
+            </if>
+            <if test="viewItem == 'concluded'">
+                (ad.doc_status IN ('A', 'R', 'P') AND a.org_user_id = #{orgUserId} AND a.approval_status in('A','R'))
+            </if>
+            <if test="viewItem == 'reference'">
+                (
+                (r.use_id = #{orgUserId} AND r.category = 'U')
+                OR (r.use_id = #{deptId} AND r.category = 'D')
+                OR (r.use_id = #{estId} AND r.category= 'E')
+                OR (r.use_id = #{compId} AND r.category = 'C')
+                )
+            </if>
+            <if test="viewItem == 'progress'">
+                (ad.doc_status = 'P' AND a.org_user_id = #{orgUserId} AND a.approval_status IN ('A', 'R'))
+            </if>
+            <if test="viewItem == 'end'">
+                (ad.doc_status IN ('A', 'R') AND a.org_user_id =#{orgUserId})
+            </if>
+            <if test="viewItem == 'reject'">
+                (ad.doc_status = 'R' AND ad.org_user_id = #{orgUserId})
+            </if>
+        </foreach>
+        )
+        and ad.doc_del_status = 0
+
+
+        <!-- 문서 필터링 정렬 -->
+        <choose>
+            <when test="radioSortValue != null and radioSortValue != ''">
+                <choose>
+                    <when test="radioSortValue=='ongoingdoc'">
+                        and ad.doc_status = 'P'
+                    </when>
+                    <when test="radioSortValue=='writtendoc'">
+                        and ad.doc_status in ('A','R')
+                    </when>
+                    <when test="radioSortValue=='notreaddoc'">
+                        and (dv.org_user_id != #{orgUserId} OR dv.org_user_id IS NULL)
+                    </when>
+                    <when test="radioSortValue=='readdoc'">
+                        and dv.org_user_id = #{orgUserId}
+                    </when>
+                    <otherwise>
+
+                    </otherwise>
+                </choose>
+            </when>
+        </choose>
+        AND (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem != 'tempor'">
+                MATCH(sc.contents) AGAINST(#{searchInput})
+            </if>
+        </foreach>
+
+        <if test="inputFormCode != null">
+            <foreach item="item" index="index" collection="inputFormCode"
+                     open="OR (" separator="OR" close=")">
+                ad.form_code = #{item}
+            </foreach>
+        </if>
+        <if test="inputOrgUserId != null">
+            <foreach item="item" index="index" collection="inputOrgUserId"
+                     open="OR (" separator="OR" close=")">
+                ou.org_user_id = #{item}
+            </foreach>
+        </if>
+        <if test="inputOrgUserId != null">
+            <foreach item="item" index="index" collection="inputOrgUserId"
+                     open="OR (" separator="OR" close=")">
+                ou2.org_user_id = #{item}
+            </foreach>
+        </if>
+        )
+
+        )
+
+        union
+        (
+        SELECT
+        ad.approval_doc_id, ad.product_num, ad.approval_doc_title, ad.approval_date as sendDate,
+        u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
+        ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
+        FROM approval_doc ad
+
+
+        <!-- 로그인 사용자에 대한 결재 테이블 join (미결, 기결, 기결진행, 기결종결)-->
+        LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
+        <!-- 상신자 이름 들고오기 join -->
+        JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
+        LEFT JOIN user u ON  ou.user_id = u.user_id
+        <!-- 마지막 결재자를 들고오기 위한 join -->
+        LEFT JOIN approval a2 ON (ad.approval_doc_id = a2.approval_doc_id
+        AND a2.approval_order = (
+        SELECT MAX(sub_a.approval_order)
+        FROM approval sub_a
+        JOIN approval_doc ad2 ON ad2.approval_doc_id = sub_a.approval_doc_id
+        JOIN organization_user ou3 ON ou3.org_user_id = sub_a.org_user_id
+        WHERE ad2.approval_doc_id = ad.approval_doc_id
+        AND ou3.org_user_id = sub_a.org_user_id
+        AND sub_a.approval_status in ('A','R'))
+        )
+        LEFT JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
+        LEFT JOIN user u2 ON ou2.user_id = u2.user_id
+
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem != 'tempor'">
+                join search_contents sc on sc.approval_doc_id = ad.approval_doc_id
+            </if>
+        </foreach>
+
+
+        <!-- 수신참조함 join -->
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'reference'">
+                join received_ref r on (r.active_state = 1 and r.approval_doc_id = ad.approval_doc_id)
+                left join doc_view dv on (dv.approval_doc_id = ad.approval_doc_id and dv.org_user_id = #{orgUserId})
+            </if>
+        </foreach>
+        <!-- 문서함에 따른 where 절 -->
+        WHERE (
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem == 'send'">
+                (ad.doc_status != 'T' AND ad.org_user_id = #{orgUserId})
+            </if>
+            <if test="viewItem == 'tempor'">
+                (ad.doc_status = 'T' AND ad.org_user_id = #{orgUserId})
+            </if>
+            <if test="viewItem == 'pend'">
+                (ad.doc_status in ('P','W') AND a.org_user_id = #{orgUserId} AND a.approval_status = 'P')
+            </if>
+            <if test="viewItem == 'concluded'">
+                (ad.doc_status IN ('A', 'R', 'P') AND a.org_user_id = #{orgUserId} AND a.approval_status in('A','R'))
+            </if>
+            <if test="viewItem == 'reference'">
+                (
+                (r.use_id = #{orgUserId} AND r.category = 'U')
+                OR (r.use_id = #{deptId} AND r.category = 'D')
+                OR (r.use_id = #{estId} AND r.category= 'E')
+                OR (r.use_id = #{compId} AND r.category = 'C')
+                )
+            </if>
+            <if test="viewItem == 'progress'">
+                (ad.doc_status = 'P' AND a.org_user_id = #{orgUserId} AND a.approval_status IN ('A', 'R'))
+            </if>
+            <if test="viewItem == 'end'">
+                (ad.doc_status IN ('A', 'R') AND a.org_user_id =#{orgUserId})
+            </if>
+            <if test="viewItem == 'reject'">
+                (ad.doc_status = 'R' AND ad.org_user_id = #{orgUserId})
+            </if>
+        </foreach>
+        )
+        and ad.doc_del_status = 0
+
+
+        <!-- 문서 필터링 정렬 -->
+        <choose>
+            <when test="radioSortValue != null and radioSortValue != ''">
+                <choose>
+                    <when test="radioSortValue=='ongoingdoc'">
+                        and ad.doc_status = 'P'
+                    </when>
+                    <when test="radioSortValue=='writtendoc'">
+                        and ad.doc_status in ('A','R')
+                    </when>
+                    <when test="radioSortValue=='notreaddoc'">
+                        and (dv.org_user_id != #{orgUserId} OR dv.org_user_id IS NULL)
+                    </when>
+                    <when test="radioSortValue=='readdoc'">
+                        and dv.org_user_id = #{orgUserId}
+                    </when>
+                    <otherwise>
+
+                    </otherwise>
+                </choose>
+            </when>
+        </choose>
+        AND (
+        MATCH(sc.product_num) AGAINST(#{searchInput})
+
+        <if test="inputFormCode != null">
+            <foreach item="item" index="index" collection="inputFormCode"
+                     open="OR (" separator="OR" close=")">
+                ad.form_code = #{item}
+            </foreach>
+        </if>
+        <if test="inputOrgUserId != null">
+            <foreach item="item" index="index" collection="inputOrgUserId"
+                     open="OR (" separator="OR" close=")">
+                ou.org_user_id = #{item}
+            </foreach>
+        </if>
+        <if test="inputOrgUserId != null">
+            <foreach item="item" index="index" collection="inputOrgUserId"
+                     open="OR (" separator="OR" close=")">
+                ou2.org_user_id = #{item}
+            </foreach>
+        </if>
+        )
+
+        )) AS combined_results
     </select>
 
     <sql id="commonIfConditions">
@@ -540,13 +1083,14 @@
             </choose>
         </if>
         <if test="criteria.searchTitle != null and criteria.searchTitle != ''">
-            AND MATCH(ad.approval_doc_title) AGAINST(#{criteria.searchTitle})
+            AND MATCH(sc.approval_doc_title) AGAINST(#{criteria.searchTitle})
         </if>
         <if test="criteria.searchContent != null and criteria.searchContent != ''">
             AND MATCH(sc.contents) AGAINST(#{criteria.searchContent})
         </if>
         <if test="criteria.searchDocNumber > 0">
-            AND ad.approval_doc_id LIKE CONCAT('%', #{criteria.searchDocNumber}, '%')
+            AND MATCH(sc.contents) AGAINST(#{criteria.searchDocNumber})
+
         </if>
     </sql>
 
@@ -555,7 +1099,7 @@
         <choose>
             <when test="viewItems.contains('concluded')">
                 SELECT
-                ad.approval_doc_id, ad.approval_doc_title, ad.approval_date as sendDate,
+                ad.approval_doc_id, ad.product_num,  ad.approval_doc_title, ad.approval_date as sendDate,
                 u.user_name, ad.doc_status, ou.dept_name, ad.form_name,
                 ad.end_at as end_date, u2.user_name as last_user, a.approval_date, a.receive_date
                 FROM approval_doc ad
@@ -698,10 +1242,14 @@
     </select>
 
     <select id="getDetailSearchDocsCount" resultType="int">
-        SELECT COUNT(DISTINCT ad.approval_doc_id)
+        SELECT COUNT(*)
         FROM approval_doc ad
+        <!-- 로그인 사용자에 대한 결재 테이블 join (미결, 기결, 기결진행, 기결종결)-->
         LEFT JOIN approval a ON ad.approval_doc_id = a.approval_doc_id and a.org_user_id =#{orgUserId}
+        <!-- 상신자 이름 들고오기 join -->
         JOIN organization_user ou ON ou.org_user_id = ad.org_user_id
+        LEFT JOIN user u ON  ou.user_id = u.user_id
+        <!-- 마지막 결재자를 들고오기 위한 join -->
         LEFT JOIN approval a2 ON (ad.approval_doc_id = a2.approval_doc_id
         AND a2.approval_order = (
         SELECT MAX(sub_a.approval_order)
@@ -710,14 +1258,15 @@
         JOIN organization_user ou3 ON ou3.org_user_id = sub_a.org_user_id
         WHERE ad2.approval_doc_id = ad.approval_doc_id
         AND ou3.org_user_id = sub_a.org_user_id
-        AND sub_a.approval_status in ('A','R')
-
-        ))
-        left JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
-        LEFT JOIN user u ON (ad.org_user_id = ou.org_user_id and ou.user_id = u.user_id)
-        LEFT JOIN user u2 ON (a2.org_user_id = ou2.org_user_id and ou2.user_id = u2.user_id)
-        JOIN department d ON d.dept_id = ou.dept_id
-        JOIN form f ON ad.form_code = f.form_code
+        AND sub_a.approval_status in ('A','R'))
+        )
+        LEFT JOIN organization_user ou2 ON ou2.org_user_id = a2.org_user_id
+        LEFT JOIN user u2 ON ou2.user_id = u2.user_id
+        <foreach collection="viewItems" item="viewItem" separator="OR">
+            <if test="viewItem != 'tempor'">
+                join search_contents sc on sc.approval_doc_id = ad.approval_doc_id
+            </if>
+        </foreach>
         <foreach collection="viewItems" item="viewItem" separator="OR">
             <if test="viewItem == 'reference'">
                 left join received_ref r on (r.active_state =1 and r.approval_doc_id = ad.approval_doc_id)

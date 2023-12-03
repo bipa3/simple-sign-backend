@@ -56,7 +56,8 @@ public class ApproveService {
         //html 파싱
         String htmlContent = approvalDocReqDTO.getContents();
         String parsedText = HtmlParsingUtils.parseHtml(htmlContent);
-        approveDAO.insertSearchContents(approvalDocId,parsedText);
+        String approvalDocTitle = approvalDocReqDTO.getApprovalDocTitle();
+        approveDAO.insertSearchContents(approvalDocId,parsedText,approvalDocTitle);
 
         //결재라인 삽입
         int count = this.insertApprovalList(approvalDocId,approverList,0, "register");
@@ -141,6 +142,8 @@ public class ApproveService {
                 eventPublisher.publishEvent(new ApprovalEvent(approvalDocId,receiveUser,AlarmStatus.RECEIVEDREF.getCode()));
             }
         }
+
+        approveDAO.updateProductNumintoSearchContents(approvalDocResDTO.getApprovalDocId(),productNumber);
     }
 
 
