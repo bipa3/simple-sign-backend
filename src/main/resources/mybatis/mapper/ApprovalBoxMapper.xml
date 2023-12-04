@@ -450,17 +450,12 @@
             </when>
         </choose>
         AND (
-        <foreach collection="viewItems" item="viewItem" separator="OR">
-            <if test="viewItem != 'tempor'">
-                MATCH(sc.contents) AGAINST(#{searchInput})
-            </if>
+        <foreach item="item" index="index" collection="inputFormCode">
+            ad.form_code = #{item}
         </foreach>
 
-        <if test="inputFormCode != null">
-            <foreach item="item" index="index" collection="inputFormCode"
-                     open="OR (" separator="OR" close=")">
-                ad.form_code = #{item}
-            </foreach>
+        <if test="viewItem != 'tempor'">
+            or MATCH(sc.contents) AGAINST(#{searchInput})
         </if>
         <if test="inputOrgUserId != null">
             <foreach item="item" index="index" collection="inputOrgUserId"
@@ -870,17 +865,17 @@
             </when>
         </choose>
         AND (
-        <foreach collection="viewItems" item="viewItem" separator="OR">
-            <if test="viewItem != 'tempor'">
-                MATCH(sc.contents) AGAINST(#{searchInput})
-            </if>
-        </foreach>
 
-        <if test="inputFormCode != null">
-            <foreach item="item" index="index" collection="inputFormCode"
-                     open="OR (" separator="OR" close=")">
+
+
+
+
+            <foreach item="item" index="index" collection="inputFormCode">
                 ad.form_code = #{item}
             </foreach>
+
+        <if test="viewItem != 'tempor'">
+            or MATCH(sc.contents) AGAINST(#{searchInput})
         </if>
         <if test="inputOrgUserId != null">
             <foreach item="item" index="index" collection="inputOrgUserId"
@@ -1089,7 +1084,7 @@
             AND MATCH(sc.contents) AGAINST(#{criteria.searchContent})
         </if>
         <if test="criteria.searchDocNumber > 0">
-            AND MATCH(sc.contents) AGAINST(#{criteria.searchDocNumber})
+            AND MATCH(sc.product_num) AGAINST(#{criteria.searchDocNumber})
 
         </if>
     </sql>
