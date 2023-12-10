@@ -76,7 +76,10 @@ public interface ApprovalBoxMapper {
                                  @Param("compId") int compId,
                                  @Param("viewItems") List<String> viewItems,
                                  @Param("criteria") SearchRequestDTO criteria,
-                                 @Param("radioSortValue") String radioSortValue);
+                                 @Param("radioSortValue") String radioSortValue,
+                                 @Param("inputFormCode")ArrayList<Integer> inputFormCode,
+                                 @Param("inputOrgUserId") ArrayList<Integer> inputOrgUserId,
+                                 @Param("inputDeptId")ArrayList<Integer> inputDeptId);
 
     int selectSendCount(@Param("orgUserId") int orgUserId);
 

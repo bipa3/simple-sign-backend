@@ -49,8 +49,9 @@ public class ApprovalBoxDAO {
         return approvalBoxMapper.getDetailSearchDocsList(orgUserId, deptId, estId, compId, viewItems, itemsPerPage, criteria,sortStatus,radioSortValue,lastApprovalDate,lastApprovalDocId,inputFormCode,inputOrgUserId,inputDeptId);
     }
 
-    public int selectDetailSearchDocsCount(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, SearchRequestDTO criteria, String radioSortValue) {
-        return approvalBoxMapper.getDetailSearchDocsCount(orgUserId, deptId, estId, compId, viewItems, criteria,radioSortValue);
+    public int selectDetailSearchDocsCount(List<String> viewItems, int orgUserId, int deptId, int estId, int compId, SearchRequestDTO criteria, String radioSortValue,
+                                           ArrayList<Integer> inputFormCode, ArrayList<Integer> inputOrgUserId, ArrayList<Integer> inputDeptId) {
+        return approvalBoxMapper.getDetailSearchDocsCount(orgUserId, deptId, estId, compId, viewItems, criteria,radioSortValue,inputFormCode,inputOrgUserId,inputDeptId);
     }
 
     public ArrayList<ApprovalBoxDTO> selectBoxList(int company) {
