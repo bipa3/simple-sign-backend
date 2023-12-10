@@ -100,8 +100,24 @@ public class ApprovalBoxService {
         List<String> viewItems = criteria.getViewItems();
         String radioSortValue = criteria.getRadioSortValue();
 
+        Integer inputDocId = null;
+        ArrayList<Integer> inputFormCode  = approvalBoxDAO.selectFormCode(criteria.getSearchDocForm());
+        ArrayList<Integer> inputOrgUserId = new ArrayList<>();
+        ArrayList<Integer> inputDeptId = new ArrayList<>();
 
-        int count =approvalBoxDAO.selectDetailSearchDocsCount(viewItems, orgUserId, deptId,estId, compId, criteria,radioSortValue);
+        if(criteria.getSearchApprovUser() != null || criteria.getSearchApprovUser() != "") {
+            inputOrgUserId.addAll(approvalBoxDAO.selectOrgUserId(criteria.getSearchApprovUser()));
+        }
+        if(criteria.getSearchWriter() != null || criteria.getSearchApprovUser() != ""){
+            inputOrgUserId.addAll(approvalBoxDAO.selectOrgUserId(criteria.getSearchWriter()));
+        }
+        if(criteria.getSearchDept() != null || criteria.getSearchDept() != ""){
+            inputDeptId.addAll(approvalBoxDAO.selectDeptId(criteria.getSearchDept()));
+        }
+
+
+
+        int count =approvalBoxDAO.selectDetailSearchDocsCount(viewItems, orgUserId, deptId,estId, compId, criteria,radioSortValue,inputFormCode,inputOrgUserId,inputDeptId);
 
 
         return count;
